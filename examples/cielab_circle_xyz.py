@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Imaged representation of an CIELab circle thing.
 """

@@ -1,5 +1,6 @@
+#!/usr/bin/env python
 """
-Imaged representation of an CIELab circle thing.
+Imaged representation of an CIELab circle chart.
 """
 #import time
 import color_conversions
