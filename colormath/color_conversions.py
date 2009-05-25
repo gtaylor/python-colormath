@@ -4,7 +4,6 @@ Conversion between color spaces
 import math
 import numpy
 import constants
-import util_functions
 
 def _transfer_common(old_cobj, new_cobj):
     """
@@ -64,7 +63,7 @@ def Spectral_to_XYZ(cobj, cdict):
    _transfer_common(cobj, xyzcolor)
    
    illuminants = constants.SPECTRAL_DISTS[str(cobj.observer)][cobj.illuminant.lower()]
-   sample = util_functions.color_to_numpy_array(cobj)
+   sample = cobj.color_to_numpy_array()
    xyzcolor.xyz_x = float(numpy.dot(sample, illuminants["X"]) / 100.0)
    xyzcolor.xyz_y = float(numpy.dot(sample, illuminants["Y"]) / 100.0)
    xyzcolor.xyz_z = float(numpy.dot(sample, illuminants["Z"]) / 100.0)
