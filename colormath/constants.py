@@ -10,17 +10,17 @@ tri-stimulus values to convert between RGB and XYZ.
 """
 RGB_SPECS = {
    # Adobe RGB (1998)
-   "Adobe": {
+   "adobe": {
       "gamma": 2.2,
-      "native_illum": "D65",
+      "native_illum": "d65",
       "conversions": {
-         "XYZ_to_RGB":
+         "xyz_to_rgb":
             numpy.array((
                   ( 2.04148,    -0.969258,     0.0134455),  
                   (-0.564977,    1.87599,     -0.118373),   
                   (-0.344713,    0.0415557,    1.01527)
                )),
-         "RGB_to_XYZ":
+         "rgb_to_xyz":
             numpy.array((
                   ( 0.576700,    0.297361,    0.0270328),  
                   ( 0.185556,    0.627355,    0.0706879),   
@@ -29,17 +29,17 @@ RGB_SPECS = {
       } # End Conversions Dict
    }, # End Adobe Dict
    # Apple RGB
-   "Apple": {
+   "apple": {
       "gamma": 1.8,
-      "native_illum": "D65",
+      "native_illum": "d65",
       "conversions": {
-         "XYZ_to_RGB":
+         "xyz_to_rgb":
             numpy.array((
                   ( 2.9515373,  -1.0851093,    0.0854934),  
                   (-1.2894116,   1.9908566,   -0.2694964),   
                   (-0.4738445,   0.0372026,    1.0912975)
                )),
-         "RGB_to_XYZ":
+         "rgb_to_xyz":
             numpy.array((
                   ( 0.4497288,   0.2446525,   0.0251848),  
                   ( 0.3162486,   0.6720283,   0.1411824),   
@@ -47,17 +47,18 @@ RGB_SPECS = {
                )),
       } # End Conversions Dict
    }, # End Apple Dict
-   "sRGB": {
+   # sRGB
+   "srgb": {
       "gamma": 2.2,
-      "native_illum": "D65",
+      "native_illum": "d65",
       "conversions": {
-         "XYZ_to_RGB":
+         "xyz_to_rgb":
             numpy.array((
                   ( 3.24071,    -0.969258,    0.0556352),  
                   (-1.53726,     1.87599,    -0.203996),   
                   (-0.498571,    0.0415557,   1.05707 )
                )),
-         "RGB_to_XYZ":
+         "rgb_to_xyz":
             numpy.array((
                   ( 0.412424,    0.212656,    0.0193324),  
                   ( 0.357579,    0.715158,    0.119193),   
@@ -65,17 +66,17 @@ RGB_SPECS = {
                )),
       } # End Conversions Dict
    }, # End sRGB Dict
-   "Wide Gamut RGB": {
+   "wide gamut rgb": {
       "gamma": 2.2,
-      "native_illum": "D50",
+      "native_illum": "d50",
       "conversions": {
-         "XYZ_to_RGB":
+         "xyz_to_rgb":
             numpy.array((
                   ( 1.46281,    -0.521793,    0.0349342),  
                   (-0.184062,    1.44724,    -0.0968931),  
                   (-0.274361,    0.0677228,   1.28841)
                )),
-         "RGB_to_XYZ":
+         "rgb_to_xyz":
             numpy.array((
                   ( 0.716105,    0.258187,    0.000000),   
                   ( 0.100930,    0.724938,    0.0517813),  
@@ -89,42 +90,42 @@ RGB_SPECS = {
 ILLUMINANTS = {
    # 2 Degree Functions
    "2": {
-      "D50": {"X": 96.42,  "Y": 100.0, "Z": 82.52},
-      "D55": {"X": 95.68,  "Y": 100.0, "Z": 92.15},
-      "D65": {"X": 95.05,  "Y": 100.0, "Z": 108.88},
-      "D75": {"X": 94.97,  "Y": 100.0, "Z": 122.64},
+      "d50": {"X": 96.42,  "Y": 100.0, "Z": 82.52},
+      "d55": {"X": 95.68,  "Y": 100.0, "Z": 92.15},
+      "d65": {"X": 95.05,  "Y": 100.0, "Z": 108.88},
+      "d75": {"X": 94.97,  "Y": 100.0, "Z": 122.64},
    },
    # 10 Degree Functions
    "10": {
-      "D50": {"X": 96.72,  "Y": 100.0, "Z": 81.43},
-      "D55": {"X": 95.8,   "Y": 100.0, "Z": 90.93},
-      "D65": {"X": 94.81,  "Y": 100.0, "Z": 107.3},
-      "D75": {"X": 94.416, "Y": 100.0, "Z": 120.64},
+      "d50": {"X": 96.72,  "Y": 100.0, "Z": 81.43},
+      "d55": {"X": 95.8,   "Y": 100.0, "Z": 90.93},
+      "d65": {"X": 94.81,  "Y": 100.0, "Z": 107.3},
+      "d75": {"X": 94.416, "Y": 100.0, "Z": 120.64},
    }
 }
 
 # Chromatic Adaptation Matrices
 # http://brucelindbloom.com/Eqn_ChromAdapt.html
 ADAPTATION_MATRICES = {
-   "D50": {
-      "D55": {
-         "Bradford":
+   "d50": {
+      "d55": {
+         "bradford":
             numpy.array((
                ( 0.981751, -0.012159,  0.004411),
                (-0.009617,  1.005251, -0.007265),
                ( 0.023309,  0.007844,  1.119548)
             ))
       },
-      "D65": {
-         "Bradford":
+      "d65": {
+         "bradford":
             numpy.array((
                ( 0.955556, -0.028302,  0.012305),
                (-0.023049,  1.009944, -0.020494),
                ( 0.063197,  0.021018,  1.330084)
             ))
       },
-      "D75": {
-         "Bradford":
+      "d75": {
+         "bradford":
             numpy.array((
                ( 0.936847, -0.039129,  0.018781),
                (-0.032442,  1.011771, -0.031445),
@@ -132,25 +133,25 @@ ADAPTATION_MATRICES = {
             ))
       },
    }, # End D50 Conversions
-   "D55": {
-      "D50": {
-         "Bradford":
+   "d55": {
+      "d50": {
+         "bradford":
             numpy.array((
                ( 1.018803,  0.012353, -0.003934),
                ( 0.009594,  0.994842,  0.006418),
                (-0.021278, -0.007227,  0.893255)
             ))
       },
-      "D65": {
-         "Bradford":
+      "d65": {
+         "bradford":
             numpy.array((
                ( 0.972990, -0.016440,  0.007051),
                (-0.013357,  1.004598, -0.011734),
                ( 0.036285,  0.012078,  1.187991)
             ))
       },
-      "D75": {
-         "Bradford":
+      "d75": {
+         "bradford":
             numpy.array((
                ( 0.953688, -0.027490,  0.012840),
                (-0.022677,  1.006379, -0.021468),
@@ -158,25 +159,25 @@ ADAPTATION_MATRICES = {
             ))
       },
    }, # End D55 Conversions
-   "D65": {
-      "D50": {
-         "Bradford":
+   "d65": {
+      "d50": {
+         "bradford":
             numpy.array((
                ( 1.047835,  0.029556, -0.009238),
                ( 0.022897,  0.990481,  0.015050),
                (-0.050147, -0.017056,  0.752034)
             ))
       },
-      "D55": {
-         "Bradford":
+      "d55": {
+         "bradford":
             numpy.array((
                ( 1.028213,  0.016898, -0.005936),
                ( 0.013304,  0.995522,  0.009754),
                (-0.031540, -0.010637,  0.841840)
             ))
       },
-      "D75": {
-         "Bradford":
+      "d75": {
+         "bradford":
             numpy.array((
                ( 0.979823, -0.011388,  0.004880),
                (-0.009251,  1.001719, -0.008121),
@@ -184,25 +185,25 @@ ADAPTATION_MATRICES = {
             ))
       },
    }, # End D65 Conversions
-   "D75": {
-      "D50": {
-         "Bradford":
+   "d75": {
+      "d50": {
+         "bradford":
             numpy.array((
                ( 1.070127,  0.041775, -0.012512),
                ( 0.032186,  0.988978,  0.020311),
                (-0.068484, -0.023368,  0.666442)
             ))
       },
-      "D55": {
-         "Bradford":
+      "d55": {
+         "bradford":
             numpy.array((
                ( 1.049904,  0.028885, -0.009591),
                ( 0.022560,  0.993940,  0.015697),
                (-0.051476, -0.017431,  0.745981)
             ))
       },
-      "D65": {
-         "Bradford":
+      "d65": {
+         "bradford":
             numpy.array((
                ( 1.020813,  0.011641, -0.004330),
                ( 0.009243,  0.998329,  0.007144),
@@ -333,10 +334,10 @@ SPECDIST_2_D50_Z = numpy.array((
 SPECTRAL_DISTS = {
    # 2 Degree Functions
    "2": {
-      "D50": {"X": SPECDIST_2_D50_X,  "Y": SPECDIST_2_D50_Y, "Z": SPECDIST_2_D50_Z},
+      "d50": {"X": SPECDIST_2_D50_X,  "Y": SPECDIST_2_D50_Y, "Z": SPECDIST_2_D50_Z},
    },
    # 10 Degree Functions
    "10": {
-      "D65": {"X": SPECDIST_2_D50_X,  "Y": SPECDIST_2_D50_Y, "Z": SPECDIST_2_D50_Z},
+      "d65": {"X": SPECDIST_2_D50_X,  "Y": SPECDIST_2_D50_Y, "Z": SPECDIST_2_D50_Z},
    }
 }
