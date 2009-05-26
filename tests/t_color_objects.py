@@ -1,5 +1,5 @@
 """
-Unit tests for color space conversions.
+Various tests for color objects.
 """
 import unittest
 from colormath.color_objects import *
