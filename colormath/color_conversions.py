@@ -1,4 +1,22 @@
 """
+ Color Math Module (colormath) 
+ Copyright (C) 2009 Gregory Taylor
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+"""
 Conversion between color spaces
 """
 import math
@@ -63,7 +81,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
    # Build a result dictionary from the matrix.
    return result_matrix[0], result_matrix[1], result_matrix[2]
 
-def Spectral_to_XYZ(cobj, cdict):
+def Spectral_to_XYZ(cobj, debug=False):
    """
    Converts spectral readings to XYZ.
    """
@@ -77,7 +95,7 @@ def Spectral_to_XYZ(cobj, cdict):
    xyzcolor.xyz_z = float(numpy.dot(sample, illuminants["Z"]) / 100.0)
    return xyzcolor
 
-def Lab_to_LCHab(cobj):
+def Lab_to_LCHab(cobj, debug=False):
    """
    Convert from CIE Lab to LCH(ab).
    """
@@ -95,7 +113,7 @@ def Lab_to_LCHab(cobj):
       
    return lchcolor
 
-def Lab_to_XYZ(cobj):
+def Lab_to_XYZ(cobj, debug=False):
    """
    Convert from Lab to XYZ
    """
@@ -127,7 +145,7 @@ def Lab_to_XYZ(cobj):
    xyzcolor.xyz_z = (illum["Z"] * xyzcolor.xyz_z)
    return xyzcolor
 
-def Luv_to_LCHuv(cobj):
+def Luv_to_LCHuv(cobj, debug=False):
    """
    Convert from CIE Luv to LCH(uv).
    """
@@ -144,7 +162,7 @@ def Luv_to_LCHuv(cobj):
       lchcolor.lch_h = 360 - (math.fabs(lchcolor.lch_h) / math.pi) * 180
    return lchcolor
 
-def Luv_to_XYZ(cobj):
+def Luv_to_XYZ(cobj, debug=False):
    """
    Convert from Luv to XYZ.
    """
@@ -183,7 +201,7 @@ def Luv_to_XYZ(cobj):
    
    return xyzcolor
 
-def LCHab_to_Lab(cobj):
+def LCHab_to_Lab(cobj, debug=False):
    """
    Convert from LCH(ab) to Lab.
    """
@@ -195,7 +213,7 @@ def LCHab_to_Lab(cobj):
    labcolor.lab_b = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
    return labcolor
 
-def LCHuv_to_Luv(cobj):
+def LCHuv_to_Luv(cobj, debug=False):
    """
    Convert from LCH(uv) to Luv.
    """
@@ -207,7 +225,7 @@ def LCHuv_to_Luv(cobj):
    luvcolor.luv_v = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
    return luvcolor
 
-def XYZ_to_xyY(cobj):
+def XYZ_to_xyY(cobj, debug=False):
    """
    Convert from XYZ to xyY.
    """
@@ -220,7 +238,7 @@ def XYZ_to_xyY(cobj):
    
    return xyycolor
 
-def XYZ_to_Luv(cobj):
+def XYZ_to_Luv(cobj, debug=False):
    """
    Convert from XYZ to Luv
    """
@@ -249,7 +267,7 @@ def XYZ_to_Luv(cobj):
    luvcolor.luv_v = 13.0 * luvcolor.luv_l * (luvcolor.luv_v - ref_V)
    return luvcolor
 
-def XYZ_to_Lab(cobj):
+def XYZ_to_Lab(cobj, debug=False):
    """
    Converts XYZ to Lab.
    """
@@ -374,7 +392,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
       rgbcolor.rgb_b = 255
    return rgbcolor
 
-def xyY_to_XYZ(cobj):
+def xyY_to_XYZ(cobj, debug=False):
    """
    Convert from xyY to XYZ.
    """
@@ -386,7 +404,7 @@ def xyY_to_XYZ(cobj):
    xyzcolor.xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyzcolor.xyz_y) / (cobj.xyy_y)
    return xyzcolor
 
-def RGB_to_CMY(cobj, cdict):
+def RGB_to_CMY(cobj, debug=False):
    """
    RGB to CMY conversion.
    """
@@ -398,7 +416,7 @@ def RGB_to_CMY(cobj, cdict):
    cmycolor.cmy_y = 1 - (cobj.rgb_b / 255)
    return cmycolor
 
-def RGB_to_XYZ(cobj, cdict):
+def RGB_to_XYZ(cobj, debug=False):
    """
    Converts RGB to XYZ.
    """
@@ -410,7 +428,7 @@ def RGB_to_XYZ(cobj, cdict):
    xyzcolor.xyz_z = 0.5
    return xyzcolor
 
-def CMY_to_CMYK(cobj, cdict):
+def CMY_to_CMYK(cobj, debug=False):
    """
    Converts from CMY to CMYK.
    

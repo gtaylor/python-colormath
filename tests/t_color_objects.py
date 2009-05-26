@@ -1,4 +1,22 @@
 """
+ Color Math Module (colormath) 
+ Copyright (C) 2009 Gregory Taylor
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+"""
 Various tests for color objects.
 """
 import unittest
@@ -37,6 +55,10 @@ class XYZConversions(unittest.TestCase):
         self.assertAlmostEqual(luv.luv_u, -2.564, 3, "XYZ to Luv failed: u coord")
         self.assertAlmostEqual(luv.luv_v, -0.894, 3, "XYZ to Luv failed: v coord")
         
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('xyz')
+        self.assertEqual(self.color, same_color)
+        
 class xyYConversions(unittest.TestCase):
     def setUp(self):
         color = xyYColor()
@@ -50,6 +72,10 @@ class xyYConversions(unittest.TestCase):
         self.assertAlmostEqual(xyz.xyz_x, 0.100, 3, "xyY to XYZ failed: X coord")
         self.assertAlmostEqual(xyz.xyz_y, 0.200, 3, "xyY to XYZ failed: Y coord")
         self.assertAlmostEqual(xyz.xyz_z, 0.300, 3, "xyY to XYZ failed: Z coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('xyy')
+        self.assertEqual(self.color, same_color)
         
 class LabConversions(unittest.TestCase):
     def setUp(self):
@@ -71,6 +97,10 @@ class LabConversions(unittest.TestCase):
         self.assertAlmostEqual(lch.lch_c, 4.532, 3, "Lab to LCH failed: C coord")
         self.assertAlmostEqual(lch.lch_h, 214.191, 3, "Lab to LCH failed: H coord")
         
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('lab')
+        self.assertEqual(self.color, same_color)
+        
 class LuvConversions(unittest.TestCase):
     def setUp(self):
         color = LuvColor()
@@ -91,6 +121,10 @@ class LuvConversions(unittest.TestCase):
         self.assertAlmostEqual(lch.lch_c, 2.715, 3, "Lab to LCH failed: C coord")
         self.assertAlmostEqual(lch.lch_h, 199.222, 3, "Lab to LCH failed: H coord")
         
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('luv')
+        self.assertEqual(self.color, same_color)
+        
 class LCHabConversions(unittest.TestCase):
     def setUp(self):
         color = LCHabColor()
@@ -105,6 +139,10 @@ class LCHabConversions(unittest.TestCase):
         self.assertAlmostEqual(lab.lab_a, -3.749, 3, "LCHab to Lab failed: a coord")
         self.assertAlmostEqual(lab.lab_b, -2.547, 3, "LCHab to Lab failed: b coord")
         
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('lchab')
+        self.assertEqual(self.color, same_color)
+        
 class LCHuvConversions(unittest.TestCase):
     def setUp(self):
         color = LCHuvColor()
@@ -118,6 +156,10 @@ class LCHuvConversions(unittest.TestCase):
         self.assertAlmostEqual(luv.luv_l, 1.807, 3, "LCHuv to Luv failed: L coord")
         self.assertAlmostEqual(luv.luv_u, -2.564, 3, "LCHuv to Luv failed: u coord")
         self.assertAlmostEqual(luv.luv_v, -0.894, 3, "LCHuv to Luv failed: v coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('lchuv')
+        self.assertEqual(self.color, same_color)
         
 class ValueTests(unittest.TestCase):
     def setUp(self):

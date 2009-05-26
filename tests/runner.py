@@ -12,4 +12,4 @@ test_modules = [t_color_objects]
 # Fire off all of the tests.
 for mod in test_modules:
     suite = unittest.TestLoader().loadTestsFromModule(mod)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.TextTestRunner(verbosity=1).run(suite)

@@ -1,4 +1,22 @@
 """
+ Color Math Module (colormath) 
+ Copyright (C) 2009 Gregory Taylor
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+"""
 Color Difference Equations
 """ 
 from math import *
@@ -16,18 +34,18 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     a2 = color2.lab_a
     b2 = color2.lab_b
 
-    avg_Lp = (L1 + L2) / 2
+    avg_Lp = (L1 + L2) / 2.0
     C1 = sqrt(pow(a1, 2) + pow(b1, 2))
     C2 = sqrt(pow(a2, 2) + pow(b2, 2))
     avg_C1_C2 = (C1 + C2) / 2.0 
 
     G = 0.5 * (1 - sqrt(pow(avg_C1_C2 , 7.0) / (pow(avg_C1_C2, 7.0) + pow(25.0, 7.0))))
 
-    a1p = (1 + G) * a1
-    a2p = (1 + G) * a2
+    a1p = (1.0 + G) * a1
+    a2p = (1.0 + G) * a2
     C1p = sqrt(pow(a1p, 2) + pow(b1, 2))
     C2p = sqrt(pow(a2p, 2) + pow(b2, 2))
-    avg_C1p_C2p =(C1p + C2p) / 2
+    avg_C1p_C2p =(C1p + C2p) / 2.0
    
     if degrees(atan2(b1,a1p)) >= 0:
         h1p = degrees(atan2(b1,a1p))
@@ -40,9 +58,9 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
         h2p = degrees(atan2(b2,a2p)) + 360
       
     if fabs(h1p - h2p) > 180:
-        avg_Hp = (h1p + h2p + 360) / 2
+        avg_Hp = (h1p + h2p + 360) / 2.0
     else:
-        avg_Hp = (h1p + h2p) / 2
+        avg_Hp = (h1p + h2p) / 2.0
 
     T = 1 - 0.17 * cos(radians(avg_Hp - 30)) + 0.24 * cos(radians(2 * avg_Hp)) + 0.32 * cos(radians(3 * avg_Hp + 6)) - 0.2  * cos(radians(4 * avg_Hp - 63))
 

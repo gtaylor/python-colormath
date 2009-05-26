@@ -72,8 +72,11 @@ class ColorBase(object):
                 print ' * Conversion: %s passed to %s()' % (
                                         cobj.__class__.__name__, func.__name__)
                 print ' |->  in %s' % cobj
-
-            cobj = func(cobj, *args, **kwargs)
+                
+            if func:
+                # This can be None if you try to convert a color to the color
+                # space that is already in. IE: XYZ->XYZ.
+                cobj = func(cobj, *args, **kwargs)
             
             if debug:
                 print ' |-< out %s' % cobj
@@ -131,6 +134,7 @@ class SpectralColor(ColorBase):
     variables here.
     """
     CONVERSIONS = {
+        "spectral": [None],
         "xyz": [color_conversions.Spectral_to_XYZ],
         "xyy": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Lab],
@@ -239,6 +243,7 @@ class LabColor(ColorBase):
     Represents an Lab color.
     """
     CONVERSIONS = {
+        "lab": [None],
         "xyz": [color_conversions.Lab_to_XYZ],
         "xyy": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_xyY],
       "lchab": [color_conversions.Lab_to_LCHab],
@@ -260,6 +265,7 @@ class LCHabColor(ColorBase):
     Represents an LCHab color.
     """
     CONVERSIONS = {
+      "lchab": [None],
         "xyz": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ],
         "xyy": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ, 
                 color_conversions.XYZ_to_xyY],
@@ -284,6 +290,7 @@ class LCHuvColor(ColorBase):
     Represents an LCHuv color.
     """
     CONVERSIONS = {
+      "lchuv": [None],
         "xyz": [color_conversions.LCHuv_to_Luv, color_conversions.Lab_to_XYZ],
         "xyy": [color_conversions.LCHuv_to_Luv, color_conversions.Lab_to_XYZ, 
                 color_conversions.XYZ_to_xyY],
@@ -308,6 +315,7 @@ class LuvColor(ColorBase):
     Represents an Luv color.
     """
     CONVERSIONS = {
+        "luv": [None],
         "xyz": [color_conversions.Luv_to_XYZ],
         "xyy": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_Lab],
@@ -329,6 +337,7 @@ class XYZColor(ColorBase):
     Represents an XYZ color.
     """
     CONVERSIONS = {
+        "xyz": [None],
         "xyy": [color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.XYZ_to_Lab],
       "lchab": [color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCHab],
@@ -349,6 +358,7 @@ class xyYColor(ColorBase):
     Represents an xYy color.
     """
     CONVERSIONS = {
+        "xyy": [None],
         "xyz": [color_conversions.xyY_to_XYZ],
         "lab": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Lab],
       "lchab": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Lab, 
@@ -371,6 +381,7 @@ class RGBColor(ColorBase):
     Represents an Lab color.
     """
     CONVERSIONS = {
+        "rgb": [None],
         "xyz": [color_conversions.RGB_to_XYZ],
         "xyy": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab],
@@ -393,7 +404,8 @@ class CMYColor(ColorBase):
     Represents a CMY color.
     """
     CONVERSIONS = {
-        "cmyk": [color_conversions.CMY_to_CMYK],
+        "cmy": [None],
+       "cmyk": [color_conversions.CMY_to_CMYK],
     }
     VALUES = ['cmy_c', 'cmy_m', 'cmy_y']
     
@@ -407,7 +419,9 @@ class CMYKColor(ColorBase):
     """
     Represents a CMYK color.
     """
-    CONVERSIONS = {}
+    CONVERSIONS = {
+       "cmyk": [None],
+    }
     VALUES = ['cmyk_c', 'cmyk_m', 'cmyk_y', 'cmyk_k']
     
     def __init__(self):
