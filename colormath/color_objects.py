@@ -28,12 +28,21 @@ class ColorBase(object):
     """
     A base class holding some common methods and values.
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         # This is the most common illuminant, default to it.
         self.illuminant = 'd50'
         # This is the most commonly used observer angle.
         self.observer = 2
-
+        
+    def _transfer_kwargs(self, *args, **kwargs):
+        """
+        Transfers any keyword arguments to the appropriate coordinate fields
+        if they match one of the keys in the class's VALUES dict.
+        """
+        for key, val in kwargs.items():
+            if key in self.VALUES:
+                setattr(self, key, val)
+                
     def __prep_strings(self):
         """
         Makes sure all string variables are lowercase beforehand.
@@ -88,8 +97,10 @@ class ColorBase(object):
         """
         retval = self.__class__.__name__ + ' ('
         for val in self.VALUES:
-            #print "VAL: %s Type: %s" % (val, getattr(self, val))
-            retval += '%s:%.4f ' % (val, getattr(self, val))
+            value = getattr(self, val, None)
+            #print "VAL: %s Type: %s" % (val, value)
+            if value != None:
+                retval += '%s:%.4f ' % (val, getattr(self, val))
         return retval.strip() + ')'
     
     def has_required_values(self):
@@ -154,8 +165,8 @@ class SpectralColor(ColorBase):
             'spec_680nm', 'spec_690nm', 'spec_700nm', 'spec_710nm',
             'spec_720nm', 'spec_730nm']
     
-    def __init__(self):
-        super(SpectralColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(SpectralColor, self).__init__(*args, **kwargs)
         # Spectral fields
         self.spec_380nm = None # begin Blue wavelengths
         self.spec_390nm = None
@@ -193,6 +204,7 @@ class SpectralColor(ColorBase):
         self.spec_710nm = None
         self.spec_720nm = None
         self.spec_730nm = None # end Red wavelengths
+        self._transfer_kwargs(*args, **kwargs)
         
     def color_to_numpy_array(self):
         """
@@ -254,11 +266,12 @@ class LabColor(ColorBase):
     }
     VALUES = ['lab_l', 'lab_a', 'lab_b']
        
-    def __init__(self):
-        super(LabColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(LabColor, self).__init__(*args, **kwargs)
         self.lab_l = None
         self.lab_a = None
         self.lab_b = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class LCHabColor(ColorBase):
     """
@@ -279,11 +292,12 @@ class LCHabColor(ColorBase):
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
     
-    def __init__(self):
-        super(LCHabColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(LCHabColor, self).__init__(*args, **kwargs)
         self.lch_l = None
         self.lch_c = None
         self.lch_h = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class LCHuvColor(ColorBase):
     """
@@ -304,11 +318,12 @@ class LCHuvColor(ColorBase):
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
     
-    def __init__(self):
-        super(LCHuvColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(LCHuvColor, self).__init__(*args, **kwargs)
         self.lch_l = None
         self.lch_c = None
         self.lch_h = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class LuvColor(ColorBase):
     """
@@ -326,11 +341,12 @@ class LuvColor(ColorBase):
     }
     VALUES = ['luv_l', 'luv_u', 'luv_v']
     
-    def __init__(self):
-        super(LuvColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(LuvColor, self).__init__(*args, **kwargs)
         self.luv_l = None
         self.luv_u = None
         self.luv_v = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class XYZColor(ColorBase):
     """
@@ -347,11 +363,12 @@ class XYZColor(ColorBase):
     }
     VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
     
-    def __init__(self):
-        super(XYZColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(XYZColor, self).__init__(*args, **kwargs)
         self.xyz_x = None
         self.xyz_y = None
         self.xyz_z = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class xyYColor(ColorBase):
     """
@@ -370,11 +387,12 @@ class xyYColor(ColorBase):
     }
     VALUES = ['xyy_x', 'xyy_y', 'xyy_Y']
     
-    def __init__(self):
-        super(xyYColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(xyYColor, self).__init__(*args, **kwargs)
         self.xyy_x = None
         self.xyy_y = None
         self.xyy_Y = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class RGBColor(ColorBase):
     """
@@ -393,11 +411,17 @@ class RGBColor(ColorBase):
     }
     VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
     
-    def __init__(self):
-        super(RGBColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(RGBColor, self).__init__(*args, **kwargs)
         self.rgb_r = None
         self.rgb_g = None
         self.rgb_b = None
+        self.rgb_type = 'srgb'
+        self._transfer_kwargs(*args, **kwargs)
+        
+    def __str__(self):
+        parent_str = super(RGBColor, self).__str__()
+        return '%s [%s]' % (parent_str, self.rgb_type)
         
 class CMYColor(ColorBase):
     """
@@ -409,11 +433,12 @@ class CMYColor(ColorBase):
     }
     VALUES = ['cmy_c', 'cmy_m', 'cmy_y']
     
-    def __init__(self):
-        super(CMYColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(CMYColor, self).__init__(*args, **kwargs)
         self.cmy_c = None
         self.cmy_m = None
         self.cmy_y = None
+        self._transfer_kwargs(*args, **kwargs)
         
 class CMYKColor(ColorBase):
     """
@@ -424,9 +449,10 @@ class CMYKColor(ColorBase):
     }
     VALUES = ['cmyk_c', 'cmyk_m', 'cmyk_y', 'cmyk_k']
     
-    def __init__(self):
-        super(CMYKColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(CMYKColor, self).__init__(*args, **kwargs)
         self.cmyk_c = None
         self.cmyk_m = None
         self.cmyk_y = None
         self.cmyk_k = None
+        self._transfer_kwargs(*args, **kwargs)

@@ -81,7 +81,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
    # Build a result dictionary from the matrix.
    return result_matrix[0], result_matrix[1], result_matrix[2]
 
-def Spectral_to_XYZ(cobj, debug=False):
+def Spectral_to_XYZ(cobj, debug=False, *args, **kwargs):
    """
    Converts spectral readings to XYZ.
    """
@@ -95,7 +95,7 @@ def Spectral_to_XYZ(cobj, debug=False):
    xyzcolor.xyz_z = float(numpy.dot(sample, illuminants["Z"]) / 100.0)
    return xyzcolor
 
-def Lab_to_LCHab(cobj, debug=False):
+def Lab_to_LCHab(cobj, debug=False, *args, **kwargs):
    """
    Convert from CIE Lab to LCH(ab).
    """
@@ -113,7 +113,7 @@ def Lab_to_LCHab(cobj, debug=False):
       
    return lchcolor
 
-def Lab_to_XYZ(cobj, debug=False):
+def Lab_to_XYZ(cobj, debug=False, *args, **kwargs):
    """
    Convert from Lab to XYZ
    """
@@ -145,7 +145,7 @@ def Lab_to_XYZ(cobj, debug=False):
    xyzcolor.xyz_z = (illum["Z"] * xyzcolor.xyz_z)
    return xyzcolor
 
-def Luv_to_LCHuv(cobj, debug=False):
+def Luv_to_LCHuv(cobj, debug=False, *args, **kwargs):
    """
    Convert from CIE Luv to LCH(uv).
    """
@@ -162,7 +162,7 @@ def Luv_to_LCHuv(cobj, debug=False):
       lchcolor.lch_h = 360 - (math.fabs(lchcolor.lch_h) / math.pi) * 180
    return lchcolor
 
-def Luv_to_XYZ(cobj, debug=False):
+def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
    """
    Convert from Luv to XYZ.
    """
@@ -201,7 +201,7 @@ def Luv_to_XYZ(cobj, debug=False):
    
    return xyzcolor
 
-def LCHab_to_Lab(cobj, debug=False):
+def LCHab_to_Lab(cobj, debug=False, *args, **kwargs):
    """
    Convert from LCH(ab) to Lab.
    """
@@ -213,7 +213,7 @@ def LCHab_to_Lab(cobj, debug=False):
    labcolor.lab_b = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
    return labcolor
 
-def LCHuv_to_Luv(cobj, debug=False):
+def LCHuv_to_Luv(cobj, debug=False, *args, **kwargs):
    """
    Convert from LCH(uv) to Luv.
    """
@@ -225,7 +225,7 @@ def LCHuv_to_Luv(cobj, debug=False):
    luvcolor.luv_v = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
    return luvcolor
 
-def XYZ_to_xyY(cobj, debug=False):
+def XYZ_to_xyY(cobj, debug=False, *args, **kwargs):
    """
    Convert from XYZ to xyY.
    """
@@ -238,7 +238,7 @@ def XYZ_to_xyY(cobj, debug=False):
    
    return xyycolor
 
-def XYZ_to_Luv(cobj, debug=False):
+def XYZ_to_Luv(cobj, debug=False, *args, **kwargs):
    """
    Convert from XYZ to Luv
    """
@@ -267,7 +267,7 @@ def XYZ_to_Luv(cobj, debug=False):
    luvcolor.luv_v = 13.0 * luvcolor.luv_l * (luvcolor.luv_v - ref_V)
    return luvcolor
 
-def XYZ_to_Lab(cobj, debug=False):
+def XYZ_to_Lab(cobj, debug=False, *args, **kwargs):
    """
    Converts XYZ to Lab.
    """
@@ -299,7 +299,7 @@ def XYZ_to_Lab(cobj, debug=False):
    labcolor.lab_b = 200.0 * (temp_y - temp_z)
    return labcolor
 
-def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
+def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
    """
    XYZ to RGB conversion.
    """
@@ -381,7 +381,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
    rgbcolor.rgb_r = int(math.floor(0.5 + rgbcolor.rgb_r * 255))
    rgbcolor.rgb_g = int(math.floor(0.5 + rgbcolor.rgb_g * 255))
    rgbcolor.rgb_b = int(math.floor(0.5 + rgbcolor.rgb_b * 255))
-
+   
    # Cap RGB values at 255. This shouldn't happen, but it's here just in case
    # things go out of gamut or other fun things.
    if rgbcolor.rgb_r > 255:
@@ -390,9 +390,11 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
       rgbcolor.rgb_g = 255
    if rgbcolor.rgb_b > 255:
       rgbcolor.rgb_b = 255
+      
+   rgbcolor.rgb_type = target_rgb
    return rgbcolor
 
-def xyY_to_XYZ(cobj, debug=False):
+def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
    """
    Convert from xyY to XYZ.
    """
@@ -404,7 +406,7 @@ def xyY_to_XYZ(cobj, debug=False):
    xyzcolor.xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyzcolor.xyz_y) / (cobj.xyy_y)
    return xyzcolor
 
-def RGB_to_CMY(cobj, debug=False):
+def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
    """
    RGB to CMY conversion.
    """
@@ -416,7 +418,7 @@ def RGB_to_CMY(cobj, debug=False):
    cmycolor.cmy_y = 1 - (cobj.rgb_b / 255)
    return cmycolor
 
-def RGB_to_XYZ(cobj, debug=False):
+def RGB_to_XYZ(cobj, debug=False, *args, **kwargs):
    """
    Converts RGB to XYZ.
    """
@@ -428,7 +430,7 @@ def RGB_to_XYZ(cobj, debug=False):
    xyzcolor.xyz_z = 0.5
    return xyzcolor
 
-def CMY_to_CMYK(cobj, debug=False):
+def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
    """
    Converts from CMY to CMYK.
    
