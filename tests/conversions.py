@@ -25,13 +25,10 @@ class XYZConversions(unittest.TestCase):
         self.assertAlmostEqual(lab.lab_b, -2.547, 3, "XYZ to Lab failed: b coord")
         
     def test_conversion_to_rgb(self):
-        """
-        TODO: Fix XYZ_to_RGB()
-        """
-        rgb = self.color.convert_to('rgb', debug=True)
-        self.assertAlmostEqual(rgb.rgb_r, 1.807, 3, "XYZ to RGB failed: R coord")
-        self.assertAlmostEqual(rgb.rgb_g, 4.532, 3, "XYZ to RGB failed: G coord")
-        self.assertAlmostEqual(rgb.rgb_b, 214.193, 3, "XYZ to RGB failed: B coord")
+        rgb = self.color.convert_to('rgb')
+        self.assertEqual(rgb.rgb_r, 0, "XYZ to RGB failed: R coord")
+        self.assertEqual(rgb.rgb_g, 10, "XYZ to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 12, "XYZ to RGB failed: B coord")
         
     def test_conversion_to_luv(self):
         luv = self.color.convert_to('luv')
