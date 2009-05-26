@@ -238,9 +238,9 @@ def XYZ_to_Lab(cobj):
    labcolor = colorobjs.LabColor()
    _transfer_common(cobj, labcolor)
    
-   temp_x = (cobj.xyz_x * 100.0) / illum["X"]
-   temp_y = (cobj.xyz_y * 100.0) / illum["Y"]
-   temp_z = (cobj.xyz_z * 100.0) / illum["Z"]
+   temp_x = cobj.xyz_x / illum["X"]
+   temp_y = cobj.xyz_y / illum["Y"]
+   temp_z = cobj.xyz_z / illum["Z"]
    
    if temp_x > 0.008856:
       temp_x = math.pow(temp_x, (1.0 / 3.0))
