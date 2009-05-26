@@ -4,6 +4,10 @@ and useful throughout the library.
 """
 import numpy
 
+# Not sure what these are, they are used in Lab and Luv calculations.
+CIE_E = 216.0/24389.0
+CIE_K = 24389.0/27.0
+
 """
 This is a dictionary of RGB conversion matrices. These are applied to each
 tri-stimulus values to convert between RGB and XYZ.

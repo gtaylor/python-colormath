@@ -68,7 +68,7 @@ class LuvConversions(unittest.TestCase):
         self.color = color
         
     def test_conversion_to_xyz(self):
-        xyz = self.color.convert_to('xyz',debug=True)
+        xyz = self.color.convert_to('xyz')
         self.assertAlmostEqual(xyz.xyz_x, 0.100, 3, "Lab to XYZ failed: X coord")
         self.assertAlmostEqual(xyz.xyz_y, 0.200, 3, "Lab to XYZ failed: Y coord")
         self.assertAlmostEqual(xyz.xyz_z, 0.300, 3, "Lab to XYZ failed: Z coord")
