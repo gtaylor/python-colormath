@@ -123,13 +123,14 @@ def Luv_to_LCHuv(cobj):
    """
    Convert from CIE Luv to LCH(uv).
    """
-   lchcolor = colorobjs.LCHColor()
+   lchcolor = colorobjs.LCHuvColor()
    _transfer_common(cobj, lchcolor)
    
-   lchcolor.lch_c = math.sqrt(math.pow(float(cobj.luv_u), 2) + math.pow(float(cobj.luv_v), 2))
+   lchcolor.lch_l = cobj.luv_l
+   lchcolor.lch_c = math.sqrt(math.pow(cobj.luv_u, 2.0) + math.pow(cobj.luv_v, 2.0))
    lchcolor.lch_h = math.atan2(float(cobj.luv_v), float(cobj.luv_u))
    
-   if (lchcolor.lch_h > 0):
+   if lchcolor.lch_h > 0:
       lchcolor.lch_h = (lchcolor.lch_h / math.pi) * 180
    else:
       lchcolor.lch_h = 360 - (math.fabs(lchcolor.lch_h) / math.pi) * 180

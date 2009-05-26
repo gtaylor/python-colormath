@@ -59,6 +59,26 @@ class LabConversions(unittest.TestCase):
         self.assertAlmostEqual(lch.lch_c, 4.532, 3, "Lab to LCH failed: C coord")
         self.assertAlmostEqual(lch.lch_h, 214.191, 3, "Lab to LCH failed: H coord")
         
+class LuvConversions(unittest.TestCase):
+    def setUp(self):
+        color = LuvColor()
+        color.luv_l = 1.807
+        color.luv_u = -2.564
+        color.luv_v = -0.894
+        self.color = color
+        
+    def test_conversion_to_xyz(self):
+        xyz = self.color.convert_to('xyz',debug=True)
+        self.assertAlmostEqual(xyz.xyz_x, 0.100, 3, "Lab to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.200, 3, "Lab to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.300, 3, "Lab to XYZ failed: Z coord")
+        
+    def test_conversion_to_lchuv(self):
+        lch = self.color.convert_to('lchuv')
+        self.assertAlmostEqual(lch.lch_l, 1.807, 3, "Lab to LCH failed: L coord")
+        self.assertAlmostEqual(lch.lch_c, 2.715, 3, "Lab to LCH failed: C coord")
+        self.assertAlmostEqual(lch.lch_h, 199.222, 3, "Lab to LCH failed: H coord")
+        
 class LCHabConversions(unittest.TestCase):
     def setUp(self):
         color = LCHabColor()
