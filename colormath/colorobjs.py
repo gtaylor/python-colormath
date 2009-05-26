@@ -365,9 +365,16 @@ if __name__ == "__main__":
     """
     Console testing stuff.
     """
-    test = XYZColor()
-    test.xyz_x = 0.100000
-    test.xyz_y = 0.200000
-    test.xyz_z = 0.300000
-    result = test.convert_to("luv", debug=True)
+    test_xyz = XYZColor()
+    test_xyz.xyz_x = 0.100000
+    test_xyz.xyz_y = 0.200000
+    test_xyz.xyz_z = 0.300000
+    #result = test_xyz.convert_to("luv", debug=True)
+    
+    test_lab = LabColor()
+    test_lab.lab_l = 1.806593
+    test_lab.lab_a = -3.749039
+    test_lab.lab_b = -2.547044
+    result = test_lab.convert_to("xyz", debug=True)
+    
     print result

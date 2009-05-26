@@ -114,10 +114,9 @@ def Lab_to_XYZ(cobj):
    else:
       xyzcolor.xyz_z = (xyzcolor.xyz_z - 16.0 / 116.0) / 7.787
       
-   # Adjust via illuminant and scale down to 0-1 values.
-   cobj.xyz_x = (illum["X"] * xyzcolor.xyz_x) / 100
-   cobj.xyz_y = (illum["Y"] * xyzcolor.xyz_y) / 100
-   cobj.xyz_z = (illum["Z"] * xyzcolor.xyz_z) / 100
+   xyzcolor.xyz_x = (illum["X"] * xyzcolor.xyz_x)
+   xyzcolor.xyz_y = (illum["Y"] * xyzcolor.xyz_y)
+   xyzcolor.xyz_z = (illum["Z"] * xyzcolor.xyz_z)
    return xyzcolor
 
 def Luv_to_LCH(cobj):
