@@ -3,7 +3,7 @@ Conversion between color spaces
 """
 import math
 import numpy
-from colormath import constants
+from colormath import color_constants
 
 def _transfer_common(old_cobj, new_cobj):
     """
@@ -28,7 +28,7 @@ def apply_XYZ_transformation(val_x, val_y, val_z, orig_illum, targ_illum,
    if debug:
        print "  \* Applying adaptation matrix: %s" % adaptation
    # Retrieve the appropriate transformation matrix from the constants.
-   transform_matrix = constants.ADAPTATION_MATRICES[orig_illum][targ_illum][adaptation]
+   transform_matrix = color_constants.ADAPTATION_MATRICES[orig_illum][targ_illum][adaptation]
 
    # Stuff the XYZ values into a NumPy matrix for conversion.
    XYZ_matrix = numpy.array((
@@ -50,7 +50,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
    rgb_type = rgb_type.lower()
    convtype = convtype.lower()
    # Retrieve the appropriate transformation matrix from the constants.
-   rgb_matrix = constants.RGB_SPECS[rgb_type]["conversions"][convtype]
+   rgb_matrix = color_constants.RGB_SPECS[rgb_type]["conversions"][convtype]
    
    if debug:
        print "  \* Applying RGB conversion matrix: %s->%s" % (rgb_type, convtype)
@@ -70,7 +70,7 @@ def Spectral_to_XYZ(cobj, cdict):
    xyzcolor = color_objects.XYZColor()
    _transfer_common(cobj, xyzcolor)
    
-   illuminants = constants.SPECTRAL_DISTS[str(cobj.observer)][cobj.illuminant.lower()]
+   illuminants = color_constants.SPECTRAL_DISTS[str(cobj.observer)][cobj.illuminant.lower()]
    sample = cobj.color_to_numpy_array()
    xyzcolor.xyz_x = float(numpy.dot(sample, illuminants["X"]) / 100.0)
    xyzcolor.xyz_y = float(numpy.dot(sample, illuminants["Y"]) / 100.0)
@@ -107,17 +107,17 @@ def Lab_to_XYZ(cobj):
    xyzcolor.xyz_x = cobj.lab_a / 500.0 + xyzcolor.xyz_y
    xyzcolor.xyz_z = xyzcolor.xyz_y - cobj.lab_b / 200.0
    
-   if math.pow(xyzcolor.xyz_y, 3) > constants.CIE_E:
+   if math.pow(xyzcolor.xyz_y, 3) > color_constants.CIE_E:
       xyzcolor.xyz_y = math.pow(xyzcolor.xyz_y, 3)
    else:
       xyzcolor.xyz_y = (xyzcolor.xyz_y - 16.0 / 116.0) / 7.787
 
-   if math.pow(xyzcolor.xyz_x, 3) > constants.CIE_E:
+   if math.pow(xyzcolor.xyz_x, 3) > color_constants.CIE_E:
       xyzcolor.xyz_x = math.pow(xyzcolor.xyz_x, 3)
    else:
       xyzcolor.xyz_x = (xyzcolor.xyz_x - 16.0 / 116.0) / 7.787
       
-   if math.pow(xyzcolor.xyz_z, 3) > constants.CIE_E:
+   if math.pow(xyzcolor.xyz_z, 3) > color_constants.CIE_E:
       xyzcolor.xyz_z = math.pow(xyzcolor.xyz_z, 3)
    else:
       xyzcolor.xyz_z = (xyzcolor.xyz_z - 16.0 / 116.0) / 7.787
@@ -153,7 +153,7 @@ def Luv_to_XYZ(cobj):
    illum = xyzcolor.get_illuminant_xyz()
    
    # Various variables used throughout the conversion.
-   cie_k_times_e = constants.CIE_K * constants.CIE_E
+   cie_k_times_e = color_constants.CIE_K * color_constants.CIE_E
    u_sub_0 = (4.0 * illum["X"]) / (illum["X"] + 15.0 * illum["Y"] + 3.0 * illum["Z"])
    v_sub_0 = (9.0 * illum["Y"]) / (illum["X"] + 15.0 * illum["Y"] + 3.0 * illum["Z"])
    var_a_frac = (52.0 * cobj.luv_l) / (cobj.luv_u + 13.0 * cobj.luv_l * u_sub_0) 
@@ -164,7 +164,7 @@ def Luv_to_XYZ(cobj):
    if cobj.luv_l > cie_k_times_e:
       xyzcolor.xyz_y = math.pow((cobj.luv_l + 16.0) / 116.0, 3.0)
    else:
-      xyzcolor.xyz_y = cobj.luv_l / constants.CIE_K
+      xyzcolor.xyz_y = cobj.luv_l / color_constants.CIE_K
       
    # These variables depend on Y-coordinate being solved.
    var_b = -5.0 * xyzcolor.xyz_y 
@@ -236,7 +236,7 @@ def XYZ_to_Luv(cobj):
 
    illum = luvcolor.get_illuminant_xyz()  
    temp_y = temp_y / illum["Y"]
-   if temp_y > constants.CIE_E:
+   if temp_y > color_constants.CIE_E:
       temp_y = math.pow(temp_y, (1.0 / 3.0))
    else:
       temp_y = (7.787 * temp_y) + (16.0 / 116.0)
@@ -261,17 +261,17 @@ def XYZ_to_Lab(cobj):
    temp_y = cobj.xyz_y / illum["Y"]
    temp_z = cobj.xyz_z / illum["Z"]
    
-   if temp_x > constants.CIE_E:
+   if temp_x > color_constants.CIE_E:
       temp_x = math.pow(temp_x, (1.0 / 3.0))
    else:
       temp_x = (7.787 * temp_x) + (16.0 / 116.0)     
 
-   if temp_y > constants.CIE_E:
+   if temp_y > color_constants.CIE_E:
       temp_y = math.pow(temp_y, (1.0 / 3.0))
    else:
       temp_y = (7.787 * temp_y) + (16.0 / 116.0)
    
-   if temp_z > constants.CIE_E:
+   if temp_z > color_constants.CIE_E:
       temp_z = math.pow(temp_z, (1.0 / 3.0))
    else:
       temp_z = (7.787 * temp_z) + (16.0 / 116.0)
@@ -294,7 +294,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
    
    if debug:
        print "  \- Target RGB space: %s" % target_rgb
-   target_illum = constants.RGB_SPECS[target_rgb]["native_illum"]
+   target_illum = color_constants.RGB_SPECS[target_rgb]["native_illum"]
    cobj.illuminant = cobj.illuminant.lower()
    if debug:
        print "  \- Target native illuminant: %s" % target_illum
@@ -337,7 +337,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
          rgbcolor.rgb_b = rgbcolor.rgb_b * 12.92
    else:
       # If it's not sRGB...
-      gamma = constants.RGB_SPECS[target_rgb]["gamma"]
+      gamma = color_constants.RGB_SPECS[target_rgb]["gamma"]
       
       if rgbcolor.rgb_r < 0:
          rgbcolor.rgb_r = 0

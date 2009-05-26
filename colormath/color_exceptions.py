@@ -9,9 +9,18 @@ class MissingValue(BaseException):
     """
     Raised when one of the required components (Lab, LCH, etc) is missing.
     """
-    def __init__(self, cobj, missing_val):
-        self.value = "Missing %s value on %s." % (missing_val, 
+    def __init__(self, cobj, missing_val_name):
+        self.value = "Missing %s value on %s." % (missing_val_name, 
                                                   cobj.__class__.__name__)
+        
+class InvalidValue(BaseException):
+    """
+    Raised when one of the required components is invalid.
+    """
+    def __init__(self, cobj, invalid_val_name, invalid_val):
+        self.value = "Invalid %s value (%s) on %s." % (invalid_val_name,
+                                                       invalid_val, 
+                                                       cobj.__class__.__name__)
     
 class InvalidConversion(BaseException):
     """

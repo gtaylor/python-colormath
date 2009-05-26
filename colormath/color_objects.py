@@ -22,7 +22,7 @@ This module contains classes to represent various color spaces.
 import numpy
 from colormath import color_conversions
 from colormath.color_exceptions import *
-from colormath import constants
+from colormath import color_constants
 
 class ColorBase(object):
     """
@@ -30,10 +30,16 @@ class ColorBase(object):
     """
     def __init__(self):
         # This is the most common illuminant, default to it.
-        self.illuminant = "D50"
-        # Again, this is the most commonly used observer angle.
+        self.illuminant = 'd50'
+        # This is the most commonly used observer angle.
         self.observer = 2
-        
+
+    def __prep_strings(self):
+        """
+        Makes sure all string variables are lowercase beforehand.
+        """
+        self.illuminant = self.illuminant.lower()
+
     def convert_to(self, cs_to, *args, **kwargs):
         """
         Converts the color to the designated colorspace.
@@ -48,6 +54,8 @@ class ColorBase(object):
         # Make sure the object has all of its required values before even
         # attempting a conversion.
         self.has_required_values()
+        # Make sure any string variables are lowercase.
+        self.__prep_strings()
         
         if debug:
             print 'Converting %s to %s' % (self, cs_to)
@@ -88,7 +96,14 @@ class ColorBase(object):
         for val in self.VALUES:
             value = getattr(self, val, None)
             if value == None:
+                # A required value is missing.
                 raise MissingValue(self, val)
+            
+            try:
+                # If this fails, it's not a usable number.
+                float(value)
+            except ValueError:
+                raise InvalidValue(self, val, value)
         return True
     
     def get_illuminant_xyz(self):
@@ -96,7 +111,7 @@ class ColorBase(object):
         Returns the color's illuminant's XYZ values.
         """
         try:
-            illums_observer = constants.ILLUMINANTS[str(self.observer)]
+            illums_observer = color_constants.ILLUMINANTS[str(self.observer)]
         except KeyError:
             raise InvalidObserver(self)
         

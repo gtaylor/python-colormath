@@ -3,6 +3,7 @@ Various tests for color objects.
 """
 import unittest
 from colormath.color_objects import *
+from colormath.color_exceptions import *
 
 class XYZConversions(unittest.TestCase):
     def setUp(self):
@@ -117,6 +118,21 @@ class LCHuvConversions(unittest.TestCase):
         self.assertAlmostEqual(luv.luv_l, 1.807, 3, "LCHuv to Luv failed: L coord")
         self.assertAlmostEqual(luv.luv_u, -2.564, 3, "LCHuv to Luv failed: u coord")
         self.assertAlmostEqual(luv.luv_v, -0.894, 3, "LCHuv to Luv failed: v coord")
+        
+class ValueTests(unittest.TestCase):
+    def setUp(self):
+        color = LabColor()
+        color.lab_l = 1.807
+        color.lab_b = -2.547
+        self.color = color
+        
+    def test_missing_val(self):
+        self.color.lab_a = None
+        self.assertRaises(MissingValue, self.color.convert_to, 'xyz')
+        
+    def test_invalid_val(self):
+        self.color.lab_a = 'a'
+        self.assertRaises(InvalidValue, self.color.convert_to, 'xyz')
 
 if __name__ == '__main__':
     unittest.main()
