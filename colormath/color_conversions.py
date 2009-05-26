@@ -3,7 +3,7 @@ Conversion between color spaces
 """
 import math
 import numpy
-import constants
+from colormath import constants
 
 def _transfer_common(old_cobj, new_cobj):
     """
@@ -69,11 +69,11 @@ def Spectral_to_XYZ(cobj, cdict):
    xyzcolor.xyz_z = float(numpy.dot(sample, illuminants["Z"]) / 100.0)
    return xyzcolor
 
-def Lab_to_LCH(cobj):
+def Lab_to_LCHab(cobj):
    """
    Convert from CIE Lab to LCH(ab).
    """
-   lchcolor = colorobjs.LCHColor()
+   lchcolor = colorobjs.LCHabColor()
    _transfer_common(cobj, lchcolor)
    
    lchcolor.lch_l = cobj.lab_l
@@ -119,7 +119,7 @@ def Lab_to_XYZ(cobj):
    xyzcolor.xyz_z = (illum["Z"] * xyzcolor.xyz_z)
    return xyzcolor
 
-def Luv_to_LCH(cobj):
+def Luv_to_LCHuv(cobj):
    """
    Convert from CIE Luv to LCH(uv).
    """
@@ -163,28 +163,28 @@ def Luv_to_XYZ(cobj):
                            - ( var_V * xyzcolor.xyz_x ) ) / ( 3.0 * var_V )
    return xyzcolor
 
-def LCH_to_Lab(cobj):
+def LCHab_to_Lab(cobj):
    """
    Convert from LCH(ab) to Lab.
    """
    labcolor = colorobjs.LabColor()
    _transfer_common(cobj, labcolor)
    
-   labcolor.lab_l = cobj.lch_l
-   labcolor.lab_a = math.cos(math.radians(float(cobj.lch_h))) * float(cobj.lch_c)
-   labcolor.lab_b = math.sin(math.radians(float(cobj.lch_h))) * float(cobj.lch_c)
+   labcolor.lab_l = float(cobj.lch_l)
+   labcolor.lab_a = math.cos(math.radians(cobj.lch_h)) * float(cobj.lch_c)
+   labcolor.lab_b = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
    return labcolor
 
-def LCH_to_Luv(cobj):
+def LCHuv_to_Luv(cobj):
    """
-   Convert from LCH(ab) to Luv.
+   Convert from LCH(uv) to Luv.
    """
    luvcolor = colorobjs.LuvColor()
    _transfer_common(cobj, luvcolor)
    
-   luvcolor.luv_l = cobj.lch_l
-   luvcolor.luv_u = math.cos(math.radians(float(cobj.lch_h))) * float(cobj.lch_c)
-   luvcolor.luv_v = math.sin(math.radians(float(cobj.lch_h))) * float(cobj.lch_c)
+   luvcolor.luv_l = float(cobj.lch_l)
+   luvcolor.luv_u = math.cos(math.radians(cobj.lch_h)) * float(cobj.lch_c)
+   luvcolor.luv_v = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
    return luvcolor
 
 def XYZ_to_xyY(cobj):

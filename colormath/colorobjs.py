@@ -20,9 +20,9 @@
 This module contains classes to represent various color spaces.
 """
 import numpy
-import color_conversions
-from color_exceptions import *
-import constants
+from colormath import color_conversions
+from colormath.color_exceptions import *
+from colormath import constants
 
 class ColorBase(object):
     """
@@ -72,6 +72,7 @@ class ColorBase(object):
         """
         retval = self.__class__.__name__ + ' ('
         for val in self.VALUES:
+            #print "VAL: %s Type: %s" % (val, getattr(self, val))
             retval += '%s:%.4f ' % (val, getattr(self, val))
         return retval.strip() + ')'
     
@@ -113,7 +114,7 @@ class SpectralColor(ColorBase):
         "xyy": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Lab],
         "lch": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Lab, 
-                color_conversions.Lab_to_LCH],
+                color_conversions.Lab_to_LCHab],
         "luv": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_RGB],
     }
@@ -219,7 +220,9 @@ class LabColor(ColorBase):
     CONVERSIONS = {
         "xyz": [color_conversions.Lab_to_XYZ],
         "xyy": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_xyY],
-        "lch": [color_conversions.Lab_to_LCH],
+      "lchab": [color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_Luv,
+                color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_RGB],
     }
@@ -231,24 +234,50 @@ class LabColor(ColorBase):
         self.lab_a = None
         self.lab_b = None
         
-class LCHColor(ColorBase):
+class LCHabColor(ColorBase):
     """
-    Represents an LCH color.
+    Represents an LCHab color.
     """
     CONVERSIONS = {
-        "xyz": [color_conversions.LCH_to_Lab, color_conversions.Lab_to_XYZ],
-        "xyy": [color_conversions.LCH_to_Lab, color_conversions.Lab_to_XYZ, 
+        "xyz": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ],
+        "xyy": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ, 
                 color_conversions.XYZ_to_xyY],
-        "lab": [color_conversions.LCH_to_Lab],
-        "luv": [color_conversions.LCH_to_Lab, color_conversions.Lab_to_XYZ, 
+        "lab": [color_conversions.LCHab_to_Lab],
+      "lchuv": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ,
+                color_conversions.XYZ_to_Luv, color_conversions.Luv_to_LCHuv],
+        "luv": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ, 
                 color_conversions.XYZ_to_Luv],
-        "rgb": [color_conversions.LCH_to_Lab, color_conversions.Lab_to_XYZ, 
+        "rgb": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ, 
                 color_conversions.XYZ_to_RGB],
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
     
     def __init__(self):
-        super(LCHColor, self).__init__()
+        super(LCHabColor, self).__init__()
+        self.lch_l = None
+        self.lch_c = None
+        self.lch_h = None
+        
+class LCHuvColor(ColorBase):
+    """
+    Represents an LCHuv color.
+    """
+    CONVERSIONS = {
+        "xyz": [color_conversions.LCHuv_to_Luv, color_conversions.Lab_to_XYZ],
+        "xyy": [color_conversions.LCHuv_to_Luv, color_conversions.Lab_to_XYZ, 
+                color_conversions.XYZ_to_xyY],
+        "lab": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ, 
+                color_conversions.XYZ_to_Lab],
+        "luv": [color_conversions.LCHuv_to_Luv],
+      "lchab": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ,
+                color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCHab],
+        "rgb": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ, 
+                color_conversions.XYZ_to_RGB],
+    }
+    VALUES = ['lch_l', 'lch_c', 'lch_h']
+    
+    def __init__(self):
+        super(LCHuvColor, self).__init__()
         self.lch_l = None
         self.lch_c = None
         self.lch_h = None
@@ -261,8 +290,9 @@ class LuvColor(ColorBase):
         "xyz": [color_conversions.Luv_to_XYZ],
         "xyy": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_Lab],
-        "lch": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_Lab, 
-                color_conversions.Lab_to_LCH],
+      "lchab": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_Lab, 
+                color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.Luv_to_LCHuv],
         "rgb": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_RGB],
     }
     VALUES = ['luv_l', 'luv_u', 'luv_v']
@@ -280,7 +310,8 @@ class XYZColor(ColorBase):
     CONVERSIONS = {
         "xyy": [color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.XYZ_to_Lab],
-        "lch": [color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCH],
+      "lchab": [color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.XYZ_to_Lab, color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.XYZ_to_RGB],
     }
@@ -299,8 +330,10 @@ class xyYColor(ColorBase):
     CONVERSIONS = {
         "xyz": [color_conversions.xyY_to_XYZ],
         "lab": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Lab],
-        "lch": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Lab, 
-                color_conversions.Lab_to_LCH],
+      "lchab": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Lab, 
+                color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Luv, 
+                color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_RGB],
     }
@@ -320,8 +353,10 @@ class RGBColor(ColorBase):
         "xyz": [color_conversions.RGB_to_XYZ],
         "xyy": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab],
-        "lch": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab, 
-                color_conversions.Lab_to_LCH],
+      "lchab": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab, 
+                color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Luv, 
+                color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_RGB],
     }
     VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
@@ -360,21 +395,3 @@ class CMYKColor(ColorBase):
         self.cmyk_m = None
         self.cmyk_y = None
         self.cmyk_k = None
-        
-if __name__ == "__main__":
-    """
-    Console testing stuff.
-    """
-    test_xyz = XYZColor()
-    test_xyz.xyz_x = 0.100000
-    test_xyz.xyz_y = 0.200000
-    test_xyz.xyz_z = 0.300000
-    #result = test_xyz.convert_to("luv", debug=True)
-    
-    test_lab = LabColor()
-    test_lab.lab_l = 1.806593
-    test_lab.lab_a = -3.749039
-    test_lab.lab_b = -2.547044
-    result = test_lab.convert_to("xyz", debug=True)
-    
-    print result
