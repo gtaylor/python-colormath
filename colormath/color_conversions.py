@@ -12,7 +12,8 @@ def _transfer_common(old_cobj, new_cobj):
     new_cobj.illuminant = old_cobj.illuminant
     new_cobj.observer = old_cobj.observer
 
-def apply_XYZ_transformation(cobj, orig_illum, targ_illum, adaptation="bradford"):
+def apply_XYZ_transformation(val_x, val_y, val_z, orig_illum, targ_illum, 
+                             adaptation="bradford", debug=False):
    """
    Applies an XYZ transformation matrix to convert XYZ values between
    illuminants. It is important to recognize that color transformation results
@@ -23,19 +24,23 @@ def apply_XYZ_transformation(cobj, orig_illum, targ_illum, adaptation="bradford"
    orig_illum = orig_illum.lower()
    targ_illum = targ_illum.lower()
    adaptation = adaptation.lower()
+   
+   if debug:
+       print "  \* Applying adaptation matrix: %s" % adaptation
    # Retrieve the appropriate transformation matrix from the constants.
    transform_matrix = constants.ADAPTATION_MATRICES[orig_illum][targ_illum][adaptation]
 
    # Stuff the XYZ values into a NumPy matrix for conversion.
    XYZ_matrix = numpy.array((
-      cobj.xyz_x, cobj.xyz_y, cobj.xyz_z
+      val_x, val_y, val_z
    ))
    # Perform the adaptation via matrix multiplication.
    result_matrix = numpy.dot(XYZ_matrix, transform_matrix)
    # Return the results
    return result_matrix[0], result_matrix[1], result_matrix[2]
 
-def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="XYZ_to_RGB"):
+def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb", 
+                     debug=False):
    """
    Applies an RGB working matrix to convert from XYZ to RGB.
    The arguments are tersely named var1, var2, and var3 to allow for the passing
@@ -46,6 +51,9 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="XYZ_to_RGB"):
    convtype = convtype.lower()
    # Retrieve the appropriate transformation matrix from the constants.
    rgb_matrix = constants.RGB_SPECS[rgb_type]["conversions"][convtype]
+   
+   if debug:
+       print "  \* Applying RGB conversion matrix: %s->%s" % (rgb_type, convtype)
    # Stuff the RGB/XYZ values into a NumPy matrix for conversion.
    var_matrix = numpy.array((
       var1, var2, var3
@@ -99,17 +107,17 @@ def Lab_to_XYZ(cobj):
    xyzcolor.xyz_x = cobj.lab_a / 500.0 + xyzcolor.xyz_y
    xyzcolor.xyz_z = xyzcolor.xyz_y - cobj.lab_b / 200.0
    
-   if math.pow(xyzcolor.xyz_y, 3) > 0.008856:
+   if math.pow(xyzcolor.xyz_y, 3) > constants.CIE_E:
       xyzcolor.xyz_y = math.pow(xyzcolor.xyz_y, 3)
    else:
       xyzcolor.xyz_y = (xyzcolor.xyz_y - 16.0 / 116.0) / 7.787
 
-   if math.pow(xyzcolor.xyz_x, 3) > 0.008856:
+   if math.pow(xyzcolor.xyz_x, 3) > constants.CIE_E:
       xyzcolor.xyz_x = math.pow(xyzcolor.xyz_x, 3)
    else:
       xyzcolor.xyz_x = (xyzcolor.xyz_x - 16.0 / 116.0) / 7.787
       
-   if math.pow(xyzcolor.xyz_z, 3) > 0.008856:
+   if math.pow(xyzcolor.xyz_z, 3) > constants.CIE_E:
       xyzcolor.xyz_z = math.pow(xyzcolor.xyz_z, 3)
    else:
       xyzcolor.xyz_z = (xyzcolor.xyz_z - 16.0 / 116.0) / 7.787
@@ -169,9 +177,9 @@ def Luv_to_XYZ(cobj):
    xyzcolor.xyz_z = xyzcolor.xyz_x * var_a + var_b
    
    # Scale the values up.
-   xyzcolor.xyz_x *= 100
-   xyzcolor.xyz_y *= 100
-   xyzcolor.xyz_z *= 100
+   xyzcolor.xyz_x *= 100.0
+   xyzcolor.xyz_y *= 100.0
+   xyzcolor.xyz_z *= 100.0
    
    return xyzcolor
 
@@ -228,7 +236,7 @@ def XYZ_to_Luv(cobj):
 
    illum = luvcolor.get_illuminant_xyz()  
    temp_y = temp_y / illum["Y"]
-   if temp_y > 0.008856:
+   if temp_y > constants.CIE_E:
       temp_y = math.pow(temp_y, (1.0 / 3.0))
    else:
       temp_y = (7.787 * temp_y) + (16.0 / 116.0)
@@ -253,17 +261,17 @@ def XYZ_to_Lab(cobj):
    temp_y = cobj.xyz_y / illum["Y"]
    temp_z = cobj.xyz_z / illum["Z"]
    
-   if temp_x > 0.008856:
+   if temp_x > constants.CIE_E:
       temp_x = math.pow(temp_x, (1.0 / 3.0))
    else:
       temp_x = (7.787 * temp_x) + (16.0 / 116.0)     
 
-   if temp_y > 0.008856:
+   if temp_y > constants.CIE_E:
       temp_y = math.pow(temp_y, (1.0 / 3.0))
    else:
       temp_y = (7.787 * temp_y) + (16.0 / 116.0)
    
-   if temp_z > 0.008856:
+   if temp_z > constants.CIE_E:
       temp_z = math.pow(temp_z, (1.0 / 3.0))
    else:
       temp_z = (7.787 * temp_z) + (16.0 / 116.0)
@@ -280,8 +288,17 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
    target_rgb = target_rgb.lower()
    rgbcolor = colorobjs.RGBColor()
    _transfer_common(cobj, rgbcolor)
+   temp_X = cobj.xyz_x / 100.0
+   temp_Y = cobj.xyz_y / 100.0
+   temp_Z = cobj.xyz_z / 100.0
    
+   if debug:
+       print "  \- Target RGB space: %s" % target_rgb
    target_illum = constants.RGB_SPECS[target_rgb]["native_illum"]
+   cobj.illuminant = cobj.illuminant.lower()
+   if debug:
+       print "  \- Target native illuminant: %s" % target_illum
+       print "  \- XYZ color's illuminant: %s" % cobj.illuminant
    
    # If the XYZ values were taken with a different reference white than the
    # native reference white of the target RGB space, a transformation matrix
@@ -289,19 +306,18 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
    illum = cobj.get_illuminant_xyz()
    if cobj.illuminant != target_illum:
       if debug:
-         print "Applying transformation from", cobj.illuminant, "to", target_illum
-      temp_X = cobj.xyz_x
-      temp_Y = cobj.xyz_y
-      temp_Z = cobj.xyz_z
-      temp_X, temp_Y, temp_Z = apply_XYZ_transformation(cobj, 
-         orig_illum=cobj.illuminant, targ_illum=target_illum)
+         print "  \* Applying transformation from %s to %s " % (cobj.illuminant,
+                                                                target_illum)
+      # Get the adjusted XYZ values, adapted for the target illuminant.
+      temp_X, temp_Y, temp_Z = apply_XYZ_transformation(temp_X, temp_Y, temp_Z, 
+                                                        orig_illum=cobj.illuminant, 
+                                                        targ_illum=target_illum,
+                                                        debug=debug)
    
    # Apply an RGB working space matrix to the XYZ values (matrix mul).
    rgbcolor.rgb_r, rgbcolor.rgb_g, rgbcolor.rgb_b = apply_RGB_matrix(temp_X, 
-                                          temp_Y, 
-                                          temp_Z, 
-                                          rgb_type=target_rgb, 
-                                          convtype="XYZ_to_RGB")
+                                          temp_Y, temp_Z, rgb_type=target_rgb, 
+                                          convtype="xyz_to_rgb", debug=debug)
 
    if target_rgb == "srgb":
       # If it's sRGB...

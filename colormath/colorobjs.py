@@ -34,10 +34,11 @@ class ColorBase(object):
         # Again, this is the most commonly used observer angle.
         self.observer = 2
         
-    def convert_to(self, cs_to, debug=False, *args, **kwargs):
+    def convert_to(self, cs_to, *args, **kwargs):
         """
         Converts the color to the designated colorspace.
         """
+        debug = kwargs.get('debug', False)
         try:
             # Look up the conversion path for the specified color space.
             conversions = self.CONVERSIONS[cs_to.lower()]
