@@ -208,9 +208,9 @@ def XYZ_to_Luv(cobj):
    luvcolor = colorobjs.LuvColor()
    _transfer_common(cobj, luvcolor)
    
-   temp_x = cobj.xyz_x * 100.0
-   temp_y = cobj.xyz_y * 100.0
-   temp_z = cobj.xyz_z * 100.0
+   temp_x = cobj.xyz_x
+   temp_y = cobj.xyz_y
+   temp_z = cobj.xyz_z
    
    luvcolor.luv_u = (4.0 * temp_x) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
    luvcolor.luv_v = (9.0 * temp_y) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))

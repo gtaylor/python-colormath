@@ -369,5 +369,5 @@ if __name__ == "__main__":
     test.xyz_x = 0.100000
     test.xyz_y = 0.200000
     test.xyz_z = 0.300000
-    result = test.convert_to("lab", debug=True)
+    result = test.convert_to("luv", debug=True)
     print result
