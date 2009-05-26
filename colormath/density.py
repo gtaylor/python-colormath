@@ -2,7 +2,7 @@
 Formulas for density calculation.
 """
 from math import log10, log
-from colormath.colorobjs import SpectralColor
+from colormath.color_objects import SpectralColor
 from colormath.density_constants import *
 
 def ansi_density(color, std_array):

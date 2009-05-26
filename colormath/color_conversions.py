@@ -67,7 +67,7 @@ def Spectral_to_XYZ(cobj, cdict):
    """
    Converts spectral readings to XYZ.
    """
-   xyzcolor = colorobjs.XYZColor()
+   xyzcolor = color_objects.XYZColor()
    _transfer_common(cobj, xyzcolor)
    
    illuminants = constants.SPECTRAL_DISTS[str(cobj.observer)][cobj.illuminant.lower()]
@@ -81,7 +81,7 @@ def Lab_to_LCHab(cobj):
    """
    Convert from CIE Lab to LCH(ab).
    """
-   lchcolor = colorobjs.LCHabColor()
+   lchcolor = color_objects.LCHabColor()
    _transfer_common(cobj, lchcolor)
    
    lchcolor.lch_l = cobj.lab_l
@@ -100,7 +100,7 @@ def Lab_to_XYZ(cobj):
    Convert from Lab to XYZ
    """
    illum = cobj.get_illuminant_xyz()
-   xyzcolor = colorobjs.XYZColor()
+   xyzcolor = color_objects.XYZColor()
    _transfer_common(cobj, xyzcolor)
    
    xyzcolor.xyz_y = (cobj.lab_l + 16.0) / 116.0
@@ -131,7 +131,7 @@ def Luv_to_LCHuv(cobj):
    """
    Convert from CIE Luv to LCH(uv).
    """
-   lchcolor = colorobjs.LCHuvColor()
+   lchcolor = color_objects.LCHuvColor()
    _transfer_common(cobj, lchcolor)
    
    lchcolor.lch_l = cobj.luv_l
@@ -148,7 +148,7 @@ def Luv_to_XYZ(cobj):
    """
    Convert from Luv to XYZ.
    """
-   xyzcolor = colorobjs.XYZColor()
+   xyzcolor = color_objects.XYZColor()
    _transfer_common(cobj, xyzcolor)
    illum = xyzcolor.get_illuminant_xyz()
    
@@ -187,7 +187,7 @@ def LCHab_to_Lab(cobj):
    """
    Convert from LCH(ab) to Lab.
    """
-   labcolor = colorobjs.LabColor()
+   labcolor = color_objects.LabColor()
    _transfer_common(cobj, labcolor)
    
    labcolor.lab_l = float(cobj.lch_l)
@@ -199,7 +199,7 @@ def LCHuv_to_Luv(cobj):
    """
    Convert from LCH(uv) to Luv.
    """
-   luvcolor = colorobjs.LuvColor()
+   luvcolor = color_objects.LuvColor()
    _transfer_common(cobj, luvcolor)
    
    luvcolor.luv_l = float(cobj.lch_l)
@@ -211,7 +211,7 @@ def XYZ_to_xyY(cobj):
    """
    Convert from XYZ to xyY.
    """
-   xyycolor = colorobjs.xyYColor()
+   xyycolor = color_objects.xyYColor()
    _transfer_common(cobj, xyycolor)
    
    xyycolor.xyy_x = (cobj.xyz_x) / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
@@ -224,7 +224,7 @@ def XYZ_to_Luv(cobj):
    """
    Convert from XYZ to Luv
    """
-   luvcolor = colorobjs.LuvColor()
+   luvcolor = color_objects.LuvColor()
    _transfer_common(cobj, luvcolor)
    
    temp_x = cobj.xyz_x
@@ -254,7 +254,7 @@ def XYZ_to_Lab(cobj):
    Converts XYZ to Lab.
    """
    illum = cobj.get_illuminant_xyz()
-   labcolor = colorobjs.LabColor()
+   labcolor = color_objects.LabColor()
    _transfer_common(cobj, labcolor)
    
    temp_x = cobj.xyz_x / illum["X"]
@@ -286,7 +286,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False):
    XYZ to RGB conversion.
    """
    target_rgb = target_rgb.lower()
-   rgbcolor = colorobjs.RGBColor()
+   rgbcolor = color_objects.RGBColor()
    _transfer_common(cobj, rgbcolor)
    temp_X = cobj.xyz_x / 100.0
    temp_Y = cobj.xyz_y / 100.0
@@ -378,7 +378,7 @@ def xyY_to_XYZ(cobj):
    """
    Convert from xyY to XYZ.
    """
-   xyzcolor = colorobjs.XYZColor()
+   xyzcolor = color_objects.XYZColor()
    _transfer_common(cobj, xyzcolor)
    
    xyzcolor.xyz_x = (cobj.xyy_x * cobj.xyy_Y) / (cobj.xyy_y)
@@ -390,7 +390,7 @@ def RGB_to_CMY(cobj, cdict):
    """
    RGB to CMY conversion.
    """
-   cmycolor = colorobjs.CMYColor()
+   cmycolor = color_objects.CMYColor()
    _transfer_common(cobj, cmycolor)
    
    cmycolor.cmy_c = 1 - (cobj.rgb_r / 255)
@@ -402,7 +402,7 @@ def RGB_to_XYZ(cobj, cdict):
    """
    Converts RGB to XYZ.
    """
-   xyzcolor = colorobjs.XYZColor()
+   xyzcolor = color_objects.XYZColor()
    _transfer_common(cobj, xyzcolor)
    
    xyzcolor.xyz_x = 0.5
@@ -416,7 +416,7 @@ def CMY_to_CMYK(cobj, cdict):
    
    NOTE: CMYK and CMY values range from 0 to 1
    """ 
-   cmykcolor = colorobjs.CMYKColor()
+   cmykcolor = color_objects.CMYKColor()
    _transfer_common(cobj, cmykcolor)
    
    var_k = 1.0
@@ -437,4 +437,4 @@ def CMY_to_CMYK(cobj, cdict):
       cmykcolor.cmyk_y = (cobj.cmy_y - var_k) / (1.0 - var_k)
    return cmykcolor
 
-import colorobjs
+import color_objects

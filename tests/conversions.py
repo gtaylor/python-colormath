@@ -2,7 +2,7 @@
 Unit tests for color space conversions.
 """
 import unittest
-from colormath.colorobjs import *
+from colormath.color_objects import *
 
 class XYZConversions(unittest.TestCase):
     def setUp(self):
@@ -35,6 +35,20 @@ class XYZConversions(unittest.TestCase):
         self.assertAlmostEqual(luv.luv_l, 1.807, 3, "XYZ to Luv failed: L coord")
         self.assertAlmostEqual(luv.luv_u, -2.564, 3, "XYZ to Luv failed: u coord")
         self.assertAlmostEqual(luv.luv_v, -0.894, 3, "XYZ to Luv failed: v coord")
+        
+class xyYConversions(unittest.TestCase):
+    def setUp(self):
+        color = xyYColor()
+        color.xyy_x = 0.167
+        color.xyy_y = 0.333
+        color.xyy_Y = 0.200
+        self.color = color
+        
+    def test_conversion_to_xyz(self):
+        xyz = self.color.convert_to('xyz')
+        self.assertAlmostEqual(xyz.xyz_x, 0.100, 3, "xyY to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.200, 3, "xyY to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.300, 3, "xyY to XYZ failed: Z coord")
         
 class LabConversions(unittest.TestCase):
     def setUp(self):

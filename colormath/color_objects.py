@@ -45,6 +45,10 @@ class ColorBase(object):
         except KeyError:
             raise InvalidConversion(self.__class__.__name__, cs_to)
         
+        # Make sure the object has all of its required values before even
+        # attempting a conversion.
+        self.has_required_values()
+        
         if debug:
             print 'Converting %s to %s' % (self, cs_to)
             print ' @ Conversion path: %s' % [conv.__name__ for conv in conversions]
@@ -81,9 +85,10 @@ class ColorBase(object):
         """
         Checks all of the spectral fields to ensure there are no None values.
         """
-        for field in self.VALUES:
-            if field == None:
-                return False
+        for val in self.VALUES:
+            value = getattr(self, val, None)
+            if value == None:
+                raise MissingValue(self, val)
         return True
     
     def get_illuminant_xyz(self):
