@@ -38,10 +38,19 @@ class DeltaE_Tests(unittest.TestCase):
                                                         result - expected))
         
     def test_cmc_accuracy(self):
-        result = self.color1.delta_e(self.color2, mode='cmc')
+        # Test 2:1
+        result = self.color1.delta_e(self.color2, mode='cmc', p1=2, pc=1)
         expected = 1.443
         self.assertAlmostEqual(result, expected, 3, 
-                "DeltaE CMC formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
+                "DeltaE CMC (2:1) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
+                                                        result, expected,
+                                                        result - expected))
+        
+        # Test against 1:1 as well
+        result = self.color1.delta_e(self.color2, mode='cmc', p1=1, pc=1)
+        expected = 1.482
+        self.assertAlmostEqual(result, expected, 3, 
+                "DeltaE CMC (1:1) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                                                         result, expected,
                                                         result - expected))
         
