@@ -91,7 +91,7 @@ def example_spectral_to_xyz():
                         spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
                         spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
     xyz = spc.convert_to('xyz')
-    print "END", xyz.xyz_x
+    print "END", xyz
     print "=== End Example ===\n"
     
 # Feel free to comment/un-comment examples as you please.

@@ -87,19 +87,30 @@ def Spectral_to_XYZ(cobj, debug=False, *args, **kwargs):
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
      
+    # This is a NumPy array containing the spectral distribution of the color.
     sample = cobj.get_numpy_array()
     
-    denom = numpy.dot(
-                            numpy.dot(sample, spectral_constants.STDOBSERV_Y2),
-                            spectral_constants.REFERENCE_ILLUM_D
-                    )
+    # The denominator is constant throughout the entire calculation for X,
+    # Y, and Z coordinates. Calculate it once and re-use.
+    denom = spectral_constants.STDOBSERV_Y2 * \
+                      spectral_constants.REFERENCE_ILLUM_D
+    # This is also a common element in the calculation whereby the sample
+    # NumPy array is multiplied by the reference illuminant's power distribution
+    # (which is also a NumPy array).
+    sample_by_ref_illum = sample * spectral_constants.REFERENCE_ILLUM_D
     
-    xyzcolor.xyz_x = (numpy.dot(
-                            numpy.dot(sample, spectral_constants.STDOBSERV_X2),
-                            spectral_constants.REFERENCE_ILLUM_D
-                    ) / denom) / 100.0
-    xyzcolor.xyz_y = None
-    xyzcolor.xyz_z = None
+    print "DENOM", denom.sum()
+    
+    # Calculate the numerator of the equation to find X.
+    x_numerator = sample_by_ref_illum * spectral_constants.STDOBSERV_X2
+    y_numerator = sample_by_ref_illum * spectral_constants.STDOBSERV_Y2
+    z_numerator = sample_by_ref_illum * spectral_constants.STDOBSERV_Z2
+                    
+    print "XNUM", x_numerator.sum()
+    
+    xyzcolor.xyz_x = x_numerator.sum()/denom.sum()
+    xyzcolor.xyz_y = y_numerator.sum()/denom.sum()
+    xyzcolor.xyz_z = z_numerator.sum()/denom.sum()
     
     return xyzcolor
 
