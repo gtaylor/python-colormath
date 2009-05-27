@@ -35,3 +35,4 @@ print " CIE1994: %.3f (Graphic Arts)" % color1.delta_e(color2, mode='cie1994')
 print " CIE1994: %.3f (Textiles)" % color1.delta_e(color2, mode='cie1994', 
                                                    K_1=0.048, K_2=0.014, 
                                                    K_L=2)
+print "     CMC: %.3f" % color1.delta_e(color2, mode='cmc')

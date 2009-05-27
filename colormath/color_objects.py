@@ -23,7 +23,7 @@ import numpy
 from colormath import color_conversions
 from colormath.color_exceptions import *
 from colormath import color_constants
-from colormath.color_diff import delta_e_cie2000, delta_e_cie1976, delta_e_cie1994
+from colormath.color_diff import delta_e_cie2000, delta_e_cie1976, delta_e_cie1994, delta_e_cmc
 
 class ColorBase(object):
     """
@@ -161,6 +161,8 @@ class ColorBase(object):
             return delta_e_cie1976(lab1, lab2)
         elif mode == 'cie1994':
             return delta_e_cie1994(lab1, lab2, **kwargs)
+        elif mode == 'cmc':
+            return delta_e_cmc(lab1, lab2, **kwargs)
         else:
             raise InvalidDeltaEMode(mode)
 

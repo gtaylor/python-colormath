@@ -129,8 +129,10 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     a2 = color2.lab_a
     b2 = color2.lab_b
     
+    delta_L = L1 - L2
     delta_a = a1 - a2
     delta_b = b1 - b2
+    
     C_1 = sqrt(pow(a1, 2) + pow(b1, 2))
     C_2 = sqrt(pow(a2, 2) + pow(b2, 2))
     
@@ -138,12 +140,59 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     S_C = 1 + K_1 * C_1 
     S_H = 1 + K_2 * C_1
     
-    delta_L = L1 - L2
     delta_C = C_1 - C_2
     delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
     
     L_group = delta_L / (K_L * S_L)
     C_group = delta_C / (K_C * S_C)
     H_group = delta_H / (K_H * S_H)
+    
+    return sqrt(pow(L_group, 2) + pow(C_group, 2) + pow(H_group, 2))
+
+def delta_e_cmc(color1, color2, p1=2, pc=1):
+    """
+    Calculates the Delta E (CIE1994) of two colors.
+    
+    CMC values
+      Acceptability: p1=2, pc=1
+      Perceptability: p1=1, pc=1
+    """        
+    # Color 1 
+    L1 = color1.lab_l
+    a1 = color1.lab_a
+    b1 = color1.lab_b
+    # Color 2
+    L2 = color2.lab_l
+    a2 = color2.lab_a
+    b2 = color2.lab_b
+    
+    delta_L = L1 - L2
+    delta_a = a1 - a2
+    delta_b = b1 - b2
+    
+    C_1 = sqrt(pow(a1, 2) + pow(b1, 2))
+    C_2 = sqrt(pow(a2, 2) + pow(b2, 2))
+    
+    H_1 = degrees(atan2(b1, a1))
+    F = sqrt(pow(C_1, 4) / (pow(C_1, 4) + 1900.0))
+    if 164 <= H_1 and H_1 <= 345:
+        T = 0.56 + abs(0.2 * cos(radians(H_1 + 168)))
+    else:
+        T = 0.36 + abs(0.4 * cos(radians(H_1 + 35)))
+        
+    if L1 < 16:
+        S_L = 0.511
+    else:
+        S_L = (0.040975 * L1) / (1 + 0.01765 * L1)
+    S_C = ((0.0638 * C_1) / (1 + 0.0131 * C_1)) + 0.638
+    S_H = S_C * (F * T + 1 - F)
+    
+    delta_L = L1 - L2
+    delta_C = C_1 - C_2
+    delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
+    
+    L_group = delta_L / (p1 * S_L)
+    C_group = delta_C / (pc * S_C)
+    H_group = delta_H / S_H
     
     return sqrt(pow(L_group, 2) + pow(C_group, 2) + pow(H_group, 2))
