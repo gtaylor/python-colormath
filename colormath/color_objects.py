@@ -157,10 +157,10 @@ class ColorBase(object):
         mode = mode.lower()
         if mode == 'cie2000':
             return delta_e_cie2000(lab1, lab2)
-        elif mode == 'cie1976':
-            return delta_e_cie1976(lab1, lab2)
         elif mode == 'cie1994':
             return delta_e_cie1994(lab1, lab2, **kwargs)
+        elif mode == 'cie1976':
+            return delta_e_cie1976(lab1, lab2)
         elif mode == 'cmc':
             return delta_e_cmc(lab1, lab2, **kwargs)
         else:
