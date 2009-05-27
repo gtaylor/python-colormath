@@ -22,6 +22,7 @@ Conversion between color spaces
 import math
 import numpy
 from colormath import color_constants
+from colormath import spectral_constants
 
 def _transfer_common(old_cobj, new_cobj):
     """
@@ -85,12 +86,20 @@ def Spectral_to_XYZ(cobj, debug=False, *args, **kwargs):
     """
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
-   
-    illuminants = color_constants.SPECTRAL_DISTS[str(cobj.observer)][cobj.illuminant.lower()]
-    sample = cobj.color_to_numpy_array()
-    xyzcolor.xyz_x = float(numpy.dot(sample, illuminants["X"]) / 100.0)
-    xyzcolor.xyz_y = float(numpy.dot(sample, illuminants["Y"]) / 100.0)
-    xyzcolor.xyz_z = float(numpy.dot(sample, illuminants["Z"]) / 100.0)
+     
+    sample = cobj.get_numpy_array()
+    
+    denom = numpy.dot(
+                            numpy.dot(sample, spectral_constants.STDOBSERV_Y2),
+                            spectral_constants.REFERENCE_ILLUM_D
+                    )
+    
+    xyzcolor.xyz_x = (numpy.dot(
+                            numpy.dot(sample, spectral_constants.STDOBSERV_X2),
+                            spectral_constants.REFERENCE_ILLUM_D
+                    ) / denom) / 100.0
+    xyzcolor.xyz_y = None
+    xyzcolor.xyz_z = None
     
     return xyzcolor
 

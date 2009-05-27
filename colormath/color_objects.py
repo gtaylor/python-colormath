@@ -33,7 +33,7 @@ class ColorBase(object):
         # This is the most common illuminant, default to it.
         self.illuminant = 'd50'
         # This is the most commonly used observer angle.
-        self.observer = 2
+        self.observer = '2'
         
     def _transfer_kwargs(self, *args, **kwargs):
         """
@@ -49,6 +49,7 @@ class ColorBase(object):
         Makes sure all string variables are lowercase beforehand.
         """
         self.illuminant = self.illuminant.lower()
+        self.observer == str(self.observer)
 
     def convert_to(self, cs_to, *args, **kwargs):
         """
@@ -182,16 +183,15 @@ class SpectralColor(ColorBase):
         "luv": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_RGB],
     }
-    VALUES = ['spec_380nm', 'spec_390nm', 
-            'spec_400nm', 'spec_410nm', 'spec_420nm', 'spec_430nm',
-            'spec_440nm', 'spec_450nm', 'spec_460nm', 'spec_470nm',
-            'spec_480nm', 'spec_490nm', 'spec_500nm', 'spec_510nm',
-            'spec_520nm', 'spec_530nm', 'spec_540nm', 'spec_550nm',
-            'spec_560nm', 'spec_570nm', 'spec_580nm', 'spec_590nm',
-            'spec_600nm', 'spec_610nm', 'spec_620nm', 'spec_630nm', 
-            'spec_640nm', 'spec_650nm', 'spec_660nm', 'spec_670nm',
-            'spec_680nm', 'spec_690nm', 'spec_700nm', 'spec_710nm',
-            'spec_720nm', 'spec_730nm']
+    VALUES = ['spec_380nm', 'spec_390nm', 'spec_400nm', 'spec_410nm', 
+              'spec_420nm', 'spec_430nm', 'spec_440nm', 'spec_450nm', 
+              'spec_460nm', 'spec_470nm', 'spec_480nm', 'spec_490nm', 
+              'spec_500nm', 'spec_510nm', 'spec_520nm', 'spec_530nm', 
+              'spec_540nm', 'spec_550nm', 'spec_560nm', 'spec_570nm', 
+              'spec_580nm', 'spec_590nm', 'spec_600nm', 'spec_610nm', 
+              'spec_620nm', 'spec_630nm', 'spec_640nm', 'spec_650nm', 
+              'spec_660nm', 'spec_670nm', 'spec_680nm', 'spec_690nm', 
+              'spec_700nm', 'spec_710nm', 'spec_720nm', 'spec_730nm']
     
     def __init__(self, *args, **kwargs):
         super(SpectralColor, self).__init__(*args, **kwargs)
@@ -234,48 +234,20 @@ class SpectralColor(ColorBase):
         self.spec_730nm = None # end Red wavelengths
         self._transfer_kwargs(*args, **kwargs)
         
-    def color_to_numpy_array(self):
+    def get_numpy_array(self):
         """
         Dump this color into NumPy array.
         """
-        color_array = numpy.array((
-            self.spec_380nm,
-            self.spec_390nm,
-            self.spec_400nm,
-            self.spec_410nm,
-            self.spec_420nm,
-            self.spec_430nm,
-            self.spec_440nm,
-            self.spec_450nm,
-            self.spec_460nm,
-            self.spec_470nm,
-            self.spec_480nm,
-            self.spec_490nm,
-            self.spec_500nm,
-            self.spec_510nm,
-            self.spec_520nm,
-            self.spec_530nm,
-            self.spec_540nm,
-            self.spec_550nm,
-            self.spec_560nm,
-            self.spec_570nm,
-            self.spec_580nm,
-            self.spec_590nm,
-            self.spec_600nm,
-            self.spec_610nm,
-            self.spec_620nm,
-            self.spec_630nm,
-            self.spec_640nm,
-            self.spec_650nm,
-            self.spec_660nm,
-            self.spec_670nm,
-            self.spec_680nm,
-            self.spec_690nm,
-            self.spec_700nm,
-            self.spec_710nm,
-            self.spec_720nm,
-            self.spec_730nm,
-        ))
+        color_array = numpy.array((self.spec_380nm, self.spec_390nm,
+            self.spec_400nm, self.spec_410nm, self.spec_420nm, self.spec_430nm,
+            self.spec_440nm, self.spec_450nm, self.spec_460nm, self.spec_470nm,
+            self.spec_480nm, self.spec_490nm, self.spec_500nm, self.spec_510nm,
+            self.spec_520nm, self.spec_530nm, self.spec_540nm, self.spec_550nm,
+            self.spec_560nm, self.spec_570nm, self.spec_580nm, self.spec_590nm,
+            self.spec_600nm, self.spec_610nm, self.spec_620nm, self.spec_630nm,
+            self.spec_640nm, self.spec_650nm, self.spec_660nm, self.spec_670nm,
+            self.spec_680nm, self.spec_690nm, self.spec_700nm, self.spec_710nm,
+            self.spec_720nm, self.spec_730nm))
         return color_array
     
 class LabColor(ColorBase):
