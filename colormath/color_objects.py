@@ -23,6 +23,7 @@ import numpy
 from colormath import color_conversions
 from colormath.color_exceptions import *
 from colormath import color_constants
+from colormath.color_diff import delta_e_cie2000, delta_e_cie1976, delta_e_cie1994
 
 class ColorBase(object):
     """
@@ -137,6 +138,31 @@ class ColorBase(object):
             raise InvalidIlluminant(self)
         
         return illum_xyz
+    
+    def delta_e(self, other_color, mode='cie2000', *args, **kwargs):
+        """
+        Compares this color to another via Delta E.
+        
+        Valid modes:
+         cie2000
+         cie1976
+        """
+        if not isinstance(other_color, ColorBase):
+            raise InvalidArgument('delta_e_cie2000', 'other_color', other_color)
+        
+        # Convert the colors to Lab if they are not already.
+        lab1 = self.convert_to('lab')
+        lab2 = other_color.convert_to('lab')
+        
+        mode = mode.lower()
+        if mode == 'cie2000':
+            return delta_e_cie2000(lab1, lab2)
+        elif mode == 'cie1976':
+            return delta_e_cie1976(lab1, lab2)
+        elif mode == 'cie1994':
+            return delta_e_cie1994(lab1, lab2, **kwargs)
+        else:
+            raise InvalidDeltaEMode(mode)
 
 class SpectralColor(ColorBase):
     """

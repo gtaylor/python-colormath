@@ -39,6 +39,23 @@ class InvalidValue(BaseException):
         self.value = "Invalid %s value (%s) on %s." % (invalid_val_name,
                                                        invalid_val, 
                                                        cobj.__class__.__name__)
+        
+class InvalidDeltaEMode(BaseException):
+    """
+    Raised when an invalid Delta E mode is specified.
+    """
+    def __init__(self, mode):
+        self.value = "Invalid Delta E mode: %s" % mode
+        
+class InvalidArgument(BaseException):
+    """
+    Raised when an invalid argument is passed to a function.
+    """
+    def __init__(self, function_name, invalid_arg_name, invalid_arg):
+        self.value = "Invalid argument for %s (%s) passed to %s()." % (
+                                                            invalid_arg_name,
+                                                            invalid_arg,
+                                                            function_name)
     
 class InvalidConversion(BaseException):
     """
