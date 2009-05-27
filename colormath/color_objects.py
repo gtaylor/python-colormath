@@ -34,14 +34,16 @@ class ColorBase(object):
         self.illuminant = 'd50'
         # This is the most commonly used observer angle.
         self.observer = '2'
+        self.OTHER_VALUES = ['illuminant', 'observer']
         
     def _transfer_kwargs(self, *args, **kwargs):
         """
         Transfers any keyword arguments to the appropriate coordinate fields
         if they match one of the keys in the class's VALUES dict.
         """
+        attrib_list = self.VALUES + self.OTHER_VALUES
         for key, val in kwargs.items():
-            if key in self.VALUES:
+            if key in attrib_list:
                 setattr(self, key, val)
                 
     def __prep_strings(self):
@@ -107,8 +109,11 @@ class ColorBase(object):
     
     def has_required_values(self):
         """
-        Checks all of the spectral fields to ensure there are no None values.
+        Checks various fields for None or invalid values.
         """
+        if self.observer not in ['2', '10']:
+            raise InvalidObserver(self)
+        
         for val in self.VALUES:
             value = getattr(self, val, None)
             if value == None:

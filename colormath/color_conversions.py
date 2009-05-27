@@ -80,24 +80,27 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
     result_matrix = numpy.dot(var_matrix, rgb_matrix)
     return result_matrix[0], result_matrix[1], result_matrix[2]
 
-def Spectral_to_XYZ(cobj, debug=False, *args, **kwargs):
+def Spectral_to_XYZ(cobj, debug=False, reference_illum=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
     """
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
+    
+    # If the user doesn't specify a reference illuminant, assume D.
+    if not reference_illum:
+        reference_illum = spectral_constants.REFERENCE_ILLUM_D
      
     # This is a NumPy array containing the spectral distribution of the color.
     sample = cobj.get_numpy_array()
     
     # The denominator is constant throughout the entire calculation for X,
     # Y, and Z coordinates. Calculate it once and re-use.
-    denom = spectral_constants.STDOBSERV_Y2 * \
-                      spectral_constants.REFERENCE_ILLUM_D
+    denom = spectral_constants.STDOBSERV_Y2 * reference_illum
     # This is also a common element in the calculation whereby the sample
     # NumPy array is multiplied by the reference illuminant's power distribution
     # (which is also a NumPy array).
-    sample_by_ref_illum = sample * spectral_constants.REFERENCE_ILLUM_D
+    sample_by_ref_illum = sample * reference_illum
     
     print "DENOM", denom.sum()
     

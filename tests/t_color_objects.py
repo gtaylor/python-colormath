@@ -23,12 +23,35 @@ import unittest
 from colormath.color_objects import *
 from colormath.color_exceptions import *
 
+class SpectralConversions(unittest.TestCase):
+    def setUp(self):
+        color = SpectralColor(spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
+                        spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
+                        spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
+                        spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,
+                        spec_500nm=0.0651, spec_510nm=0.0680, spec_520nm=0.0705,
+                        spec_530nm=0.0736, spec_540nm=0.0772, spec_550nm=0.0809,
+                        spec_560nm=0.0870, spec_570nm=0.0990, spec_580nm=0.1128,
+                        spec_590nm=0.1251, spec_600nm=0.1360, spec_610nm=0.1439,
+                        spec_620nm=0.1511, spec_630nm=0.1590, spec_640nm=0.1688,
+                        spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
+                        spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
+                        spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
+        self.color = color
+                
+    def test_conversion_to_xyz(self):
+        xyz = self.color.convert_to('xyz')
+        self.assertAlmostEqual(xyz.xyz_x, 0.115, 3, "Spectral to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.099, 3, "Spectral to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.047, 3, "Spectral to XYZ failed: Z coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('spectral')
+        self.assertEqual(self.color, same_color)
+
 class XYZConversions(unittest.TestCase):
     def setUp(self):
-        color = XYZColor()
-        color.xyz_x = 0.1
-        color.xyz_y = 0.2
-        color.xyz_z = 0.3
+        color = XYZColor(xyz_x=0.1, xyz_y=0.2, xyz_z=0.3)
         self.color = color
         
     def test_conversion_to_xyy(self):
@@ -173,8 +196,12 @@ class ValueTests(unittest.TestCase):
         self.assertRaises(MissingValue, self.color.convert_to, 'xyz')
         
     def test_invalid_val(self):
-        self.color.lab_a = 'a'
+        self.color.lab_a = 'THIS IS NOT A VALID a* COORDINATE'
         self.assertRaises(InvalidValue, self.color.convert_to, 'xyz')
+        
+    def test_invalid_observer(self):
+        self.color.observer = 'THIS IS NOT A VALID OBSERVER ANGLE'
+        self.assertRaises(InvalidObserver, self.color.convert_to, 'xyz')
 
 if __name__ == '__main__':
     unittest.main()
