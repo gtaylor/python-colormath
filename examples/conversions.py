@@ -77,7 +77,13 @@ def example_lab_to_rgb():
     
 def example_spectral_to_xyz():
     print "=== Example: Spectral->XYZ ==="
-    # Instantiate an Lab color object with the given values.
+    """
+    Instantiate an Lab color object with the given values. Note that the
+    spectral range can run from 340nm to 830nm. Any omitted values assume a
+    value of 0.0, which is more or less ignored. For the distribution below,
+    we are providing an example reading from an X-Rite i1 Pro, which only
+    measures between 380nm and 730nm.
+    """
     spc = SpectralColor(observer=2, illuminant='d50', spec_370nm=0.5,
                         spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
                         spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
@@ -91,12 +97,13 @@ def example_spectral_to_xyz():
                         spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
                         spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
                         spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
+    print spc
     xyz = spc.convert_to('xyz')
-    print "END", xyz
+    print xyz
     print "=== End Example ===\n"
     
 # Feel free to comment/un-comment examples as you please.
-#example_lab_to_xyz()
-#example_lchab_to_lchuv()
-#example_lab_to_rgb()
+example_lab_to_xyz()
+example_lchab_to_lchuv()
+example_lab_to_rgb()
 example_spectral_to_xyz()
