@@ -78,7 +78,8 @@ def example_lab_to_rgb():
 def example_spectral_to_xyz():
     print "=== Example: Spectral->XYZ ==="
     # Instantiate an Lab color object with the given values.
-    spc = SpectralColor(spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
+    spc = SpectralColor(observer=2, illuminant='z', spec_370nm=0.5,
+                        spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
                         spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
                         spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
                         spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,

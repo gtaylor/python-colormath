@@ -51,7 +51,7 @@ class ColorBase(object):
         Makes sure all string variables are lowercase beforehand.
         """
         self.illuminant = self.illuminant.lower()
-        self.observer == str(self.observer)
+        self.observer = str(self.observer)
 
     def convert_to(self, cs_to, *args, **kwargs):
         """
@@ -64,11 +64,11 @@ class ColorBase(object):
         except KeyError:
             raise InvalidConversion(self.__class__.__name__, cs_to)
         
+        # Make sure any string variables are lowercase.
+        self.__prep_strings()
         # Make sure the object has all of its required values before even
         # attempting a conversion.
         self.has_required_values()
-        # Make sure any string variables are lowercase.
-        self.__prep_strings()
         
         if debug:
             print 'Converting %s to %s' % (self, cs_to)
@@ -188,7 +188,8 @@ class SpectralColor(ColorBase):
         "luv": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_RGB],
     }
-    VALUES = ['spec_380nm', 'spec_390nm', 'spec_400nm', 'spec_410nm', 
+    VALUES = ['spec_340nm', 'spec_350nm', 'spec_360nm', 'spec_370nm',
+              'spec_380nm', 'spec_390nm', 'spec_400nm', 'spec_410nm', 
               'spec_420nm', 'spec_430nm', 'spec_440nm', 'spec_450nm', 
               'spec_460nm', 'spec_470nm', 'spec_480nm', 'spec_490nm', 
               'spec_500nm', 'spec_510nm', 'spec_520nm', 'spec_530nm', 
@@ -196,63 +197,83 @@ class SpectralColor(ColorBase):
               'spec_580nm', 'spec_590nm', 'spec_600nm', 'spec_610nm', 
               'spec_620nm', 'spec_630nm', 'spec_640nm', 'spec_650nm', 
               'spec_660nm', 'spec_670nm', 'spec_680nm', 'spec_690nm', 
-              'spec_700nm', 'spec_710nm', 'spec_720nm', 'spec_730nm']
+              'spec_700nm', 'spec_710nm', 'spec_720nm', 'spec_730nm',
+              'spec_740nm', 'spec_750nm', 'spec_760nm', 'spec_770nm',
+              'spec_780nm', 'spec_790nm', 'spec_800nm', 'spec_810nm',
+              'spec_820nm', 'spec_830nm']
     
     def __init__(self, *args, **kwargs):
         super(SpectralColor, self).__init__(*args, **kwargs)
         # Spectral fields
-        self.spec_380nm = None # begin Blue wavelengths
-        self.spec_390nm = None
-        self.spec_400nm = None
-        self.spec_410nm = None
-        self.spec_420nm = None
-        self.spec_430nm = None
-        self.spec_440nm = None
-        self.spec_450nm = None
-        self.spec_460nm = None
-        self.spec_470nm = None
-        self.spec_480nm = None
-        self.spec_490nm = None # end Blue wavelengths
-        self.spec_500nm = None # start Green wavelengths
-        self.spec_510nm = None
-        self.spec_520nm = None
-        self.spec_530nm = None
-        self.spec_540nm = None
-        self.spec_550nm = None
-        self.spec_560nm = None
-        self.spec_570nm = None
-        self.spec_580nm = None
-        self.spec_590nm = None
-        self.spec_600nm = None
-        self.spec_610nm = None # end Green wavelengths
-        self.spec_620nm = None # start Red wavelengths
-        self.spec_630nm = None
-        self.spec_640nm = None
-        self.spec_650nm = None
-        self.spec_660nm = None
-        self.spec_670nm = None
-        self.spec_680nm = None
-        self.spec_690nm = None
-        self.spec_700nm = None
-        self.spec_710nm = None
-        self.spec_720nm = None
-        self.spec_730nm = None # end Red wavelengths
+        self.spec_340nm = 0.0
+        self.spec_350nm = 0.0
+        self.spec_360nm = 0.0
+        self.spec_370nm = 0.0
+        self.spec_380nm = 0.0 # begin Blue wavelengths
+        self.spec_390nm = 0.0
+        self.spec_400nm = 0.0
+        self.spec_410nm = 0.0
+        self.spec_420nm = 0.0
+        self.spec_430nm = 0.0
+        self.spec_440nm = 0.0
+        self.spec_450nm = 0.0
+        self.spec_460nm = 0.0
+        self.spec_470nm = 0.0
+        self.spec_480nm = 0.0
+        self.spec_490nm = 0.0 # end Blue wavelengths
+        self.spec_500nm = 0.0 # start Green wavelengths
+        self.spec_510nm = 0.0
+        self.spec_520nm = 0.0
+        self.spec_530nm = 0.0
+        self.spec_540nm = 0.0
+        self.spec_550nm = 0.0
+        self.spec_560nm = 0.0
+        self.spec_570nm = 0.0
+        self.spec_580nm = 0.0
+        self.spec_590nm = 0.0
+        self.spec_600nm = 0.0
+        self.spec_610nm = 0.0 # end Green wavelengths
+        self.spec_620nm = 0.0 # start Red wavelengths
+        self.spec_630nm = 0.0
+        self.spec_640nm = 0.0
+        self.spec_650nm = 0.0
+        self.spec_660nm = 0.0
+        self.spec_670nm = 0.0
+        self.spec_680nm = 0.0
+        self.spec_690nm = 0.0
+        self.spec_700nm = 0.0
+        self.spec_710nm = 0.0
+        self.spec_720nm = 0.0
+        self.spec_730nm = 0.0 # end Red wavelengths
+        self.spec_740nm = 0.0
+        self.spec_750nm = 0.0
+        self.spec_760nm = 0.0
+        self.spec_770nm = 0.0
+        self.spec_780nm = 0.0
+        self.spec_790nm = 0.0
+        self.spec_800nm = 0.0
+        self.spec_810nm = 0.0
+        self.spec_820nm = 0.0
+        self.spec_830nm = 0.0
         self._transfer_kwargs(*args, **kwargs)
         
     def get_numpy_array(self):
         """
         Dump this color into NumPy array.
         """
-        color_array = numpy.array((self.spec_380nm, self.spec_390nm,
-            self.spec_400nm, self.spec_410nm, self.spec_420nm, self.spec_430nm,
-            self.spec_440nm, self.spec_450nm, self.spec_460nm, self.spec_470nm,
-            self.spec_480nm, self.spec_490nm, self.spec_500nm, self.spec_510nm,
-            self.spec_520nm, self.spec_530nm, self.spec_540nm, self.spec_550nm,
-            self.spec_560nm, self.spec_570nm, self.spec_580nm, self.spec_590nm,
-            self.spec_600nm, self.spec_610nm, self.spec_620nm, self.spec_630nm,
-            self.spec_640nm, self.spec_650nm, self.spec_660nm, self.spec_670nm,
-            self.spec_680nm, self.spec_690nm, self.spec_700nm, self.spec_710nm,
-            self.spec_720nm, self.spec_730nm))
+        # This holds the obect's spectral data, and will be passed to 
+        # numpy.array() to create a numpy array (matrix) for the matrix math
+        # that will be done during the conversion to XYZ. 
+        values = []
+        
+        # Use the required value list to build this dynamically. Default to
+        # 0.0, since that ultimately won't affect the outcome due to the math
+        # involved.
+        for val in self.VALUES:
+            values.append(getattr(self, val, 0.0))
+
+        # Create and the actual numpy array/matrix from the spectral list.
+        color_array = numpy.array([values])
         return color_array
     
 class LabColor(ColorBase):

@@ -23,6 +23,7 @@ import math
 import numpy
 from colormath import color_constants
 from colormath import spectral_constants
+from colormath.color_exceptions import InvalidIlluminant
 
 def _transfer_common(old_cobj, new_cobj):
     """
@@ -80,40 +81,55 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
     result_matrix = numpy.dot(var_matrix, rgb_matrix)
     return result_matrix[0], result_matrix[1], result_matrix[2]
 
-def Spectral_to_XYZ(cobj, debug=False, reference_illum=None, *args, **kwargs):
+def Spectral_to_XYZ(cobj, debug=False, illuminant_override=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
     """
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
     
-    # If the user doesn't specify a reference illuminant, assume D.
-    if not reference_illum:
-        reference_illum = spectral_constants.REFERENCE_ILLUM_D
+    # If the user provides an illuminant_override numpy array, use it.
+    if illuminant_override:
+        reference_illum = illuminant_override
+    else:
+        # Otherwise, look up the illuminant from known standards based
+        # on the value of 'illuminant' pulled from the SpectralColor object.
+        try:
+            reference_illum = spectral_constants.REF_ILLUM_TABLE[cobj.illuminant]
+        except KeyError:
+            raise InvalidIlluminant(cobj)
+        
+    # Get the spectral distribution of the selected standard observer.
+    if cobj.observer == '10':
+        std_obs_x = spectral_constants.STDOBSERV_X10
+        std_obs_y = spectral_constants.STDOBSERV_Y10
+        std_obs_z = spectral_constants.STDOBSERV_Z10
+    else:
+        # Assume 2 degree, since it is theoretically the only other possibility.
+        std_obs_x = spectral_constants.STDOBSERV_X2
+        std_obs_y = spectral_constants.STDOBSERV_Y2
+        std_obs_z = spectral_constants.STDOBSERV_Z2
      
     # This is a NumPy array containing the spectral distribution of the color.
     sample = cobj.get_numpy_array()
     
     # The denominator is constant throughout the entire calculation for X,
     # Y, and Z coordinates. Calculate it once and re-use.
-    denom = spectral_constants.STDOBSERV_Y2 * reference_illum
+    denom = std_obs_y * reference_illum
+    
     # This is also a common element in the calculation whereby the sample
     # NumPy array is multiplied by the reference illuminant's power distribution
     # (which is also a NumPy array).
     sample_by_ref_illum = sample * reference_illum
-    
-    print "DENOM", denom.sum()
-    
+        
     # Calculate the numerator of the equation to find X.
-    x_numerator = sample_by_ref_illum * spectral_constants.STDOBSERV_X2
-    y_numerator = sample_by_ref_illum * spectral_constants.STDOBSERV_Y2
-    z_numerator = sample_by_ref_illum * spectral_constants.STDOBSERV_Z2
-                    
-    print "XNUM", x_numerator.sum()
+    x_numerator = sample_by_ref_illum * std_obs_x
+    y_numerator = sample_by_ref_illum * std_obs_y
+    z_numerator = sample_by_ref_illum * std_obs_z
     
-    xyzcolor.xyz_x = x_numerator.sum()/denom.sum()
-    xyzcolor.xyz_y = y_numerator.sum()/denom.sum()
-    xyzcolor.xyz_z = z_numerator.sum()/denom.sum()
+    xyzcolor.xyz_x = x_numerator.sum() / denom.sum()
+    xyzcolor.xyz_y = y_numerator.sum() / denom.sum()
+    xyzcolor.xyz_z = z_numerator.sum() / denom.sum()
     
     return xyzcolor
 
