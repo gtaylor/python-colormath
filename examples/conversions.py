@@ -84,7 +84,7 @@ def example_spectral_to_xyz():
     we are providing an example reading from an X-Rite i1 Pro, which only
     measures between 380nm and 730nm.
     """
-    spc = SpectralColor(observer=2, illuminant='d50', spec_370nm=0.5,
+    spc = SpectralColor(observer=2, illuminant='d50', 
                         spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
                         spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
                         spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
@@ -97,7 +97,6 @@ def example_spectral_to_xyz():
                         spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
                         spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
                         spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
-    print spc
     xyz = spc.convert_to('xyz')
     print xyz
     print "=== End Example ===\n"

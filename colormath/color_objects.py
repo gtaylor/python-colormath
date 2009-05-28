@@ -21,8 +21,9 @@ This module contains classes to represent various color spaces.
 """
 import numpy
 from colormath import color_conversions
-from colormath.color_exceptions import *
 from colormath import color_constants
+from colormath import density
+from colormath.color_exceptions import *
 from colormath.color_diff import delta_e_cie2000, delta_e_cie1976, delta_e_cie1994, delta_e_cmc
 
 class ColorBase(object):
@@ -275,6 +276,18 @@ class SpectralColor(ColorBase):
         # Create and the actual numpy array/matrix from the spectral list.
         color_array = numpy.array([values])
         return color_array
+    
+    def calc_density(self, density_standard=None):
+        """
+        Calculates the density of the SpectralColor. By default, Status T
+        density is used, and the correct density distribution (Red, Green,
+        or Blue) is chosen by comparing the Red, Green, and Blue components of
+        the spectral sample (the values being red in via "filters").
+        """
+        if density_standard != None:
+            return density.ansi_density(self, density_standard)
+        else:
+            return density.auto_density(self)
     
 class LabColor(ColorBase):
     """
