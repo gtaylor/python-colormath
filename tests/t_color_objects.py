@@ -163,6 +163,56 @@ class LCHuvConversions(unittest.TestCase):
         same_color = self.color.convert_to('lchuv')
         self.assertEqual(self.color, same_color)
         
+class RGBConversions(unittest.TestCase):
+    def setUp(self):
+        self.color = RGBColor(rgb_r=123, rgb_g=200, rgb_b=50)
+                
+    def test_conversion_to_cmy(self):
+        cmy = self.color.convert_to('cmy')
+        self.assertAlmostEqual(cmy.cmy_c, 0.518, 3, "RGB to CMY failed: C coord")
+        self.assertAlmostEqual(cmy.cmy_m, 0.216, 3, "RGB to CMY failed: M coord")
+        self.assertAlmostEqual(cmy.cmy_y, 0.804, 3, "RGB to CMY failed: Y coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('rgb')
+        self.assertEqual(self.color, same_color)
+        
+class CMYConversions(unittest.TestCase):
+    def setUp(self):
+        self.color = CMYColor(cmy_c=0.518, cmy_m=0.216, cmy_y=0.804)
+                
+    def test_conversion_to_cmyk(self):
+        cmyk = self.color.convert_to('cmyk')
+        self.assertAlmostEqual(cmyk.cmyk_c, 0.385, 3, "CMY to CMYK failed: C coord")
+        self.assertAlmostEqual(cmyk.cmyk_m, 0.000, 3, "CMY to CMYK failed: M coord")
+        self.assertAlmostEqual(cmyk.cmyk_y, 0.750, 3, "CMY to CMYK failed: Y coord")
+        self.assertAlmostEqual(cmyk.cmyk_k, 0.216, 3, "CMY to CMYK failed: K coord")
+        
+    def test_conversion_to_rgb(self):
+        rgb = self.color.convert_to('rgb')
+        self.assertEqual(rgb.rgb_r, 123, "CMY to RGB failed: R coord")
+        self.assertEqual(rgb.rgb_g, 200, "CMY to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 50, "CMY to RGB failed: B coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('cmy')
+        self.assertEqual(self.color, same_color)
+        
+class CMYKConversions(unittest.TestCase):
+    def setUp(self):
+        self.color = CMYKColor(cmyk_c=0.385, cmyk_m=0.000, cmyk_y=0.750, 
+                               cmyk_k=0.216)
+                
+    def test_conversion_to_cmy(self):
+        cmy = self.color.convert_to('cmy')
+        self.assertAlmostEqual(cmy.cmy_c, 0.518, 3, "CMYK to CMY failed: C coord")
+        self.assertAlmostEqual(cmy.cmy_m, 0.216, 3, "CMYK to CMY failed: M coord")
+        self.assertAlmostEqual(cmy.cmy_y, 0.804, 3, "CMYK to CMY failed: Y coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('cmyk')
+        self.assertEqual(self.color, same_color)
+        
 class ValueTests(unittest.TestCase):
     def setUp(self):
         self.color = LabColor(lab_l = 1.807, lab_b = -2.547)

@@ -339,6 +339,34 @@ def XYZ_to_Lab(cobj, debug=False, *args, **kwargs):
     labcolor.lab_b = 200.0 * (temp_y - temp_z)
     return labcolor
 
+def __scale_rgb(rgbcolor):
+    """
+    Scales an RGB color object from decimal 0-1 to int 0-255.
+    """
+    # RGB values are to not go under 0.
+    if rgbcolor.rgb_r < 0:
+        rgbcolor.rgb_r = 0
+    if rgbcolor.rgb_g < 0:
+        rgbcolor.rgb_g = 0
+    if rgbcolor.rgb_b < 0:
+        rgbcolor.rgb_b = 0
+      
+    # Scale up to 0-255 values.
+    rgbcolor.rgb_r = int(math.floor(0.5 + rgbcolor.rgb_r * 255))
+    rgbcolor.rgb_g = int(math.floor(0.5 + rgbcolor.rgb_g * 255))
+    rgbcolor.rgb_b = int(math.floor(0.5 + rgbcolor.rgb_b * 255))
+   
+    # Cap RGB values at 255. This shouldn't happen, but it's here just in case
+    # things go out of gamut or other fun things.
+    if rgbcolor.rgb_r > 255:
+        rgbcolor.rgb_r = 255
+    if rgbcolor.rgb_g > 255:
+        rgbcolor.rgb_g = 255
+    if rgbcolor.rgb_b > 255:
+        rgbcolor.rgb_b = 255
+        
+    return rgbcolor
+
 def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     """
     XYZ to RGB conversion.
@@ -405,34 +433,12 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
             rgbcolor.rgb_b = 0
       
         #print "RGB", rgbcolor.rgb_r, rgbcolor.rgb_g, rgbcolor.rgb_b
-        rgbcolor.rgb_r = math.pow(rgbcolor.rgb_r,(1 / gamma))
-        rgbcolor.rgb_g = math.pow(rgbcolor.rgb_g,(1 / gamma))
-        rgbcolor.rgb_b = math.pow(rgbcolor.rgb_b,(1 / gamma))
-
-    # RGB values are to not go under 0.
-    if rgbcolor.rgb_r < 0:
-        rgbcolor.rgb_r = 0
-    if rgbcolor.rgb_g < 0:
-        rgbcolor.rgb_g = 0
-    if rgbcolor.rgb_b < 0:
-        rgbcolor.rgb_b = 0
-      
-    # Scale up to 0-255 values.
-    rgbcolor.rgb_r = int(math.floor(0.5 + rgbcolor.rgb_r * 255))
-    rgbcolor.rgb_g = int(math.floor(0.5 + rgbcolor.rgb_g * 255))
-    rgbcolor.rgb_b = int(math.floor(0.5 + rgbcolor.rgb_b * 255))
-   
-    # Cap RGB values at 255. This shouldn't happen, but it's here just in case
-    # things go out of gamut or other fun things.
-    if rgbcolor.rgb_r > 255:
-        rgbcolor.rgb_r = 255
-    if rgbcolor.rgb_g > 255:
-        rgbcolor.rgb_g = 255
-    if rgbcolor.rgb_b > 255:
-        rgbcolor.rgb_b = 255
+        rgbcolor.rgb_r = math.pow(rgbcolor.rgb_r, (1 / gamma))
+        rgbcolor.rgb_g = math.pow(rgbcolor.rgb_g, (1 / gamma))
+        rgbcolor.rgb_b = math.pow(rgbcolor.rgb_b, (1 / gamma))
       
     rgbcolor.rgb_type = target_rgb
-    return rgbcolor
+    return __scale_rgb(rgbcolor)
 
 def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
     """
@@ -454,9 +460,9 @@ def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
     cmycolor = color_objects.CMYColor()
     _transfer_common(cobj, cmycolor)
    
-    cmycolor.cmy_c = 1 - (cobj.rgb_r / 255)
-    cmycolor.cmy_m = 1 - (cobj.rgb_g / 255)
-    cmycolor.cmy_y = 1 - (cobj.rgb_b / 255)
+    cmycolor.cmy_c = 1.0 - (cobj.rgb_r / 255.0)
+    cmycolor.cmy_m = 1.0 - (cobj.rgb_g / 255.0)
+    cmycolor.cmy_y = 1.0 - (cobj.rgb_b / 255.0)
     
     return cmycolor
 
@@ -472,6 +478,19 @@ def RGB_to_XYZ(cobj, debug=False, *args, **kwargs):
     xyzcolor.xyz_z = 0.5
     
     return xyzcolor
+
+def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
+    """
+    Converts CMY to RGB via simple subtraction.
+    """
+    rgbcolor = color_objects.RGBColor()
+    _transfer_common(cobj, rgbcolor)
+    
+    rgbcolor.rgb_r = 1.0 - cobj.cmy_c
+    rgbcolor.rgb_g = 1.0 - cobj.cmy_m
+    rgbcolor.rgb_b = 1.0 - cobj.cmy_y
+    
+    return __scale_rgb(rgbcolor)
 
 def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
     """
@@ -498,6 +517,21 @@ def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
         cmykcolor.cmyk_c = (cobj.cmy_c - var_k) / (1.0 - var_k)
         cmykcolor.cmyk_m = (cobj.cmy_m - var_k) / (1.0 - var_k)
         cmykcolor.cmyk_y = (cobj.cmy_y - var_k) / (1.0 - var_k)
+    cmykcolor.cmyk_k = var_k
+
     return cmykcolor
+
+def CMYK_to_CMY(cobj, debug=False, *args, **kwargs):
+    """
+    Converts CMYK to CMY.
+    """
+    cmycolor = color_objects.CMYColor()
+    _transfer_common(cobj, cmycolor)
+    
+    cmycolor.cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
+    cmycolor.cmy_m = cobj.cmyk_m * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
+    cmycolor.cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
+    
+    return cmycolor
 
 import color_objects

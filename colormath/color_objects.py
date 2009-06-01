@@ -439,6 +439,8 @@ class RGBColor(ColorBase):
     """
     CONVERSIONS = {
         "rgb": [None],
+        "cmy": [color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
         "xyz": [color_conversions.RGB_to_XYZ],
         "xyy": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab],
@@ -461,6 +463,13 @@ class RGBColor(ColorBase):
     def __str__(self):
         parent_str = super(RGBColor, self).__str__()
         return '%s [%s]' % (parent_str, self.rgb_type)
+    
+    def rgb_to_hex(rgb_tuple):
+        """
+        Converts the RGB value to a hex value in the form of: #RRGGBB
+        """
+        self.has_required_values()
+        return '#%02x%02x%02x' % (self.rgb_r, self.rgb_g, self.rgb_b)
         
 class CMYColor(ColorBase):
     """
@@ -469,6 +478,7 @@ class CMYColor(ColorBase):
     CONVERSIONS = {
         "cmy": [None],
        "cmyk": [color_conversions.CMY_to_CMYK],
+        "rgb": [color_conversions.CMY_to_RGB],
     }
     VALUES = ['cmy_c', 'cmy_m', 'cmy_y']
     
@@ -485,6 +495,7 @@ class CMYKColor(ColorBase):
     """
     CONVERSIONS = {
        "cmyk": [None],
+        "cmy": [color_conversions.CMYK_to_CMY],
     }
     VALUES = ['cmyk_c', 'cmyk_m', 'cmyk_y', 'cmyk_k']
     
