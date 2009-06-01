@@ -339,9 +339,19 @@ def XYZ_to_Lab(cobj, debug=False, *args, **kwargs):
     labcolor.lab_b = 200.0 * (temp_y - temp_z)
     return labcolor
 
-def __scale_rgb(rgbcolor):
+def __downscale_rgb_vals(r, g, b):
     """
-    Scales an RGB color object from decimal 0-1 to int 0-255.
+    Scales an RGB color object from an int 0-255 to decimal 0.0-1.0.
+    """
+    var_r = r / 255.0
+    var_g = g / 255.0
+    var_b = b / 255.0
+    
+    return (var_r, var_g, var_b)
+
+def __upscale_rgb(rgbcolor):
+    """
+    Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
     """
     # RGB values are to not go under 0.
     if rgbcolor.rgb_r < 0:
@@ -374,6 +384,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     target_rgb = target_rgb.lower()
     rgbcolor = color_objects.RGBColor()
     _transfer_common(cobj, rgbcolor)
+    
     temp_X = cobj.xyz_x / 100.0
     temp_Y = cobj.xyz_y / 100.0
     temp_Z = cobj.xyz_z / 100.0
@@ -438,7 +449,78 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
         rgbcolor.rgb_b = math.pow(rgbcolor.rgb_b, (1 / gamma))
       
     rgbcolor.rgb_type = target_rgb
-    return __scale_rgb(rgbcolor)
+    return __upscale_rgb(rgbcolor)
+
+def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
+    """
+    RGB to XYZ conversion. Expects 1-255 RGB values.
+    """
+    xyzcolor = color_objects.XYZColor()
+    _transfer_common(cobj, xyzcolor)
+    
+    temp_R, temp_G, temp_B = __downscale_rgb_vals(cobj.rgb_r,
+                                                  cobj.rgb_g,
+                                                  cobj.rgb_b)
+   
+    if cobj.rgb_type == "srgb":
+        # If it's sRGB...
+        if temp_R > 0.04045:
+            temp_R = math.pow((temp_R + 0.055) / 1.055, 2.4)
+        else:
+            temp_R = temp_R / 12.92
+   
+        if temp_G > 0.04045:
+            temp_G = math.pow((temp_G + 0.055) / 1.055, 2.4)
+        else:
+            temp_G = temp_G / 12.92
+   
+        if temp_B > 0.04045:
+            temp_B = math.pow((temp_B + 0.055) / 1.055, 2.4)
+        else:
+            temp_B = temp_B / 12.92
+    else:
+        # If it's not sRGB...
+        gamma = color_constants.RGB_SPECS[cobj.rgb_type]["gamma"]
+            
+        temp_R = math.pow(temp_R, gamma)
+        temp_G = math.pow(temp_G, gamma)
+        temp_B = math.pow(temp_B, gamma)
+        
+    # Apply an RGB working space matrix to the XYZ values (matrix mul).
+    xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_RGB_matrix(temp_R, 
+                                          temp_G, temp_B, rgb_type=cobj.rgb_type, 
+                                          convtype="rgb_to_xyz", debug=debug)
+    
+    if target_illuminant != None:
+        xyzcolor.illuminant = target_illuminant.lower()
+    else:
+        xyzcolor.illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+        
+    # The illuminant of the original RGB object.
+    source_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+    
+    if debug:
+        print "  \- Source RGB space: %s" % cobj.rgb_type
+        print "  \- Source RGB space illuminant: %s" % source_illuminant
+        print "  \- Target illuminant: %s" % xyzcolor.illuminant
+   
+    # If the XYZ values were taken with a different reference white than the
+    # native reference white of the target RGB space, a transformation matrix
+    # must be applied.
+    illum = xyzcolor.get_illuminant_xyz()
+    if source_illuminant != xyzcolor.illuminant:
+        if debug:
+            print "  \* Applying transformation from %s to %s " % (cobj.illuminant,
+                                                                xyzcolor.illuminant)
+        # Get the adjusted XYZ values, adapted for the target illuminant.
+        xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_XYZ_transformation(xyzcolor.xyz_x,
+                                                  xyzcolor.xyz_y,
+                                                  xyzcolor.xyz_z, 
+                                                  orig_illum=source_illuminant, 
+                                                  targ_illum=xyzcolor.illuminant,
+                                                  debug=debug)
+
+    return xyzcolor
 
 def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
     """
@@ -468,19 +550,6 @@ def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
     
     return cmycolor
 
-def RGB_to_XYZ(cobj, debug=False, *args, **kwargs):
-    """
-    Converts RGB to XYZ.
-    """
-    xyzcolor = color_objects.XYZColor()
-    _transfer_common(cobj, xyzcolor)
-   
-    xyzcolor.xyz_x = 0.5
-    xyzcolor.xyz_y = 0.5
-    xyzcolor.xyz_z = 0.5
-    
-    return xyzcolor
-
 def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
     """
     Converts CMY to RGB via simple subtraction.
@@ -494,7 +563,7 @@ def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
     rgbcolor.rgb_g = 1.0 - cobj.cmy_m
     rgbcolor.rgb_b = 1.0 - cobj.cmy_y
     
-    return __scale_rgb(rgbcolor)
+    return __upscale_rgb(rgbcolor)
 
 def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
     """

@@ -21,7 +21,7 @@ This module shows you how to perform color space conversions. Please see the
 chart on www.brucelindbloom.com/Math.html for an illustration of the conversions
 you may perform.
 """
-from colormath.color_objects import LabColor, LCHabColor, SpectralColor
+from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor
 
 def example_lab_to_xyz():
     """
@@ -31,7 +31,7 @@ def example_lab_to_xyz():
     """
     print "=== Simple Example: Lab->XYZ ==="
     # Instantiate an Lab color object with the given values.
-    lab = LabColor(lab_l = 0.903, lab_a = 16.296, lab_b = -2.22)
+    lab = LabColor(0.903, 16.296, -2.22)
     # Show a string representation.
     print lab
     # Convert to XYZ.
@@ -50,7 +50,7 @@ def example_lchab_to_lchuv():
     """
     print "=== Complex Example: LCHab->LCHuv ==="
     # Instantiate an LCHab color object with the given values.
-    lchab = LCHabColor(lch_l = 0.903, lch_c = 16.447, lch_h = 352.252)
+    lchab = LCHabColor(0.903, 16.447, 352.252)
     # Show a string representation.
     print lchab
     # Convert to LCHuv.
@@ -67,12 +67,26 @@ def example_lab_to_rgb():
     """
     print "=== RGB Example: Lab->RGB ==="
     # Instantiate an Lab color object with the given values.
-    lab = LabColor(lab_l = 0.903, lab_a = 16.296, lab_b = -2.217)
+    lab = LabColor(0.903, 16.296, -2.217)
     # Show a string representation.
     print lab
     # Convert to XYZ.
     rgb = lab.convert_to('rgb', target_rgb='sRGB', debug=False)
     print rgb
+    print "=== End Example ===\n"
+    
+def example_rgb_to_xyz():
+    """
+    The reverse is similar.
+    """
+    print "=== RGB Example: RGB->XYZ ==="
+    # Instantiate an Lab color object with the given values.
+    rgb = RGBColor(120, 130, 140, rgb_type='sRGB')
+    # Show a string representation.
+    print rgb
+    # Convert RGB to XYZ using a D50 illuminant.
+    xyz = rgb.convert_to('xyz', target_illuminant='D50')
+    print xyz
     print "=== End Example ===\n"
     
 def example_spectral_to_xyz():
@@ -106,3 +120,4 @@ example_lab_to_xyz()
 example_lchab_to_lchuv()
 example_lab_to_rgb()
 example_spectral_to_xyz()
+example_rgb_to_xyz()

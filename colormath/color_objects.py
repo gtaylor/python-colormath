@@ -58,6 +58,11 @@ class ColorBase(object):
         attrib_list = self.VALUES + self.OTHER_VALUES
         for key, val in kwargs.items():
             if key in attrib_list:
+                # This is useful for stuff like illuminants. All of our
+                # constants dictionaries are lowercase.
+                if isinstance(val, str):
+                    val = val.lower()
+                # Transfer the value to the color object.
                 setattr(self, key, val)
                 
     def __prep_strings(self):
@@ -471,6 +476,7 @@ class RGBColor(ColorBase):
         self.rgb_g = None
         self.rgb_b = None
         self.rgb_type = 'srgb'
+        self.OTHER_VALUES.append('rgb_type')
         self._transfer_kwargs(*args, **kwargs)
         
     def __str__(self):

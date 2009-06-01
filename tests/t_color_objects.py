@@ -25,6 +25,11 @@ from colormath.color_exceptions import *
 
 class SpectralConversions(unittest.TestCase):
     def setUp(self):
+        """
+        While it is possible to specify the entire spectral color using
+        positional arguments, set this thing up with keywords for the ease of
+        manipulation.
+        """
         color = SpectralColor(spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
                         spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
                         spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
@@ -165,13 +170,57 @@ class LCHuvConversions(unittest.TestCase):
         
 class RGBConversions(unittest.TestCase):
     def setUp(self):
-        self.color = RGBColor(123, 200, 50)
+        self.color = RGBColor(123, 200, 50, rgb_type='sRGB')
                 
     def test_conversion_to_cmy(self):
         cmy = self.color.convert_to('cmy')
         self.assertAlmostEqual(cmy.cmy_c, 0.518, 3, "RGB to CMY failed: C coord")
         self.assertAlmostEqual(cmy.cmy_m, 0.216, 3, "RGB to CMY failed: M coord")
         self.assertAlmostEqual(cmy.cmy_y, 0.804, 3, "RGB to CMY failed: Y coord")
+        
+    def test_srgb_conversion_to_xyz_d50(self):
+        """
+        sRGB's native illuminant is D65. Test the XYZ adaptations by setting
+        a target illuminant to something other than D65.
+        """
+        xyz = self.color.convert_to('xyz', target_illuminant='D50')
+        self.assertAlmostEqual(xyz.xyz_x, 0.313, 3, "RGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.460, 3, "RGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.082, 3, "RGB to XYZ failed: Z coord")
+        
+    def test_srgb_conversion_to_xyz_d65(self):
+        """
+        sRGB's native illuminant is D65. This is a straightforward conversion.
+        """
+        xyz = self.color.convert_to('xyz')
+        self.assertAlmostEqual(xyz.xyz_x, 0.294, 3, "RGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.457, 3, "RGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.103, 3, "RGB to XYZ failed: Z coord")
+        
+    def test_adobe_conversion_to_xyz_d65(self):
+        """
+        Adobe RGB's native illuminant is D65, like sRGB's. However, sRGB uses
+        different conversion math that uses gamma, so test the alternate logic
+        route for non-sRGB RGB colors.
+        """
+        adobe = RGBColor(123, 200, 50, rgb_type='adobe')
+        xyz = adobe.convert_to('xyz')
+        self.assertAlmostEqual(xyz.xyz_x, 0.230, 3, "RGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.430, 3, "RGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.074, 3, "RGB to XYZ failed: Z coord")
+        
+    def test_adobe_conversion_to_xyz_d50(self):
+        """
+        Adobe RGB's native illuminant is D65, so an adaptation matrix is
+        involved here. However, the math for sRGB and all other RGB types is
+        different, so test all of the other types with an adaptation matrix
+        here.
+        """
+        adobe = RGBColor(123, 200, 50, rgb_type='adobe')
+        xyz = adobe.convert_to('xyz', target_illuminant='D50')
+        self.assertAlmostEqual(xyz.xyz_x, 0.247, 3, "RGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.431, 3, "RGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.060, 3, "RGB to XYZ failed: Z coord")
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('rgb')
