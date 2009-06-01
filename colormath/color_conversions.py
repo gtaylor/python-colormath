@@ -400,7 +400,6 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     # If the XYZ values were taken with a different reference white than the
     # native reference white of the target RGB space, a transformation matrix
     # must be applied.
-    illum = cobj.get_illuminant_xyz()
     if cobj.illuminant != target_illum:
         if debug:
             print "  \* Applying transformation from %s to %s " % (cobj.illuminant,
@@ -491,34 +490,16 @@ def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
                                           temp_G, temp_B, rgb_type=cobj.rgb_type, 
                                           convtype="rgb_to_xyz", debug=debug)
     
-    if target_illuminant != None:
-        xyzcolor.illuminant = target_illuminant.lower()
-    else:
-        xyzcolor.illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+    if target_illuminant == None:
+        target_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
         
     # The illuminant of the original RGB object.
     source_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
     
-    if debug:
-        print "  \- Source RGB space: %s" % cobj.rgb_type
-        print "  \- Source RGB space illuminant: %s" % source_illuminant
-        print "  \- Target illuminant: %s" % xyzcolor.illuminant
-   
-    # If the XYZ values were taken with a different reference white than the
-    # native reference white of the target RGB space, a transformation matrix
-    # must be applied.
-    illum = xyzcolor.get_illuminant_xyz()
-    if source_illuminant != xyzcolor.illuminant:
-        if debug:
-            print "  \* Applying transformation from %s to %s " % (cobj.illuminant,
-                                                                xyzcolor.illuminant)
-        # Get the adjusted XYZ values, adapted for the target illuminant.
-        xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_XYZ_transformation(xyzcolor.xyz_x,
-                                                  xyzcolor.xyz_y,
-                                                  xyzcolor.xyz_z, 
-                                                  orig_illum=source_illuminant, 
-                                                  targ_illum=xyzcolor.illuminant,
-                                                  debug=debug)
+    # This needs to be correct before the adaptation is applied.
+    xyzcolor.illuminant = source_illuminant
+    # This will take care of any illuminant changes for us.
+    xyzcolor.apply_adaptation(target_illuminant)
 
     return xyzcolor
 

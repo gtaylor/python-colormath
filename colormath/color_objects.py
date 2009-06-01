@@ -146,17 +146,23 @@ class ColorBase(object):
                 raise InvalidValue(self, val, value)
         return True
     
-    def get_illuminant_xyz(self):
+    def get_illuminant_xyz(self, observer=None, illuminant=None):
         """
         Returns the color's illuminant's XYZ values.
         """
         try:
-            illums_observer = color_constants.ILLUMINANTS[str(self.observer)]
+            if observer == None:
+                observer = self.observer
+                
+            illums_observer = color_constants.ILLUMINANTS[self.observer]
         except KeyError:
             raise InvalidObserver(self)
         
         try:
-            illum_xyz = illums_observer[self.illuminant.lower()]
+            if illuminant == None:
+                illuminant = self.illuminant
+                
+            illum_xyz = illums_observer[illuminant]
         except AttributeError:
             raise InvalidIlluminant(self)
         except KeyError:
@@ -419,6 +425,37 @@ class XYZColor(ColorBase):
         "rgb": [color_conversions.XYZ_to_RGB],
     }
     VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
+    
+    def apply_adaptation(self, target_illuminant, adaptation='bradford', 
+                         debug=False):
+        """
+        This applies an adaptation matrix to change the XYZ color's illuminant. 
+        You'll most likely only need this during RGB conversions.
+        """            
+        # The illuminant of the original RGB object.
+        source_illuminant = self.illuminant
+        
+        if debug:
+            print "  \- Original illuminant: %s" % self.illuminant
+            print "  \- Target illuminant: %s" % target_illuminant
+       
+        # If the XYZ values were taken with a different reference white than the
+        # native reference white of the target RGB space, a transformation matrix
+        # must be applied.
+        if source_illuminant != target_illuminant:
+            if debug:
+                print "  \* Applying transformation from %s to %s " % (
+                                                            source_illuminant,
+                                                            target_illuminant)
+            # Get the adjusted XYZ values, adapted for the target illuminant.
+            self.xyz_x, self.xyz_y, self.xyz_z = color_conversions.apply_XYZ_transformation(
+                                                   self.xyz_x,
+                                                   self.xyz_y,
+                                                   self.xyz_z, 
+                                                   orig_illum=source_illuminant, 
+                                                   targ_illum=target_illuminant,
+                                                   debug=debug)
+            self.illuminant = target_illuminant
     
     def __init__(self, *args, **kwargs):
         super(XYZColor, self).__init__(*args, **kwargs)
