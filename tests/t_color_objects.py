@@ -51,7 +51,7 @@ class SpectralConversions(unittest.TestCase):
 
 class XYZConversions(unittest.TestCase):
     def setUp(self):
-        self.color = XYZColor(xyz_x=0.1, xyz_y=0.2, xyz_z=0.3)
+        self.color = XYZColor(0.1, 0.2, 0.3)
         
     def test_conversion_to_xyy(self):
         xyy = self.color.convert_to('xyy')
@@ -83,7 +83,7 @@ class XYZConversions(unittest.TestCase):
         
 class xyYConversions(unittest.TestCase):
     def setUp(self):
-        self.color = xyYColor(xyy_x=0.167, xyy_y=0.333, xyy_Y=0.200)
+        self.color = xyYColor(0.167, 0.333, 0.200)
         
     def test_conversion_to_xyz(self):
         xyz = self.color.convert_to('xyz')
@@ -97,7 +97,7 @@ class xyYConversions(unittest.TestCase):
         
 class LabConversions(unittest.TestCase):
     def setUp(self):
-        self.color = LabColor(lab_l=1.807, lab_a=-3.749, lab_b=-2.547)
+        self.color = LabColor(1.807, -3.749, -2.547)
         
     def test_conversion_to_xyz(self):
         xyz = self.color.convert_to('xyz')
@@ -117,7 +117,7 @@ class LabConversions(unittest.TestCase):
         
 class LuvConversions(unittest.TestCase):
     def setUp(self):
-        self.color = LuvColor(luv_l=1.807, luv_u=-2.564, luv_v=-0.894)
+        self.color = LuvColor(1.807, -2.564, -0.894)
         
     def test_conversion_to_xyz(self):
         xyz = self.color.convert_to('xyz')
@@ -137,7 +137,7 @@ class LuvConversions(unittest.TestCase):
         
 class LCHabConversions(unittest.TestCase):
     def setUp(self):
-        self.color = LCHabColor(lch_l=1.807, lch_c=4.532, lch_h=214.191)
+        self.color = LCHabColor(1.807, 4.532, 214.191)
                 
     def test_conversion_to_lab(self):
         lab = self.color.convert_to('lab')
@@ -151,7 +151,7 @@ class LCHabConversions(unittest.TestCase):
         
 class LCHuvConversions(unittest.TestCase):
     def setUp(self):
-        self.color = LCHuvColor(lch_l=1.807, lch_c=2.715, lch_h=199.228)
+        self.color = LCHuvColor(1.807, 2.715, 199.228)
                 
     def test_conversion_to_luv(self):
         luv = self.color.convert_to('luv')
@@ -165,7 +165,7 @@ class LCHuvConversions(unittest.TestCase):
         
 class RGBConversions(unittest.TestCase):
     def setUp(self):
-        self.color = RGBColor(rgb_r=123, rgb_g=200, rgb_b=50)
+        self.color = RGBColor(123, 200, 50)
                 
     def test_conversion_to_cmy(self):
         cmy = self.color.convert_to('cmy')
@@ -179,7 +179,7 @@ class RGBConversions(unittest.TestCase):
         
 class CMYConversions(unittest.TestCase):
     def setUp(self):
-        self.color = CMYColor(cmy_c=0.518, cmy_m=0.216, cmy_y=0.804)
+        self.color = CMYColor(0.518, 0.216, 0.804)
                 
     def test_conversion_to_cmyk(self):
         cmyk = self.color.convert_to('cmyk')
@@ -200,8 +200,7 @@ class CMYConversions(unittest.TestCase):
         
 class CMYKConversions(unittest.TestCase):
     def setUp(self):
-        self.color = CMYKColor(cmyk_c=0.385, cmyk_m=0.000, cmyk_y=0.750, 
-                               cmyk_k=0.216)
+        self.color = CMYKColor(0.385, 0.000, 0.750, 0.216)
                 
     def test_conversion_to_cmy(self):
         cmy = self.color.convert_to('cmy')

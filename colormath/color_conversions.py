@@ -456,6 +456,8 @@ def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
 def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
     """
     RGB to CMY conversion.
+    
+    NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
     cmycolor = color_objects.CMYColor()
     _transfer_common(cobj, cmycolor)
@@ -482,6 +484,8 @@ def RGB_to_XYZ(cobj, debug=False, *args, **kwargs):
 def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
     """
     Converts CMY to RGB via simple subtraction.
+    
+    NOTE: Returned values are in the range of 0-255.
     """
     rgbcolor = color_objects.RGBColor()
     _transfer_common(cobj, rgbcolor)
@@ -496,7 +500,7 @@ def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
     """
     Converts from CMY to CMYK.
     
-    NOTE: CMYK and CMY values range from 0 to 1
+    NOTE: CMYK and CMY values range from 0.0 to 1.0
     """ 
     cmykcolor = color_objects.CMYKColor()
     _transfer_common(cobj, cmykcolor)
@@ -524,6 +528,8 @@ def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
 def CMYK_to_CMY(cobj, debug=False, *args, **kwargs):
     """
     Converts CMYK to CMY.
+    
+    NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
     cmycolor = color_objects.CMYColor()
     _transfer_common(cobj, cmycolor)

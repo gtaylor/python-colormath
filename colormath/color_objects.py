@@ -42,6 +42,12 @@ class ColorBase(object):
         Transfers any keyword arguments to the appropriate coordinate fields
         if they match one of the keys in the class's VALUES dict.
         """
+        if len(args) == len(self.VALUES):
+            counter = 0
+            for arg in args:
+                setattr(self, self.VALUES[counter], arg)
+                counter += 1
+
         attrib_list = self.VALUES + self.OTHER_VALUES
         for key, val in kwargs.items():
             if key in attrib_list:
