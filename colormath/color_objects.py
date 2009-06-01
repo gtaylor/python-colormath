@@ -41,13 +41,20 @@ class ColorBase(object):
         """
         Transfers any keyword arguments to the appropriate coordinate fields
         if they match one of the keys in the class's VALUES dict.
+        
+        Also transfers *args to the corresponding tristimulus values.
         """
-        if len(args) == len(self.VALUES):
-            counter = 0
-            for arg in args:
+        # Used for tracking which member of the VALUES list we're on.
+        counter = 0
+        # This is the max number of args used for VALUES.
+        max_args = len(self.VALUES) - 1
+        for arg in args:
+            if counter <= max_args:
+                # Transfer the tri-stim value.
                 setattr(self, self.VALUES[counter], arg)
                 counter += 1
 
+        # Tranfser matching keywords.
         attrib_list = self.VALUES + self.OTHER_VALUES
         for key, val in kwargs.items():
             if key in attrib_list:
