@@ -171,6 +171,34 @@ class LCHuvConversions(unittest.TestCase):
 class RGBConversions(unittest.TestCase):
     def setUp(self):
         self.color = RGBColor(123, 200, 50, rgb_type='sRGB')
+        
+    def test_conversion_to_hsl_max_r(self):
+        color = RGBColor(255, 123, 50, rgb_type='sRGB')
+        hsl = color.convert_to('hsl')
+        self.assertAlmostEqual(hsl.hsl_h, 21.366, 3, "RGB R to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB R to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.598, 3, "RGB R to HSL failed: L coord")
+        
+    def test_conversion_to_hsl_max_g(self):
+        color = RGBColor(123, 255, 50, rgb_type='sRGB')
+        hsl = color.convert_to('hsl')
+        self.assertAlmostEqual(hsl.hsl_h, 98.634, 3, "RGB G to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB G to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.598, 3, "RGB G to HSL failed: L coord")
+        
+    def test_conversion_to_hsl_max_b(self):
+        color = RGBColor(123, 123, 255, rgb_type='sRGB')
+        hsl = color.convert_to('hsl', debug=True)
+        self.assertAlmostEqual(hsl.hsl_h, 240.000, 3, "RGB B to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB B to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.741, 3, "RGB B to HSL failed: L coord")
+        
+    def test_conversion_to_hsl_gray(self):
+        color = RGBColor(123, 123, 123, rgb_type='sRGB')
+        hsl = color.convert_to('hsl', debug=True)
+        self.assertAlmostEqual(hsl.hsl_h, 0.000, 3, "RGB Gray to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB Gray to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.482, 3, "RGB Gray to HSL failed: L coord")
                 
     def test_conversion_to_cmy(self):
         cmy = self.color.convert_to('cmy')

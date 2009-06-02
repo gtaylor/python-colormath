@@ -523,6 +523,7 @@ class RGBColor(ColorBase):
     """
     CONVERSIONS = {
         "rgb": [None],
+        "hsl": [color_conversions.RGB_to_HSL],
         "cmy": [color_conversions.RGB_to_CMY],
        "cmyk": [color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
         "xyz": [color_conversions.RGB_to_XYZ],
@@ -571,6 +572,39 @@ class RGBColor(ColorBase):
         self.rgb_r = r
         self.rgb_g = g
         self.rgb_b = b
+        
+class HSLColor(ColorBase):
+    """
+    Represents a HSL color.
+    """
+    CONVERSIONS = {
+        "hsl": [None],
+        "rgb": [color_conversions.HSL_to_RGB],
+        "cmy": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_CMY,
+                color_conversions.CMY_to_CMYK],
+        "xyz": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_XYZ],
+        "xyy": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_XYZ, 
+                color_conversions.XYZ_to_xyY],
+        "lab": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_Lab],
+      "lchab": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_Luv, color_conversions.Luv_to_LCHuv],
+        "luv": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_RGB],
+    }
+    VALUES = ['hsl_h', 'hsl_s', 'hsl_l']
+    
+    def __init__(self, *args, **kwargs):
+        super(HSLColor, self).__init__(*args, **kwargs)
+        self.hsl_h = None
+        self.hsl_s = None
+        self.hsl_l = None
+        self.rgb_type = 'srgb'
+        self.OTHER_VALUES.append('rgb_type')
+        self._transfer_kwargs(*args, **kwargs)
         
 class CMYColor(ColorBase):
     """

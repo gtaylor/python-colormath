@@ -264,6 +264,19 @@ def LCHuv_to_Luv(cobj, debug=False, *args, **kwargs):
     luvcolor.luv_v = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
     return luvcolor
 
+def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
+    """
+    Convert from xyY to XYZ.
+    """
+    xyzcolor = color_objects.XYZColor()
+    _transfer_common(cobj, xyzcolor)
+   
+    xyzcolor.xyz_x = (cobj.xyy_x * cobj.xyy_Y) / (cobj.xyy_y)
+    xyzcolor.xyz_y = cobj.xyy_Y
+    xyzcolor.xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyzcolor.xyz_y) / (cobj.xyy_y)
+    
+    return xyzcolor
+
 def XYZ_to_xyY(cobj, debug=False, *args, **kwargs):
     """
     Convert from XYZ to xyY.
@@ -503,18 +516,106 @@ def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
 
     return xyzcolor
 
-def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
+def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     """
-    Convert from xyY to XYZ.
-    """
-    xyzcolor = color_objects.XYZColor()
-    _transfer_common(cobj, xyzcolor)
-   
-    xyzcolor.xyz_x = (cobj.xyy_x * cobj.xyy_Y) / (cobj.xyy_y)
-    xyzcolor.xyz_y = cobj.xyy_Y
-    xyzcolor.xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyzcolor.xyz_y) / (cobj.xyy_y)
+    Converts from RGB to HSL.
     
-    return xyzcolor
+    H values are in degrees and are 0-360.
+    S values are a percentage, 0.0 to 1.0.
+    L values are a percentage, 0.0 to 1.0.
+    """
+    hslcolor = color_objects.HSLColor()
+    _transfer_common(cobj, hslcolor)
+    
+    var_R = cobj.rgb_r / 255.0
+    var_G = cobj.rgb_g / 255.0
+    var_B = cobj.rgb_b / 255.0
+    
+    var_max = max(var_R, var_G, var_B)
+    var_min = min(var_R, var_G, var_B)
+    
+    if var_max == var_min:
+        var_H = 0
+    elif var_max == var_R:
+        var_H = (60.0 * ((var_G - var_B) / (var_max - var_min)) + 360) % 360.0
+    elif var_max == var_G:
+        var_H = 60.0 * ((var_B - var_R) / (var_max - var_min)) + 120
+    elif var_max == var_B:
+        var_H = 60.0 * ((var_R - var_G) / (var_max - var_min)) + 240.0
+        
+    var_L = 1.0 / 2.0 * (var_max + var_min)
+    
+    if var_max == var_min:
+        var_S = 0
+    elif var_L <= (1.0 / 2.0):
+        var_S = (var_max - var_min) / (2.0 * var_L)
+    else:
+        var_S = (var_max - var_min) / (2.0 - (2.0 * var_L))
+    
+    target_rgb = kwargs.get('target_rgb', None)
+    # Use this if it's there.
+    if target_rgb != None:
+        hslcolor.rgb_type = target_rgb
+    else:
+        hslcolor.rgb_type = cobj.rgb_type
+
+    hslcolor.hsl_h = var_H
+    hslcolor.hsl_s = var_S
+    hslcolor.hsl_l = var_L
+    
+    return hslcolor
+
+def __Hue_to_RGB(v1, v2, vH):
+    """
+    Internal function used in converting HSL's H coordinate to
+    R, G, and B coordinates. 
+    """
+    if vH < 0:
+        vH += 1
+    if vH > 1:
+        vH -= 1
+    if (6 * vH) < 1:
+        return v1 + (v2 - v1) * 6 * vH
+    if (2 * vH) < 1:
+        return v2
+    if (3 * vH) < 2:
+        return v1 + (v2 - v1) * ((2 / 3) - vH) * 6
+    return v1
+
+def HSL_to_RGB(cobj, debug=False, *args, **kwargs):
+    """
+    HSL to RGB conversion.
+    """
+    rgbcolor = color_objects.RGBColor()
+    _transfer_common(cobj, rgbcolor)
+    
+    H = cobj.hsl_h
+    S = cobj.hsl_s
+    L = cobj.hsl_l
+    
+    # HSL from 0 to 1
+    if S == 0:
+        # RGB results from 0 to 255
+        R = L * 255
+        G = L * 255
+        B = L * 255
+    else:
+        if L < 0.5:
+            var_2 = L * (1 + S)
+        else:
+            var_2 = (L + S) - (S * L)
+    
+        var_1 = 2 * L - var_2
+    
+        R = 255 * __Hue_to_RGB(var_1, var_2, H + (1 / 3))
+        G = 255 * __Hue_to_RGB(var_1, var_2, H)
+        B = 255 * __Hue_to_RGB(var_1, var_2, H - (1 / 3))
+        
+    rgbcolor.rgb_r = R
+    rgbcolor.rgb_g = G
+    rgbcolor.rgb_b = B
+    
+    return rgbcolor
 
 def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
     """
