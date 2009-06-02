@@ -226,6 +226,17 @@ class RGBConversions(unittest.TestCase):
         same_color = self.color.convert_to('rgb')
         self.assertEqual(self.color, same_color)
         
+    def test_get_rgb_hex(self):
+        hex_str = self.color.get_rgb_hex()
+        self.assertEqual(hex_str, "#7bc832", "RGB to hex conversion failed")
+        
+    def test_set_from_rgb_hex(self):
+        rgb = RGBColor()
+        rgb.set_from_rgb_hex('#7bc832')
+        self.assertEqual(rgb.rgb_r, 123, "RGB from hex failed: R coord")
+        self.assertEqual(rgb.rgb_g, 200, "RGB from hex failed: G coord")
+        self.assertEqual(rgb.rgb_b, 50, "RGB from hex failed: B coord")
+        
 class CMYConversions(unittest.TestCase):
     def setUp(self):
         self.color = CMYColor(0.518, 0.216, 0.804)

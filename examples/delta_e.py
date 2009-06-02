@@ -20,7 +20,6 @@
 This module shows some examples of Delta E calculations of varying types.
 """
 from colormath.color_objects import *
-from colormath.color_diff import *
 
 # Reference color.
 color1 = LabColor(lab_l=0.9, lab_a=16.3, lab_b=-2.22)

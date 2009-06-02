@@ -549,12 +549,28 @@ class RGBColor(ColorBase):
         parent_str = super(RGBColor, self).__str__()
         return '%s [%s]' % (parent_str, self.rgb_type)
     
-    def rgb_to_hex(rgb_tuple):
+    def get_rgb_hex(self):
         """
         Converts the RGB value to a hex value in the form of: #RRGGBB
         """
         self.has_required_values()
         return '#%02x%02x%02x' % (self.rgb_r, self.rgb_g, self.rgb_b)
+    
+    def set_from_rgb_hex(self, hex_str):
+        """
+        Converts an RGB hex string like #RRGGBB and assigns the values to
+        this RGBColor object.
+        """
+        colorstring = hex_str.strip()
+        if colorstring[0] == '#': 
+            colorstring = colorstring[1:]
+        if len(colorstring) != 6:
+            raise ValueError, "input #%s is not in #RRGGBB format" % colorstring
+        r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
+        r, g, b = [int(n, 16) for n in (r, g, b)]
+        self.rgb_r = r
+        self.rgb_g = g
+        self.rgb_b = b
         
 class CMYColor(ColorBase):
     """
