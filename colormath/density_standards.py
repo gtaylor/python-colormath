@@ -453,7 +453,7 @@ ANSI_STATUS_M_GREEN = array((
     0.00
 ))
 
-ANSI_STATUS_T_BLUE = array((
+ANSI_STATUS_M_BLUE = array((
     0.00,
     0.00,
     0.00,
