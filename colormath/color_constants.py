@@ -32,7 +32,7 @@ tri-stimulus values to convert between RGB and XYZ.
 """
 RGB_SPECS = {
    # Adobe RGB (1998)
-   "adobe": {
+   "adobe_rgb": {
       "gamma": 2.2,
       "native_illum": "d65",
       "conversions": {
@@ -51,7 +51,7 @@ RGB_SPECS = {
       } # End Conversions Dict
    }, # End Adobe Dict
    # Apple RGB
-   "apple": {
+   "apple_rgb": {
       "gamma": 1.8,
       "native_illum": "d65",
       "conversions": {

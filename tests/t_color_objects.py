@@ -203,7 +203,7 @@ class RGBConversions(unittest.TestCase):
         different conversion math that uses gamma, so test the alternate logic
         route for non-sRGB RGB colors.
         """
-        adobe = RGBColor(123, 200, 50, rgb_type='adobe')
+        adobe = RGBColor(123, 200, 50, rgb_type='adobe_rgb')
         xyz = adobe.convert_to('xyz')
         self.assertAlmostEqual(xyz.xyz_x, 0.230, 3, "RGB to XYZ failed: X coord")
         self.assertAlmostEqual(xyz.xyz_y, 0.430, 3, "RGB to XYZ failed: Y coord")
@@ -216,7 +216,7 @@ class RGBConversions(unittest.TestCase):
         different, so test all of the other types with an adaptation matrix
         here.
         """
-        adobe = RGBColor(123, 200, 50, rgb_type='adobe')
+        adobe = RGBColor(123, 200, 50, rgb_type='adobe_rgb')
         xyz = adobe.convert_to('xyz', target_illuminant='D50')
         self.assertAlmostEqual(xyz.xyz_x, 0.247, 3, "RGB to XYZ failed: X coord")
         self.assertAlmostEqual(xyz.xyz_y, 0.431, 3, "RGB to XYZ failed: Y coord")
