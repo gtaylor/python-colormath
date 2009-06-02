@@ -212,6 +212,10 @@ class SpectralColor(ColorBase):
                 color_conversions.Lab_to_LCHab],
         "luv": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_RGB, 
+                color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.Spectral_to_XYZ, color_conversions.XYZ_to_RGB, 
+                color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
     }
     VALUES = ['spec_340nm', 'spec_350nm', 'spec_360nm', 'spec_370nm',
               'spec_380nm', 'spec_390nm', 'spec_400nm', 'spec_410nm', 
@@ -326,6 +330,10 @@ class LabColor(ColorBase):
                 color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_RGB, 
+                color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.Lab_to_XYZ, color_conversions.XYZ_to_RGB, 
+                color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
     }
     VALUES = ['lab_l', 'lab_a', 'lab_b']
        
@@ -352,6 +360,11 @@ class LCHabColor(ColorBase):
                 color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ, 
                 color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ,
+                color_conversions.XYZ_to_RGB, color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ,
+                color_conversions.XYZ_to_RGB, color_conversions.RGB_to_CMY, 
+                color_conversions.CMY_to_CMYK],
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
     
@@ -378,6 +391,11 @@ class LCHuvColor(ColorBase):
                 color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCHab],
         "rgb": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ, 
                 color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ,
+                color_conversions.XYZ_to_RGB, color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ,
+                color_conversions.XYZ_to_RGB, color_conversions.RGB_to_CMY, 
+                color_conversions.CMY_to_CMYK],
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
     
@@ -401,6 +419,10 @@ class LuvColor(ColorBase):
                 color_conversions.Lab_to_LCHab],
       "lchuv": [color_conversions.Luv_to_LCHuv],
         "rgb": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_RGB, 
+                color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.Luv_to_XYZ, color_conversions.XYZ_to_RGB, 
+                color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
     }
     VALUES = ['luv_l', 'luv_u', 'luv_v']
     
@@ -423,6 +445,9 @@ class XYZColor(ColorBase):
       "lchuv": [color_conversions.XYZ_to_Lab, color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.XYZ_to_RGB, color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.XYZ_to_RGB, color_conversions.RGB_to_CMY, 
+                color_conversions.CMY_to_CMYK],
     }
     VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
     
@@ -478,6 +503,10 @@ class xyYColor(ColorBase):
                 color_conversions.Luv_to_LCHuv],
         "luv": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_Luv],
         "rgb": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_RGB],
+        "cmy": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_RGB,
+                color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.xyY_to_XYZ, color_conversions.XYZ_to_RGB,
+                color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
     }
     VALUES = ['xyy_x', 'xyy_y', 'xyy_Y']
     
@@ -535,6 +564,18 @@ class CMYColor(ColorBase):
         "cmy": [None],
        "cmyk": [color_conversions.CMY_to_CMYK],
         "rgb": [color_conversions.CMY_to_RGB],
+        "xyz": [color_conversions.CMY_to_RGB, color_conversions.RGB_to_XYZ],
+        "xyy": [color_conversions.CMY_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_xyY],
+        "lab": [color_conversions.CMY_to_RGB, color_conversions.RGB_to_XYZ, 
+                color_conversions.XYZ_to_Lab],
+      "lchab": [color_conversions.CMY_to_RGB, color_conversions.RGB_to_XYZ, 
+                color_conversions.XYZ_to_Lab, 
+                color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.CMY_to_RGB, color_conversions.RGB_to_XYZ, 
+                color_conversions.XYZ_to_Luv, color_conversions.Luv_to_LCHuv],
+        "luv": [color_conversions.CMY_to_RGB, color_conversions.RGB_to_XYZ, 
+                color_conversions.XYZ_to_RGB],
     }
     VALUES = ['cmy_c', 'cmy_m', 'cmy_y']
     
@@ -552,6 +593,21 @@ class CMYKColor(ColorBase):
     CONVERSIONS = {
        "cmyk": [None],
         "cmy": [color_conversions.CMYK_to_CMY],
+        "rgb": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB],
+        "xyz": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB, 
+                color_conversions.RGB_to_XYZ],
+        "xyy": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB, 
+                color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_xyY],
+        "lab": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB, 
+                color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab],
+      "lchab": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB, 
+                color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Lab, 
+                color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB, 
+                color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Luv, 
+                color_conversions.Luv_to_LCHuv],
+        "luv": [color_conversions.CMYK_to_CMY, color_conversions.CMY_to_RGB, 
+                color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_RGB],
     }
     VALUES = ['cmyk_c', 'cmyk_m', 'cmyk_y', 'cmyk_k']
     
