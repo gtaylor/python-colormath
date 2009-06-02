@@ -182,8 +182,8 @@ class ColorBase(object):
             raise InvalidArgument('delta_e_cie2000', 'other_color', other_color)
         
         # Convert the colors to Lab if they are not already.
-        lab1 = self.convert_to('lab')
-        lab2 = other_color.convert_to('lab')
+        lab1 = self.convert_to('lab', *args, **kwargs)
+        lab2 = other_color.convert_to('lab', *args, **kwargs)
         
         mode = mode.lower()
         if mode == 'cie2000':
