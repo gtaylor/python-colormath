@@ -88,7 +88,7 @@ RGB_SPECS = {
                )),
       } # End Conversions Dict
    }, # End sRGB Dict
-   "wide gamut rgb": {
+   "wide_gamut_rgb": {
       "gamma": 2.2,
       "native_illum": "d50",
       "conversions": {
