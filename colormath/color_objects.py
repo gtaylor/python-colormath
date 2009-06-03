@@ -537,6 +537,7 @@ class RGBColor(ColorBase):
     CONVERSIONS = {
         "rgb": [None],
         "hsl": [color_conversions.RGB_to_HSL],
+        "hsv": [color_conversions.RGB_to_HSV],
         "cmy": [color_conversions.RGB_to_CMY],
        "cmyk": [color_conversions.RGB_to_CMY, color_conversions.CMY_to_CMYK],
         "xyz": [color_conversions.RGB_to_XYZ],
@@ -615,6 +616,39 @@ class HSLColor(ColorBase):
         self.hsl_h = None
         self.hsl_s = None
         self.hsl_l = None
+        self.rgb_type = 'srgb'
+        self.OTHER_VALUES.append('rgb_type')
+        self._transfer_kwargs(*args, **kwargs)
+        
+class HSVColor(ColorBase):
+    """
+    Represents an HSV color.
+    """
+    CONVERSIONS = {
+        "hsv": [None],
+        "rgb": [color_conversions.HSV_to_RGB],
+        "cmy": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_CMY],
+       "cmyk": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_CMY,
+                color_conversions.CMY_to_CMYK],
+        "xyz": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_XYZ],
+        "xyy": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_XYZ, 
+                color_conversions.XYZ_to_xyY],
+        "lab": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_Lab],
+      "lchab": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_Lab, color_conversions.Lab_to_LCHab],
+      "lchuv": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_Luv, color_conversions.Luv_to_LCHuv],
+        "luv": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_XYZ,
+                color_conversions.XYZ_to_RGB],
+    }
+    VALUES = ['hsv_h', 'hsv_s', 'hsv_v']
+    
+    def __init__(self, *args, **kwargs):
+        super(HSVColor, self).__init__(*args, **kwargs)
+        self.hsv_h = None
+        self.hsv_s = None
+        self.hsv_v = None
         self.rgb_type = 'srgb'
         self.OTHER_VALUES.append('rgb_type')
         self._transfer_kwargs(*args, **kwargs)

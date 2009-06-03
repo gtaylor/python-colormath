@@ -465,7 +465,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
 
 def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
     """
-    RGB to XYZ conversion. Expects 1-255 RGB values.
+    RGB to XYZ conversion. Expects 0-255 RGB values.
     """
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
@@ -516,11 +516,65 @@ def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
 
     return xyzcolor
 
+def __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max):
+    """
+    For RGB_to_HSL and RGB_to_HSV, the Hue (H) component is calculated in
+    the same way.
+    """
+    if var_max == var_min:
+        return 0.0
+    elif var_max == var_R:
+        return (60.0 * ((var_G - var_B) / (var_max - var_min)) + 360) % 360.0
+    elif var_max == var_G:
+        return 60.0 * ((var_B - var_R) / (var_max - var_min)) + 120
+    elif var_max == var_B:
+        return 60.0 * ((var_R - var_G) / (var_max - var_min)) + 240.0
+    
+def RGB_to_HSV(cobj, debug=False, *args, **kwargs):
+    """
+    Converts from RGB to HSV.
+    
+    H values are in degrees and are 0 to 360.
+    S values are a percentage, 0.0 to 1.0.
+    V values are a percentage, 0.0 to 1.0.
+    """
+    hsvcolor = color_objects.HSVColor()
+    _transfer_common(cobj, hsvcolor)
+    
+    var_R = cobj.rgb_r / 255.0
+    var_G = cobj.rgb_g / 255.0
+    var_B = cobj.rgb_b / 255.0
+    
+    var_max = max(var_R, var_G, var_B)
+    var_min = min(var_R, var_G, var_B)
+    
+    var_H = __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max)
+    
+    if var_max == 0:
+        var_S = 0
+    else:
+        var_S = 1.0 - (var_min / var_max)
+        
+    var_V = var_max
+    
+    target_rgb = kwargs.get('target_rgb', None)
+    # Use this if it's there.
+    if target_rgb != None:
+        hsvcolor.rgb_type = target_rgb
+    else:
+        hsvcolor.rgb_type = cobj.rgb_type
+    
+    hsvcolor.hsv_h = var_H
+    hsvcolor.hsv_s = var_S
+    hsvcolor.hsv_v = var_V
+
+    return hsvcolor
+
 def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     """
     Converts from RGB to HSL.
     
-    H values are in degrees and are 0-360.
+    H values are in degrees and are 0 to 360.
     S values are a percentage, 0.0 to 1.0.
     L values are a percentage, 0.0 to 1.0.
     """
@@ -534,15 +588,7 @@ def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     var_max = max(var_R, var_G, var_B)
     var_min = min(var_R, var_G, var_B)
     
-    if var_max == var_min:
-        var_H = 0
-    elif var_max == var_R:
-        var_H = (60.0 * ((var_G - var_B) / (var_max - var_min)) + 360) % 360.0
-    elif var_max == var_G:
-        var_H = 60.0 * ((var_B - var_R) / (var_max - var_min)) + 120
-    elif var_max == var_B:
-        var_H = 60.0 * ((var_R - var_G) / (var_max - var_min)) + 240.0
-        
+    var_H = __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max)
     var_L = 0.5 * (var_max + var_min)
     
     if var_max == var_min:
@@ -583,6 +629,58 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
         return var_p + ((var_q - var_p) * 6.0 * ((2.0 / 3.0) - C))
     else:
         return var_p
+    
+def HSV_to_RGB(cobj, debug=False, *args, **kwargs):
+    """
+    HSV to RGB conversion.
+    
+    H values are in degrees and are 0 to 360.
+    S values are a percentage, 0.0 to 1.0.
+    V values are a percentage, 0.0 to 1.0.
+    """
+    rgbcolor = color_objects.RGBColor()
+    _transfer_common(cobj, rgbcolor)
+    
+    H = cobj.hsv_h
+    S = cobj.hsv_s
+    V = cobj.hsv_v
+    
+    h_floored = int(math.floor(H))
+    h_sub_i = int(h_floored / 60) % 6
+    var_f = (H / 60.0) - (h_floored / 60)
+    var_p = V * (1.0 - S)
+    var_q = V * (1.0 - var_f * S)
+    var_t = V * (1.0 - (1.0 - var_f) * S)
+       
+    if h_sub_i == 0:
+        rgbcolor.rgb_r = V
+        rgbcolor.rgb_g = var_t
+        rgbcolor.rgb_b = var_p
+    elif h_sub_i == 1:
+        rgbcolor.rgb_r = var_q
+        rgbcolor.rgb_g = V
+        rgbcolor.rgb_b = var_p
+    elif h_sub_i == 2:
+        rgbcolor.rgb_r = var_p
+        rgbcolor.rgb_g = V
+        rgbcolor.rgb_b = var_t
+    elif h_sub_i == 3:
+        rgbcolor.rgb_r = var_p
+        rgbcolor.rgb_g = var_q
+        rgbcolor.rgb_b = V
+    elif h_sub_i == 4:
+        rgbcolor.rgb_r = var_t
+        rgbcolor.rgb_g = var_p
+        rgbcolor.rgb_b = V
+    elif h_sub_i == 5:
+        rgbcolor.rgb_r = V
+        rgbcolor.rgb_g = var_p
+        rgbcolor.rgb_b = var_q
+    
+    print rgbcolor
+    __upscale_rgb(rgbcolor)
+    
+    return rgbcolor
 
 def HSL_to_RGB(cobj, debug=False, *args, **kwargs):
     """

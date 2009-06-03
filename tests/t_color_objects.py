@@ -199,6 +199,12 @@ class RGBConversions(unittest.TestCase):
         self.assertAlmostEqual(hsl.hsl_h, 0.000, 3, "RGB Gray to HSL failed: H coord")
         self.assertAlmostEqual(hsl.hsl_s, 0.000, 3, "RGB Gray to HSL failed: S coord")
         self.assertAlmostEqual(hsl.hsl_l, 0.482, 3, "RGB Gray to HSL failed: L coord")
+        
+    def test_conversion_to_hsv(self):
+        hsv = self.color.convert_to('hsv')
+        self.assertAlmostEqual(hsv.hsv_h, 90.800, 3, "RGB Gray to HSV failed: H coord")
+        self.assertAlmostEqual(hsv.hsv_s, 0.750, 3, "RGB Gray to HSV failed: S coord")
+        self.assertAlmostEqual(hsv.hsv_v, 0.784, 3, "RGB Gray to HSV failed: V coord")
                 
     def test_conversion_to_cmy(self):
         cmy = self.color.convert_to('cmy')
@@ -277,6 +283,20 @@ class HSLConversions(unittest.TestCase):
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('hsl')
+        self.assertEqual(self.color, same_color)
+        
+class HSVConversions(unittest.TestCase):
+    def setUp(self):
+        self.color = HSVColor(91.0, 0.750, 0.784)
+                
+    def test_conversion_to_rgb(self):
+        rgb = self.color.convert_to('rgb')
+        self.assertEqual(rgb.rgb_r, 122, "HSV to RGB failed: R coord")
+        self.assertEqual(rgb.rgb_g, 200, "HSV to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 50, "HSV to RGB failed: B coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('hsv')
         self.assertEqual(self.color, same_color)
         
 class CMYConversions(unittest.TestCase):
