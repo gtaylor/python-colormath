@@ -543,11 +543,11 @@ def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     elif var_max == var_B:
         var_H = 60.0 * ((var_R - var_G) / (var_max - var_min)) + 240.0
         
-    var_L = 1.0 / 2.0 * (var_max + var_min)
+    var_L = 0.5 * (var_max + var_min)
     
     if var_max == var_min:
         var_S = 0
-    elif var_L <= (1.0 / 2.0):
+    elif var_L <= 0.5:
         var_S = (var_max - var_min) / (2.0 * var_L)
     else:
         var_S = (var_max - var_min) / (2.0 - (2.0 * var_L))
@@ -565,22 +565,24 @@ def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     
     return hslcolor
 
-def __Hue_to_RGB(v1, v2, vH):
+def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
     """
-    Internal function used in converting HSL's H coordinate to
-    R, G, and B coordinates. 
+    This is used in HSL_to_RGB conversions on R, G, and B.
     """
-    if vH < 0:
-        vH += 1
-    if vH > 1:
-        vH -= 1
-    if (6 * vH) < 1:
-        return v1 + (v2 - v1) * 6 * vH
-    if (2 * vH) < 1:
-        return v2
-    if (3 * vH) < 2:
-        return v1 + (v2 - v1) * ((2 / 3) - vH) * 6
-    return v1
+    if C < 0:
+        C += 1.0
+    if C > 1:
+        C -= 1.0
+
+    # Computing C of vector (Color R, Color G, Color B)
+    if C < (1.0 / 6.0):
+        return var_p + ((var_q - var_p) * 6.0 * C)
+    elif (1.0 / 6.0) <= C < 0.5:
+        return var_q
+    elif 0.5 <= C < (2.0 / 3.0):
+        return var_p + ((var_q - var_p) * 6.0 * ((2.0 / 3.0) - C))
+    else:
+        return var_p
 
 def HSL_to_RGB(cobj, debug=False, *args, **kwargs):
     """
@@ -593,27 +595,24 @@ def HSL_to_RGB(cobj, debug=False, *args, **kwargs):
     S = cobj.hsl_s
     L = cobj.hsl_l
     
-    # HSL from 0 to 1
-    if S == 0:
-        # RGB results from 0 to 255
-        R = L * 255
-        G = L * 255
-        B = L * 255
+    if L < 0.5:
+        var_q = L * (1.0 + S)
     else:
-        if L < 0.5:
-            var_2 = L * (1 + S)
-        else:
-            var_2 = (L + S) - (S * L)
-    
-        var_1 = 2 * L - var_2
-    
-        R = 255 * __Hue_to_RGB(var_1, var_2, H + (1 / 3))
-        G = 255 * __Hue_to_RGB(var_1, var_2, H)
-        B = 255 * __Hue_to_RGB(var_1, var_2, H - (1 / 3))
+        var_q = L + S - (L * S)
         
-    rgbcolor.rgb_r = R
-    rgbcolor.rgb_g = G
-    rgbcolor.rgb_b = B
+    var_p = 2.0 * L - var_q
+    
+    # H normalized to range [0,1]
+    h_sub_k = (H / 360.0)
+    
+    t_sub_R = h_sub_k + (1.0 / 3.0)
+    t_sub_G = h_sub_k
+    t_sub_B = h_sub_k - (1.0 / 3.0)
+    
+    rgbcolor.rgb_r = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_R)
+    rgbcolor.rgb_g = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_G)
+    rgbcolor.rgb_b = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_B)
+    __upscale_rgb(rgbcolor)
     
     return rgbcolor
 

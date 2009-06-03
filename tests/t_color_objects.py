@@ -265,6 +265,20 @@ class RGBConversions(unittest.TestCase):
         self.assertEqual(rgb.rgb_g, 200, "RGB from hex failed: G coord")
         self.assertEqual(rgb.rgb_b, 50, "RGB from hex failed: B coord")
         
+class HSLConversions(unittest.TestCase):
+    def setUp(self):
+        self.color = HSLColor(200.0, 0.400, 0.500)
+                
+    def test_conversion_to_rgb(self):
+        rgb = self.color.convert_to('rgb')
+        self.assertEqual(rgb.rgb_r, 77, "HSL to RGB failed: R coord")
+        self.assertEqual(rgb.rgb_g, 144, "HSL to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 179, "HSL to RGB failed: B coord")
+        
+    def test_convert_to_self(self):
+        same_color = self.color.convert_to('hsl')
+        self.assertEqual(self.color, same_color)
+        
 class CMYConversions(unittest.TestCase):
     def setUp(self):
         self.color = CMYColor(0.518, 0.216, 0.804)
