@@ -677,7 +677,6 @@ def HSV_to_RGB(cobj, debug=False, *args, **kwargs):
         rgbcolor.rgb_g = var_p
         rgbcolor.rgb_b = var_q
     
-    print rgbcolor
     __upscale_rgb(rgbcolor)
     
     return rgbcolor
