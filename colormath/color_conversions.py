@@ -557,13 +557,7 @@ def RGB_to_HSV(cobj, debug=False, *args, **kwargs):
         
     var_V = var_max
     
-    target_rgb = kwargs.get('target_rgb', None)
-    # Use this if it's there.
-    if target_rgb != None:
-        hsvcolor.rgb_type = target_rgb
-    else:
-        hsvcolor.rgb_type = cobj.rgb_type
-    
+    hsvcolor.rgb_type = cobj.rgb_type    
     hsvcolor.hsv_h = var_H
     hsvcolor.hsv_s = var_S
     hsvcolor.hsv_v = var_V
@@ -598,13 +592,7 @@ def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     else:
         var_S = (var_max - var_min) / (2.0 - (2.0 * var_L))
     
-    target_rgb = kwargs.get('target_rgb', None)
-    # Use this if it's there.
-    if target_rgb != None:
-        hslcolor.rgb_type = target_rgb
-    else:
-        hslcolor.rgb_type = cobj.rgb_type
-
+    hslcolor.rgb_type = cobj.rgb_type
     hslcolor.hsl_h = var_H
     hslcolor.hsl_s = var_S
     hslcolor.hsl_l = var_L
@@ -630,7 +618,7 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
     else:
         return var_p
     
-def HSV_to_RGB(cobj, debug=False, *args, **kwargs):
+def HSV_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
     """
     HSV to RGB conversion.
     
@@ -678,10 +666,16 @@ def HSV_to_RGB(cobj, debug=False, *args, **kwargs):
         rgbcolor.rgb_b = var_q
     
     __upscale_rgb(rgbcolor)
-    
+    # In the event that they define an HSV color and want to convert it to 
+    # a particular RGB space, let them override it here.
+    if target_rgb != None:
+        rgbcolor.rgb_type = target_rgb
+    else:
+        rgbcolor.rgb_type = cobj.rgb_type
+        
     return rgbcolor
 
-def HSL_to_RGB(cobj, debug=False, *args, **kwargs):
+def HSL_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
     """
     HSL to RGB conversion.
     """
@@ -709,7 +703,14 @@ def HSL_to_RGB(cobj, debug=False, *args, **kwargs):
     rgbcolor.rgb_r = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_R)
     rgbcolor.rgb_g = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_G)
     rgbcolor.rgb_b = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_B)
+
     __upscale_rgb(rgbcolor)
+    # In the event that they define an HSV color and want to convert it to 
+    # a particular RGB space, let them override it here.
+    if target_rgb != None:
+        rgbcolor.rgb_type = target_rgb
+    else:
+        rgbcolor.rgb_type = cobj.rgb_type    
     
     return rgbcolor
 
