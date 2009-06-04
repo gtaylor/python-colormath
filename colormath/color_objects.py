@@ -114,6 +114,17 @@ class ColorBase(object):
                 print ' |-< out %s' % cobj
         return cobj
     
+    def get_value_tuple(self):
+        """
+        Returns a tuple of the color's values (in order). For example,
+        an LabColor object will return (lab_l, lab_a, lab_b), where each
+        member of the tuple is the float value for said variable.
+        """
+        retval = tuple()
+        for val in self.VALUES:
+            retval += (getattr(self, val, None),)
+        return retval
+    
     def __str__(self):
         """
         String representation of the color.
