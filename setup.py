@@ -17,6 +17,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from distutils.core import setup
+import colormath
 
 LONG_DESCRIPTION = \
 """Implements a large number of different color operations such as
@@ -36,15 +37,15 @@ CLASSIFIERS = [
 KEYWORDS = 'color math conversions'
 
 setup(name='colormath',
-      version='1.0.0',
+      version=colormath.VERSION,
       description='Color math and conversion library.',
       long_description = LONG_DESCRIPTION,
       author='Gregory Taylor',
       author_email='gtaylor@l11solutions.com',
       url='http://code.google.com/p/python-colormath/',
-      download_url='http://code.google.com/p/python-colormath/',
+      download_url='http://pypi.python.org/pypi/colormath/',
       packages=['colormath'],
-      platforms = 'Platform Independent',
+      platforms = ['Platform Independent'],
       license = 'GPLv3',
       classifiers = CLASSIFIERS,
       keywords = KEYWORDS,
