@@ -1,5 +1,7 @@
                             Python Color Math Module
                                    (colormath)
+                   by Gregory Taylor of Level 11 Solutions, LLC
+                    http://code.google.com/p/python-colormath/
 
 What is it?
 -----------
@@ -24,10 +26,12 @@ As root/admin on your machine:
   
 Documentation
 -------------
-As of right now, the only documentation are the examples in the examples
-directory. There's a whole lot going on right now, and not much time for
-cleanly documenting this stuff. However, the source code is very well
-commented.
+For documentation, see the project webpage at:
+
+    http://code.google.com/p/python-colormath/
+    
+There are also a lot of useful examples under the examples directory within
+this directory.
 
 Support
 -------
