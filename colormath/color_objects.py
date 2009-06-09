@@ -525,7 +525,7 @@ class XYZColor(ColorBase):
                                                    orig_illum=source_illuminant, 
                                                    targ_illum=target_illuminant,
                                                    debug=debug)
-            self.illuminant = target_illuminant
+            self.illuminant = target_illuminant.lower()
     
     def __init__(self, *args, **kwargs):
         super(XYZColor, self).__init__(*args, **kwargs)

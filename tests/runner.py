@@ -24,9 +24,10 @@ colormath/color_conversions.py is touched.
 import unittest
 import t_color_objects
 import t_color_diff
+import t_chromatic_adaptation
 
 # A list of the modules under the tests package that should be ran.
-test_modules = [t_color_objects, t_color_diff]
+test_modules = [t_color_objects, t_color_diff, t_chromatic_adaptation]
 
 # Fire off all of the tests.
 for mod in test_modules:
