@@ -446,9 +446,9 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     rgbcolor = color_objects.RGBColor()
     _transfer_common(cobj, rgbcolor)
     
-    temp_X = cobj.xyz_x / 100.0
-    temp_Y = cobj.xyz_y / 100.0
-    temp_Z = cobj.xyz_z / 100.0
+    temp_X = cobj.xyz_x
+    temp_Y = cobj.xyz_y
+    temp_Z = cobj.xyz_z
    
     if debug:
         print "  \- Target RGB space: %s" % target_rgb

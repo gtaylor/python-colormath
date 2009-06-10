@@ -73,8 +73,8 @@ class XYZConversions(unittest.TestCase):
     def test_conversion_to_rgb(self):
         rgb = self.color.convert_to('rgb')
         self.assertEqual(rgb.rgb_r, 0, "XYZ to RGB failed: R coord")
-        self.assertEqual(rgb.rgb_g, 10, "XYZ to RGB failed: G coord")
-        self.assertEqual(rgb.rgb_b, 12, "XYZ to RGB failed: B coord")
+        self.assertEqual(rgb.rgb_g, 148, "XYZ to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 166, "XYZ to RGB failed: B coord")
         
     def test_conversion_to_luv(self):
         luv = self.color.convert_to('luv')
@@ -171,6 +171,16 @@ class LCHuvConversions(unittest.TestCase):
 class RGBConversions(unittest.TestCase):
     def setUp(self):
         self.color = RGBColor(123, 200, 50, rgb_type='sRGB')
+    
+    def test_to_xyz_and_back(self):
+        xyz = self.color.convert_to('xyz')
+        rgb = xyz.convert_to('rgb')
+        self.assertAlmostEqual(self.color.rgb_r, rgb.rgb_r, 3, 
+                               "RGB to XYZ to RGB failed: R coord")
+        self.assertAlmostEqual(self.color.rgb_g, rgb.rgb_g, 3, 
+                               "RGB to XYZ to RGB failed: G coord")
+        self.assertAlmostEqual(self.color.rgb_b, rgb.rgb_b, 3, 
+                               "RGB to XYZ to RGB failed: B coord")
         
     def test_conversion_to_hsl_max_r(self):
         color = RGBColor(255, 123, 50, rgb_type='sRGB')
