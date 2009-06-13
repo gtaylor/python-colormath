@@ -66,9 +66,9 @@ class XYZConversions(unittest.TestCase):
         
     def test_conversion_to_lab(self):
         lab = self.color.convert_to('lab')
-        self.assertAlmostEqual(lab.lab_l, 1.807, 3, "XYZ to Lab failed: L coord")
-        self.assertAlmostEqual(lab.lab_a, -3.749, 3, "XYZ to Lab failed: a coord")
-        self.assertAlmostEqual(lab.lab_b, -2.547, 3, "XYZ to Lab failed: b coord")
+        self.assertAlmostEqual(lab.lab_l, 51.837, 3, "XYZ to Lab failed: L coord")
+        self.assertAlmostEqual(lab.lab_a, -57.486, 3, "XYZ to Lab failed: a coord")
+        self.assertAlmostEqual(lab.lab_b, -25.780, 3, "XYZ to Lab failed: b coord")
         
     def test_conversion_to_rgb(self):
         rgb = self.color.convert_to('rgb')
@@ -78,9 +78,9 @@ class XYZConversions(unittest.TestCase):
         
     def test_conversion_to_luv(self):
         luv = self.color.convert_to('luv')
-        self.assertAlmostEqual(luv.luv_l, 1.807, 3, "XYZ to Luv failed: L coord")
-        self.assertAlmostEqual(luv.luv_u, -2.564, 3, "XYZ to Luv failed: u coord")
-        self.assertAlmostEqual(luv.luv_v, -0.894, 3, "XYZ to Luv failed: v coord")
+        self.assertAlmostEqual(luv.luv_l, 51.837, 3, "XYZ to Luv failed: L coord")
+        self.assertAlmostEqual(luv.luv_u, -73.561, 3, "XYZ to Luv failed: u coord")
+        self.assertAlmostEqual(luv.luv_v, -25.657, 3, "XYZ to Luv failed: v coord")
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('xyz')
@@ -106,9 +106,9 @@ class LabConversions(unittest.TestCase):
         
     def test_conversion_to_xyz(self):
         xyz = self.color.convert_to('xyz')
-        self.assertAlmostEqual(xyz.xyz_x, 0.100, 3, "Lab to XYZ failed: X coord")
-        self.assertAlmostEqual(xyz.xyz_y, 0.200, 3, "Lab to XYZ failed: Y coord")
-        self.assertAlmostEqual(xyz.xyz_z, 0.300, 3, "Lab to XYZ failed: Z coord")
+        self.assertAlmostEqual(xyz.xyz_x, 0.001, 3, "Lab to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.002, 3, "Lab to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.003, 3, "Lab to XYZ failed: Z coord")
         
     def test_conversion_to_lchab(self):
         lch = self.color.convert_to('lchab')
@@ -126,9 +126,9 @@ class LuvConversions(unittest.TestCase):
         
     def test_conversion_to_xyz(self):
         xyz = self.color.convert_to('xyz')
-        self.assertAlmostEqual(xyz.xyz_x, 0.100, 3, "Lab to XYZ failed: X coord")
-        self.assertAlmostEqual(xyz.xyz_y, 0.200, 3, "Lab to XYZ failed: Y coord")
-        self.assertAlmostEqual(xyz.xyz_z, 0.300, 3, "Lab to XYZ failed: Z coord")
+        self.assertAlmostEqual(xyz.xyz_x, 0.001, 3, "Lab to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.002, 3, "Lab to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.003, 3, "Lab to XYZ failed: Z coord")
         
     def test_conversion_to_lchuv(self):
         lch = self.color.convert_to('lchuv')
