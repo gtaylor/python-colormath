@@ -157,16 +157,13 @@ class ColorBase(object):
                 raise InvalidValue(self, val, value)
         return True
     
-    def get_illuminant_xyz(self, observer=None, illuminant=None,
-                           double_scale=False):
+    def get_illuminant_xyz(self, observer=None, illuminant=None):
         """
         Returns the color's illuminant's XYZ values.
         
         observer: (string) Get the XYZ values for another observer angle. Must
                            be either '2' or '10'.
         illuminant: (string) Get the XYZ values for another illuminant.
-        double_scale: (bool) When True, multiply the XYZ values by 100, which
-                             scales the already scaled XYZ values.
         """
         try:
             if observer == None:
@@ -186,12 +183,7 @@ class ColorBase(object):
         except KeyError:
             raise InvalidIlluminant(self)
         
-        if double_scale:
-            return {'X': illum_xyz[0] * 100.0, 
-                    'Y': illum_xyz[1] * 100.0, 
-                    'Z': illum_xyz[2] * 100.0}
-        else:
-            return {'X': illum_xyz[0], 'Y': illum_xyz[1], 'Z': illum_xyz[2]}
+        return {'X': illum_xyz[0], 'Y': illum_xyz[1], 'Z': illum_xyz[2]}
     
     def delta_e(self, other_color, mode='cie2000', *args, **kwargs):
         """
