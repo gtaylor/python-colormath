@@ -203,7 +203,7 @@ def Lab_to_XYZ(cobj, debug=False, *args, **kwargs):
     """
     Convert from Lab to XYZ
     """
-    illum = cobj.get_illuminant_xyz(double_scale=True)
+    illum = cobj.get_illuminant_xyz()
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
    
@@ -255,7 +255,7 @@ def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
     """
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
-    illum = xyzcolor.get_illuminant_xyz(double_scale=True)
+    illum = xyzcolor.get_illuminant_xyz()
    
     # Various variables used throughout the conversion.
     cie_k_times_e = color_constants.CIE_K * color_constants.CIE_E
@@ -280,11 +280,6 @@ def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
     xyzcolor.xyz_x = (var_d - var_b) / (var_a - var_c)
     # Z-coordinate calculation.
     xyzcolor.xyz_z = xyzcolor.xyz_x * var_a + var_b
-   
-    # Scale the values up.
-    xyzcolor.xyz_x *= 100.0
-    xyzcolor.xyz_y *= 100.0
-    xyzcolor.xyz_z *= 100.0
    
     return xyzcolor
 
@@ -352,7 +347,7 @@ def XYZ_to_Luv(cobj, debug=False, *args, **kwargs):
     luvcolor.luv_u = (4.0 * temp_x) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
     luvcolor.luv_v = (9.0 * temp_y) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
 
-    illum = luvcolor.get_illuminant_xyz(double_scale=True)  
+    illum = luvcolor.get_illuminant_xyz()  
     temp_y = temp_y / illum["Y"]
     if temp_y > color_constants.CIE_E:
         temp_y = math.pow(temp_y, (1.0 / 3.0))
@@ -372,7 +367,7 @@ def XYZ_to_Lab(cobj, debug=False, *args, **kwargs):
     """
     Converts XYZ to Lab.
     """
-    illum = cobj.get_illuminant_xyz(double_scale=True)
+    illum = cobj.get_illuminant_xyz()
     labcolor = color_objects.LabColor()
     _transfer_common(cobj, labcolor)
    

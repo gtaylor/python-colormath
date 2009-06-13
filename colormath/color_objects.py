@@ -416,8 +416,8 @@ class LCHuvColor(ColorBase):
     """
     CONVERSIONS = {
       "lchuv": [None],
-        "xyz": [color_conversions.LCHuv_to_Luv, color_conversions.Lab_to_XYZ],
-        "xyy": [color_conversions.LCHuv_to_Luv, color_conversions.Lab_to_XYZ, 
+        "xyz": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ],
+        "xyy": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ, 
                 color_conversions.XYZ_to_xyY],
         "lab": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ, 
                 color_conversions.XYZ_to_Lab],
