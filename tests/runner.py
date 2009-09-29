@@ -21,6 +21,10 @@ Master test suite runner. Hit this in the shell to run all of the test suites
 in one fell swoop. Make sure these are ran every time 
 colormath/color_conversions.py is touched.
 """
+import os
+import sys
+# Prepare the path to use the included colormath directory.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 import t_color_objects
 import t_color_diff

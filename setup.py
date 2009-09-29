@@ -49,4 +49,5 @@ setup(name='colormath',
       license = 'GPLv3',
       classifiers = CLASSIFIERS,
       keywords = KEYWORDS,
+      requires = ['numpy']
      )

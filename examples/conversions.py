@@ -21,6 +21,7 @@ This module shows you how to perform color space conversions. Please see the
 chart on www.brucelindbloom.com/Math.html for an illustration of the conversions
 you may perform.
 """
+import example_config
 from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor
 
 def example_lab_to_xyz():

@@ -37,6 +37,20 @@ class DeltaE_Tests(unittest.TestCase):
                                                         result, expected,
                                                         result - expected))
         
+    def test_cie2000_accuracy_2(self):
+        """
+        Follow a different execution path based on variable values.
+        """
+        # These values are from ticket 8 in regards to a CIE2000 bug.
+        c1 = LabColor(lab_l=32.8911,lab_a=-53.0107,lab_b=-43.3182)
+        c2 = LabColor(lab_l=77.1797,lab_a=25.5928,lab_b=17.9412)
+        result = c1.delta_e(c2, mode='cie2000')
+        expected = 78.772
+        self.assertAlmostEqual(result, expected, 3, 
+                "DeltaE CIE2000 formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
+                                                        result, expected,
+                                                        result - expected))
+        
     def test_cmc_accuracy(self):
         # Test 2:1
         result = self.color1.delta_e(self.color2, mode='cmc', p1=2, pc=1)

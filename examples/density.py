@@ -19,6 +19,7 @@
 """
 This module shows you how to perform various kinds of density calculations.
 """
+import example_config
 from colormath.color_objects import SpectralColor
 from colormath.density_standards import *
 

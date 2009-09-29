@@ -19,6 +19,7 @@
 """
 This module shows some examples of Delta E calculations of varying types.
 """
+import example_config
 from colormath.color_objects import *
 
 # Reference color.
