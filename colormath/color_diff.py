@@ -131,7 +131,7 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
         delta_hp = diff_h2p_h1p
     elif (fabs(diff_h2p_h1p) > 180) and (h2p <= h1p):
         delta_hp = diff_h2p_h1p + 360
-    elif (fabs(diff_h2p_h1p) > 180) and (h2p > h1p):
+    else:
         delta_hp = diff_h2p_h1p - 360
       
     delta_Lp = L2 - L1
