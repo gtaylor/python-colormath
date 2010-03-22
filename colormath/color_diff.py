@@ -26,13 +26,13 @@ def delta_e_cie1976(color1, color2):
     Calculates the Delta E (CIE1976) of two colors.
     """        
     # Color 1 
-    L1 = color1.lab_l
-    a1 = color1.lab_a
-    b1 = color1.lab_b
+    L1 = float(color1.lab_l)
+    a1 = float(color1.lab_a)
+    b1 = float(color1.lab_b)
     # Color 2
-    L2 = color2.lab_l
-    a2 = color2.lab_a
-    b2 = color2.lab_b
+    L2 = float(color2.lab_l)
+    a2 = float(color2.lab_a)
+    b2 = float(color2.lab_b)
     
     delta_L = pow(L1 - L2, 2)
     delta_a = pow(a1 - a2, 2)
@@ -55,46 +55,49 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
       2 textiles
     """        
     # Color 1 
-    L1 = color1.lab_l
-    a1 = color1.lab_a
-    b1 = color1.lab_b
+    L1 = float(color1.lab_l)
+    a1 = float(color1.lab_a)
+    b1 = float(color1.lab_b)
     # Color 2
-    L2 = color2.lab_l
-    a2 = color2.lab_a
-    b2 = color2.lab_b
-    
-    delta_L = L1 - L2
-    delta_a = a1 - a2
-    delta_b = b1 - b2
-    
+    L2 = float(color2.lab_l)
+    a2 = float(color2.lab_a)
+    b2 = float(color2.lab_b)
+        
     C_1 = sqrt(pow(a1, 2) + pow(b1, 2))
     C_2 = sqrt(pow(a2, 2) + pow(b2, 2))
     
     S_L = 1
     S_C = 1 + K_1 * C_1 
     S_H = 1 + K_2 * C_1
-    
+
+    delta_L = L1 - L2
     delta_C = C_1 - C_2
-    delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
+    delta_a = a1 - a2
+    delta_b = b1 - b2
     
-    L_group = delta_L / (K_L * S_L)
-    C_group = delta_C / (K_C * S_C)
-    H_group = delta_H / (K_H * S_H)
+    try:
+        delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
+    except ValueError:
+        delta_H = 0.0
     
-    return sqrt(pow(L_group, 2) + pow(C_group, 2) + pow(H_group, 2))
+    L_group = pow(delta_L / (K_L * S_L), 2)
+    C_group = pow(delta_C / (K_C * S_C), 2)
+    H_group = pow(delta_H / (K_H * S_H), 2)
+    
+    return sqrt(L_group + C_group + H_group)
 
 def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     """
     Calculates the Delta E (CIE2000) of two colors.
     """        
     # Color 1 
-    L1 = color1.lab_l
-    a1 = color1.lab_a
-    b1 = color1.lab_b
+    L1 = float(color1.lab_l)
+    a1 = float(color1.lab_a)
+    b1 = float(color1.lab_b)
     # Color 2
-    L2 = color2.lab_l
-    a2 = color2.lab_a
-    b2 = color2.lab_b
+    L2 = float(color2.lab_l)
+    a2 = float(color2.lab_a)
+    b2 = float(color2.lab_b)
 
     avg_Lp = (L1 + L2) / 2.0
     C1 = sqrt(pow(a1, 2) + pow(b1, 2))
@@ -159,13 +162,13 @@ def delta_e_cmc(color1, color2, p1=2, pc=1):
       Perceptability: p1=1, pc=1
     """        
     # Color 1 
-    L1 = color1.lab_l
-    a1 = color1.lab_a
-    b1 = color1.lab_b
+    L1 = float(color1.lab_l)
+    a1 = float(color1.lab_a)
+    b1 = float(color1.lab_b)
     # Color 2
-    L2 = color2.lab_l
-    a2 = color2.lab_a
-    b2 = color2.lab_b
+    L2 = float(color2.lab_l)
+    a2 = float(color2.lab_a)
+    b2 = float(color2.lab_b)
     
     delta_L = L1 - L2
     delta_a = a1 - a2
@@ -190,7 +193,10 @@ def delta_e_cmc(color1, color2, p1=2, pc=1):
     
     delta_L = L1 - L2
     delta_C = C_1 - C_2
-    delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
+    try:
+        delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
+    except ValueError:
+        delta_H = 0.0
     
     L_group = delta_L / (p1 * S_L)
     C_group = delta_C / (pc * S_C)

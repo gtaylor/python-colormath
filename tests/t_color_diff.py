@@ -92,6 +92,16 @@ class DeltaE_Tests(unittest.TestCase):
                 "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                                                         result, expected,
                                                         result - expected))
+    def test_cie1994_domain_error(self):
+        # These values are from ticket 98 in regards to a CIE1995
+        # domain error exception being raised.
+        c1 = LabColor(lab_l=50, lab_a=0, lab_b=0)
+        c2 = LabColor(lab_l=50, lab_a=-1, lab_b=2)
+        try:
+            result = c1.delta_e(c2, mode='cie1994')
+        except ValueError:
+            self.fail("DeltaE CIE1994 domain error. See issue 9 in tracker.")
+        
         
     def test_invalid_delta_e_arg(self):
         invalid_color = "THIS IS NOT A COLOR!"
