@@ -575,7 +575,7 @@ class RGBColor(ColorBase):
                 color_conversions.Lab_to_LCHab],
       "lchuv": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Luv, 
                 color_conversions.Luv_to_LCHuv],
-        "luv": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_RGB],
+        "luv": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Luv],
     }
     VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
     
