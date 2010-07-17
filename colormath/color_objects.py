@@ -137,6 +137,16 @@ class ColorBase(object):
                 retval += '%s:%.4f ' % (val, getattr(self, val))
         return retval.strip() + ')'
     
+    def __repr__(self):
+        """
+        String representation of the object.
+        """
+        retval = self.__class__.__name__ + '('
+        attributes = [(attr,getattr(self, attr)) for attr in self.VALUES + self.OTHER_VALUES]
+        values = [x + "=" + repr(y) for x, y in attributes]
+        retval += ','.join(values)
+        return retval + ')'
+    
     def has_required_values(self):
         """
         Checks various fields for None or invalid values.
