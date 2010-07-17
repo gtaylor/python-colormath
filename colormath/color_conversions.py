@@ -256,6 +256,14 @@ def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
     xyzcolor = color_objects.XYZColor()
     _transfer_common(cobj, xyzcolor)
     illum = xyzcolor.get_illuminant_xyz()
+    
+    # Without Light, there is no color. Short-circuit this and avoid some
+    # zero division errors in the var_a_frac calculation.
+    if cobj.luv_l <= 0.0:
+        xyzcolor.xyz_x = 0.0
+        xyzcolor.xyz_y = 0.0
+        xyzcolor.xyz_z = 0.0
+        return xyzcolor
    
     # Various variables used throughout the conversion.
     cie_k_times_e = color_constants.CIE_K * color_constants.CIE_E

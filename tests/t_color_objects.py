@@ -150,6 +150,19 @@ class LCHabConversions(unittest.TestCase):
         self.assertAlmostEqual(lab.lab_a, -3.749, 3, "LCHab to Lab failed: a coord")
         self.assertAlmostEqual(lab.lab_b, -2.547, 3, "LCHab to Lab failed: b coord")
         
+    def test_conversion_to_rgb_zero_div(self):
+        """
+        The formula I grabbed for LCHuv to XYZ had a zero division error in it
+        if the L coord was 0. Also check against LCHab in case.
+        
+        Issue #13 in the Google Code tracker.
+        """
+        lchab = LCHabColor(0.0, 0.0, 0.0)
+        rgb = lchab.convert_to('rgb')
+        self.assertEqual(rgb.rgb_r, 0.0, "LCHab to RGB failed: R coord")
+        self.assertEqual(rgb.rgb_g, 0.0, "LCHab to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 0.0, "LCHab to RGB failed: B coord")
+        
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lchab')
         self.assertEqual(self.color, same_color)
@@ -163,6 +176,19 @@ class LCHuvConversions(unittest.TestCase):
         self.assertAlmostEqual(luv.luv_l, 1.807, 3, "LCHuv to Luv failed: L coord")
         self.assertAlmostEqual(luv.luv_u, -2.564, 3, "LCHuv to Luv failed: u coord")
         self.assertAlmostEqual(luv.luv_v, -0.894, 3, "LCHuv to Luv failed: v coord")
+        
+    def test_conversion_to_rgb_zero_div(self):
+        """
+        The formula I grabbed for LCHuv to XYZ had a zero division error in it
+        if the L coord was 0. Check against that here.
+        
+        Issue #13 in the Google Code tracker.
+        """
+        lchuv = LCHuvColor(0.0, 0.0, 0.0)
+        rgb = lchuv.convert_to('rgb')
+        self.assertEqual(rgb.rgb_r, 0.0, "LCHuv to RGB failed: R coord")
+        self.assertEqual(rgb.rgb_g, 0.0, "LCHuv to RGB failed: G coord")
+        self.assertEqual(rgb.rgb_b, 0.0, "LCHuv to RGB failed: B coord")
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lchuv')
