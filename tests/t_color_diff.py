@@ -53,7 +53,7 @@ class DeltaE_Tests(unittest.TestCase):
         
     def test_cmc_accuracy(self):
         # Test 2:1
-        result = self.color1.delta_e(self.color2, mode='cmc', p1=2, pc=1)
+        result = self.color1.delta_e(self.color2, mode='cmc', pl=2, pc=1)
         expected = 1.443
         self.assertAlmostEqual(result, expected, 3, 
                 "DeltaE CMC (2:1) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
@@ -61,10 +61,20 @@ class DeltaE_Tests(unittest.TestCase):
                                                         result - expected))
         
         # Test against 1:1 as well
-        result = self.color1.delta_e(self.color2, mode='cmc', p1=1, pc=1)
+        result = self.color1.delta_e(self.color2, mode='cmc', pl=1, pc=1)
         expected = 1.482
         self.assertAlmostEqual(result, expected, 3, 
                 "DeltaE CMC (1:1) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
+                                                        result, expected,
+                                                        result - expected))
+        
+        # Testing atan H behavior.
+        atan_color1 = LabColor(lab_l=69.417, lab_a=-12.612, lab_b=-11.271)
+        atan_color2 = LabColor(lab_l=83.386, lab_a=39.426, lab_b=-17.525)
+        result = atan_color1.delta_e(atan_color2, mode='cmc')
+        expected = 44.346
+        self.assertAlmostEqual(result, expected, 3, 
+                "DeltaE CMC Atan test formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                                                         result, expected,
                                                         result - expected))
         

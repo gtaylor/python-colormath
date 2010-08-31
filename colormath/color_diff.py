@@ -153,13 +153,13 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
 
     return delta_E
 
-def delta_e_cmc(color1, color2, p1=2, pc=1):
+def delta_e_cmc(color1, color2, pl=2, pc=1):
     """
     Calculates the Delta E (CIE1994) of two colors.
     
     CMC values
-      Acceptability: p1=2, pc=1
-      Perceptability: p1=1, pc=1
+      Acceptability: pl=2, pc=1
+      Perceptability: pl=1, pc=1
     """        
     # Color 1 
     L1 = float(color1.lab_l)
@@ -178,6 +178,10 @@ def delta_e_cmc(color1, color2, p1=2, pc=1):
     C_2 = sqrt(pow(a2, 2) + pow(b2, 2))
     
     H_1 = degrees(atan2(b1, a1))
+    
+    if H_1 < 0:
+        H_1 = H_1 + 360
+    
     F = sqrt(pow(C_1, 4) / (pow(C_1, 4) + 1900.0))
     if 164 <= H_1 and H_1 <= 345:
         T = 0.56 + abs(0.2 * cos(radians(H_1 + 168)))
@@ -191,14 +195,13 @@ def delta_e_cmc(color1, color2, p1=2, pc=1):
     S_C = ((0.0638 * C_1) / (1 + 0.0131 * C_1)) + 0.638
     S_H = S_C * (F * T + 1 - F)
     
-    delta_L = L1 - L2
     delta_C = C_1 - C_2
     try:
         delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
     except ValueError:
         delta_H = 0.0
     
-    L_group = delta_L / (p1 * S_L)
+    L_group = delta_L / (pl * S_L)
     C_group = delta_C / (pc * S_C)
     H_group = delta_H / S_H
     
