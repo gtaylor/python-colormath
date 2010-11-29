@@ -1,6 +1,6 @@
                             Python Color Math Module
                                    (colormath)
-                   by Gregory Taylor of Level 11 Solutions, LLC
+                                by Gregory Taylor
                     http://code.google.com/p/python-colormath/
 
 What is it?
