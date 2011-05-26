@@ -38,24 +38,24 @@ EXAMPLE_COLOR = SpectralColor(observer=2, illuminant='d50',
                     spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
 
 def example_auto_status_t_density():
-    print "=== Example: Automatic Status T Density ==="
+    print("=== Example: Automatic Status T Density ===")
     # If no arguments are provided to calc_density(), ANSI Status T density is
     # assumed. The correct RGB "filter" is automatically selected for you.
-    print "Density: %f" % EXAMPLE_COLOR.calc_density()
-    print "=== End Example ===\n"
+    print("Density: %f" % EXAMPLE_COLOR.calc_density())
+    print("=== End Example ===\n")
     
 def example_manual_status_t_density():
-    print "=== Example: Manual Status T Density ==="
+    print("=== Example: Manual Status T Density ===")
     # Here we are specifically requesting the value of the red band via the
     # ANSI Status T spec.
-    print "Density: %f (Red)" % EXAMPLE_COLOR.calc_density(density_standard=ANSI_STATUS_T_RED)
-    print "=== End Example ===\n"
+    print("Density: %f (Red)" % EXAMPLE_COLOR.calc_density(density_standard=ANSI_STATUS_T_RED))
+    print("=== End Example ===\n")
     
 def example_visual_density():
-    print "=== Example: Visual Density ==="
+    print("=== Example: Visual Density ===")
     # Here we pass the ISO Visual spectral standard.
-    print "Density: %f" % EXAMPLE_COLOR.calc_density(density_standard=ISO_VISUAL)
-    print "=== End Example ===\n"
+    print("Density: %f" % EXAMPLE_COLOR.calc_density(density_standard=ISO_VISUAL))
+    print("=== End Example ===\n")
     
 # Feel free to comment/un-comment examples as you please.
 example_auto_status_t_density()
