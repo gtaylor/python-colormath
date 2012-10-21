@@ -38,7 +38,7 @@ class ColorBase(object):
 
         # Tranfser matching keywords.
         attrib_list = self.VALUES + self.OTHER_VALUES
-        for key, val in kwargs.items():
+        for key, val in list(kwargs.items()):
             if key in attrib_list:
                 # This is useful for stuff like illuminants. All of our
                 # constants dictionaries are lowercase.
@@ -72,8 +72,8 @@ class ColorBase(object):
         self.has_required_values()
         
         if debug:
-            print 'Converting %s to %s' % (self, cs_to)
-            print ' @ Conversion path: %s' % [conv.__name__ for conv in conversions]
+            print('Converting %s to %s' % (self, cs_to))
+            print(' @ Conversion path: %s' % [conv.__name__ for conv in conversions])
 
         cobj = self
         # Iterate through the list of functions for the conversion path, storing
@@ -83,9 +83,9 @@ class ColorBase(object):
             # Execute the function in this conversion step and store the resulting
             # Color object.
             if debug:
-                print ' * Conversion: %s passed to %s()' % (
-                                        cobj.__class__.__name__, func.__name__)
-                print ' |->  in %s' % cobj
+                print(' * Conversion: %s passed to %s()' % (
+                                        cobj.__class__.__name__, func.__name__))
+                print(' |->  in %s' % cobj)
                 
             if func:
                 # This can be None if you try to convert a color to the color
@@ -93,7 +93,7 @@ class ColorBase(object):
                 cobj = func(cobj, *args, **kwargs)
             
             if debug:
-                print ' |-< out %s' % cobj
+                print(' |-< out %s' % cobj)
         return cobj
     
     def get_value_tuple(self):
@@ -490,17 +490,17 @@ class XYZColor(ColorBase):
         source_illuminant = self.illuminant
         
         if debug:
-            print "  \- Original illuminant: %s" % self.illuminant
-            print "  \- Target illuminant: %s" % target_illuminant
+            print("  \- Original illuminant: %s" % self.illuminant)
+            print("  \- Target illuminant: %s" % target_illuminant)
        
         # If the XYZ values were taken with a different reference white than the
         # native reference white of the target RGB space, a transformation matrix
         # must be applied.
         if source_illuminant != target_illuminant:
             if debug:
-                print "  \* Applying transformation from %s to %s " % (
+                print("  \* Applying transformation from %s to %s " % (
                                                             source_illuminant,
-                                                            target_illuminant)
+                                                            target_illuminant))
             # Get the adjusted XYZ values, adapted for the target illuminant.
             self.xyz_x, self.xyz_y, self.xyz_z = color_conversions.apply_XYZ_transformation(
                                                    self.xyz_x,
@@ -600,7 +600,7 @@ class RGBColor(ColorBase):
         if colorstring[0] == '#': 
             colorstring = colorstring[1:]
         if len(colorstring) != 6:
-            raise ValueError, "input #%s is not in #RRGGBB format" % colorstring
+            raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
         r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
         r, g, b = [int(n, 16) for n in (r, g, b)]
         self.rgb_r = r

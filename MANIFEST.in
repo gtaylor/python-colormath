@@ -1,2 +1,2 @@
-LICENSE.txt
+include LICENSE.txt
 recursive-include examples *.txt *.py
