@@ -552,7 +552,7 @@ class xyYColor(ColorBase):
         
 class RGBColor(ColorBase):
     """
-    Represents an Lab color.
+    Represents an RGB color.
     """
     CONVERSIONS = {
         "rgb": [None],
