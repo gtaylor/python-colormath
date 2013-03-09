@@ -330,7 +330,19 @@ class SpectralColor(ColorBase):
     
 class LabColor(ColorBase):
     """
-    Represents an Lab color.
+    Represents colors in the `CIE L*a*b* space <http://en.wikipedia.org/wiki/Lab_color_space>`_.
+    
+    Parameters
+    ==========
+    L : float
+        Luminance component, from 0 to 100
+        (LabColor.lab_l attribute)
+    a : float
+        a component: negative values indicate green while positive values indicate magenta
+        (LabColor.lab_a attribute)
+    b : float
+        b component: negative values indicate blue and positive values indicate yellow
+        (LabColor.lab_b attribute)
     """
     CONVERSIONS = {
         "lab": [None],
@@ -552,7 +564,19 @@ class xyYColor(ColorBase):
         
 class RGBColor(ColorBase):
     """
-    Represents an RGB color.
+    Represents colors in the `RGB space <http://en.wikipedia.org/wiki/RGB>`_.
+    
+    Parameters
+    ==========
+    R : float
+        Red component, from 0 to 255
+        (RGBColor.rgb_r attribute)
+    G : float
+        Green component, from 0 to 255
+        (RGBColor.rgb_g attribute)
+    B : float
+        Blue component, from 0 to 255
+        (RGBColor.rgb_b attribute)
     """
     CONVERSIONS = {
         "rgb": [None],
