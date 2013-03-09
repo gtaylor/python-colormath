@@ -340,7 +340,7 @@ class LabColor(ColorBase):
     a : float
         a component: negative values indicate green while positive values indicate magenta
         (LabColor.lab_a attribute)
-    b: float
+    b : float
         b component: negative values indicate blue and positive values indicate yellow
         (LabColor.lab_b attribute)
     """
@@ -574,7 +574,7 @@ class RGBColor(ColorBase):
     G : float
         Green component, from 0 to 255
         (RGBColor.rgb_g attribute)
-    B: float
+    B : float
         Blue component, from 0 to 255
         (RGBColor.rgb_b attribute)
     """
