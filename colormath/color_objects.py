@@ -330,7 +330,7 @@ class SpectralColor(ColorBase):
     
 class LabColor(ColorBase):
     """
-    Represents colors in the `CIE Lab space <http://en.wikipedia.org/wiki/Lab_color_space>`_.
+    Represents colors in the `CIE L*a*b* space <http://en.wikipedia.org/wiki/Lab_color_space>`_.
     
     Parameters
     ==========
