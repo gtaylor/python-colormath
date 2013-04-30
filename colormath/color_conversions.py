@@ -36,9 +36,9 @@ def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
     transform_matrix_inverse = pinv(transform_matrix)
     
     # Store the XYZ coordinates of the origin illuminant. Becomes XsubWS.
-    illum_from = color_constants.ILLUMINANTS['2'][orig_illum]
+    illum_from = color_constants.ILLUMINANTS[observer][orig_illum]
     # Also store the XYZ coordinates of the target illuminant. Becomes XsubWD.
-    illum_to = color_constants.ILLUMINANTS['2'][targ_illum]
+    illum_to = color_constants.ILLUMINANTS[observer][targ_illum]
     
     # Calculate cone response domains.
     pyb_source = numpy.dot(illum_from, transform_matrix)
