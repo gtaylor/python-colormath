@@ -31,7 +31,7 @@ class DeltaE_Tests(unittest.TestCase):
     def test_cie1994_accuracy(self):
         results = color_diff_matrix.delta_e(self.color_lab, self.color_lab_matrix, mode='cie1994')
 
-        expected = np.array([2.151, 86.685])
+        expected = np.array([1.249, 78.0778])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
             "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[0], expected[0]))
@@ -40,5 +40,6 @@ class DeltaE_Tests(unittest.TestCase):
             "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[1], expected[1]))
 
     def test_cie1994_other(self):
+        ## see other tests
         self.assertTrue(True)
 
