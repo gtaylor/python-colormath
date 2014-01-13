@@ -60,10 +60,10 @@ def _delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_
     C_1 = np.sqrt(np.sum(np.power(lab_color_vector[1:], 2)))
     C_2 = np.sqrt(np.sum(np.power(lab_color_matrix[:,1:], 2), axis=1))
 
+    delta_C = C_1 - C_2
+
     delta_lab = lab_color_vector - lab_color_matrix
     delta_L = delta_lab[:,0].copy()
-
-    delta_C = C_1 - C_2
     delta_lab[:,0] = delta_C
 
     delta_H_sq = np.sum(np.power(delta_lab,2) * np.array([-1,1,1]), axis=1)
@@ -73,9 +73,7 @@ def _delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_
     S_C = 1 + K_1 * C_1
     S_H = 1 + K_2 * C_1
 
-    L_group = np.power(delta_L / (K_L * S_L), 2)
-    C_group = np.power(delta_C / (K_C * S_C), 2)
-    H_group = np.power(delta_H / (K_H * S_H), 2)
+    LCH = np.vstack([delta_L, delta_C, delta_H])
+    dom = np.array([[K_L * S_L], [K_C * S_C], [K_H * S_H]])
 
-    return np.sqrt(L_group + C_group + H_group)
-
+    return np.sqrt(np.sum(np.power(LCH / dom, 2), axis=0))
