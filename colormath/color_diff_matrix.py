@@ -37,8 +37,11 @@ def delta_e(lab_color, lab_color_matrix, mode='cie2000', *args, **kwargs):
 
 def _delta_e_cie1976(lab_color_vector, lab_color_matrix):
     """
-    Calculates the Delta E (CIE1976) of two colors.
+    Calculates the Delta E (CIE1976) between `lab_color_vector` and all
+    colors in `lab_color_matrix`.
     """
+
+    # euclidean distance
     return np.sqrt(np.sum(np.power(lab_color_vector - lab_color_matrix, 2), axis=1))
 
 
@@ -60,13 +63,12 @@ def _delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_
     C_1 = np.sqrt(np.sum(np.power(lab_color_vector[1:], 2)))
     C_2 = np.sqrt(np.sum(np.power(lab_color_matrix[:,1:], 2), axis=1))
 
-    delta_C = C_1 - C_2
-
     delta_lab = lab_color_vector - lab_color_matrix
     delta_L = delta_lab[:,0].copy()
+    delta_C = C_1 - C_2
     delta_lab[:,0] = delta_C
 
-    delta_H_sq = np.sum(np.power(delta_lab,2) * np.array([-1,1,1]), axis=1)
+    delta_H_sq = np.sum(np.power(delta_lab, 2) * np.array([-1,1,1]), axis=1)
     delta_H = np.sqrt(delta_H_sq.clip(min=0))
 
     S_L = 1
@@ -74,6 +76,7 @@ def _delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_
     S_H = 1 + K_2 * C_1
 
     LCH = np.vstack([delta_L, delta_C, delta_H])
-    dom = np.array([[K_L * S_L], [K_C * S_C], [K_H * S_H]])
+    params = np.array([[K_L * S_L], [K_C * S_C], [K_H * S_H]])
 
-    return np.sqrt(np.sum(np.power(LCH / dom, 2), axis=0))
+    return np.sqrt(np.sum(np.power(LCH / params, 2), axis=0))
+
