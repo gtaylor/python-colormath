@@ -9,4 +9,6 @@ the follow two files
 lab-colors is a cPickled list of color names and lab-matrix is a
 cPickled (n,3) numpy array LAB values such that row q maps to
 index q in the lab color list
+
+########### benchmark
 """
