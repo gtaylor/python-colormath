@@ -1,45 +1,9 @@
 """
 Color Difference Equations for Matrices
 """
-from math import *
-
-from .color_objects import LabColor
-
 import numpy as np
 
-def delta_e(lab_color, lab_color_matrix, mode='cie2000', *args, **kwargs):
-    """
-    Compares ........  via Delta E. The ... must be of shape ... and
-    must be composed of LABColor objects. Implicit color-space conversion
-    is not supported due to the cost of the operator. Returns a distance
-    vector of shape (n,).
-
-    Valid modes:
-     cie2000
-     cie1976
-     cie1994
-    """
-
-    if not isinstance(lab_color, LabColor):
-        raise InvalidArgument('delta_e', 'color_lab_scalar', color_lab_scalar)
-
-    lab_color_vector = np.array([lab_color.lab_l, lab_color.lab_a, lab_color.lab_b])
-
-    mode = mode.lower()
-
-    if mode == 'cie2000':
-        return _delta_e_cie2000(lab_color_vector, lab_color_matrix)
-    elif mode == 'cie1994':
-        return _delta_e_cie1994(lab_color_vector, lab_color_matrix, **kwargs)
-    elif mode == 'cie1976':
-        return _delta_e_cie1976(lab_color_vector, lab_color_matrix)
-    elif mode == 'cmc':
-        return _delta_e_cmc(lab_color_vector, lab_color_matrix, **kwargs)
-    else:
-        raise InvalidDeltaEMode(mode)
-
-
-def _delta_e_cie1976(lab_color_vector, lab_color_matrix):
+def delta_e_cie1976(lab_color_vector, lab_color_matrix):
     """
     Calculates the Delta E (CIE1976) between `lab_color_vector` and all
     colors in `lab_color_matrix`.
@@ -49,7 +13,7 @@ def _delta_e_cie1976(lab_color_vector, lab_color_matrix):
     return np.sqrt(np.sum(np.power(lab_color_vector - lab_color_matrix, 2), axis=1))
 
 
-def _delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
+def delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     """
     Calculates the Delta E (CIE1994) of two colors.
 
@@ -86,7 +50,7 @@ def _delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_
     return np.sqrt(np.sum(np.power(LCH / params, 2), axis=0))
 
 
-def _delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
+def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     """
     DOES NOT WORK
     #############################
@@ -159,7 +123,7 @@ def _delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
                       R_T * (delta_Cp /(S_C * Kc)) * (delta_Hp / (S_H * Kh)))
     return delta_E
 
-def _delta_e_cmc(color_lab_vector, color_lab_matrix, pl=2, pc=1):
+def delta_e_cmc(color_lab_vector, color_lab_matrix, pl=2, pc=1):
     """
     Does not work
     ###########################

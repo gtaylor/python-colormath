@@ -18,7 +18,7 @@ class DeltaE_Tests(unittest.TestCase):
         ])
 
     def test_cie1976_accuracy(self):
-        results = color_diff_matrix.delta_e(self.color_lab, self.color_lab_matrix, mode='cie1976')
+        results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie1976')
 
         expected = np.array([2.151, 86.685])
 
@@ -29,7 +29,7 @@ class DeltaE_Tests(unittest.TestCase):
             "DeltaE CIE1976 formula error. Got %s, expected %s." % (results[1], expected[1]))
 
     def test_cie1994_accuracy(self):
-        results = color_diff_matrix.delta_e(self.color_lab, self.color_lab_matrix, mode='cie1994')
+        results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie1994')
 
         expected = np.array([1.249, 78.0778])
 
@@ -40,8 +40,8 @@ class DeltaE_Tests(unittest.TestCase):
             "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[1], expected[1]))
 
     def test_cie1994_accuracy_textile(self):
-        results = color_diff_matrix.delta_e(self.color_lab, self.color_lab_matrix, mode='cie1994',
-                                            K_1=0.048, K_2=0.014, K_L=2)
+        results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie1994',
+                                                K_1=0.048, K_2=0.014, K_L=2)
 
         expected = np.array([1.204, 50.854])
 
@@ -52,7 +52,7 @@ class DeltaE_Tests(unittest.TestCase):
             "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f." % (results[1], expected[1]))
 
     def test_cie2000_accuracy(self):
-        results = color_diff_matrix.delta_e(self.color_lab, self.color_lab_matrix, mode='cie2000')
+        results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie2000')
 
         expected = np.array([1.523, 65.653])
 
