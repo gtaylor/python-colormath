@@ -78,6 +78,7 @@ def delta_e_cmc(lab_color_vector, lab_color_matrix, pl=2, pc=1):
         H_1 = H_1 + 360
 
     F = np.sqrt(np.power(C_1, 4) / (np.power(C_1, 4) + 1900.0))
+
     if 164 <= H_1 and H_1 <= 345:
         T = 0.56 + abs(0.2 * np.cos(np.radians(H_1 + 168)))
     else:
@@ -87,6 +88,7 @@ def delta_e_cmc(lab_color_vector, lab_color_matrix, pl=2, pc=1):
         S_L = 0.511
     else:
         S_L = (0.040975 * L) / (1 + 0.01765 * L)
+
     S_C = ((0.0638 * C_1) / (1 + 0.0131 * C_1)) + 0.638
     S_H = S_C * (F * T + 1 - F)
 
@@ -127,14 +129,12 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     avg_C1p_C2p =(C1p + C2p) / 2.0
 
     h1p = np.degrees(np.arctan2(b, a1p))
-    h1p[h1p<0] += 360
+    h1p = h1p + (h1p < 0) * 360
 
     h2p = np.degrees(np.arctan2(lab_color_matrix[:,2], a2p))
-    h2p[h2p<0] += 360
+    h2p = h2p + (h2p < 0) * 360
 
-    avg_Hp = np.fabs(h1p - h2p)
-    avg_Hp[avg_Hp>180] = ((h1p + h2p + 360) / 2.0)[avg_Hp>180]
-    avg_Hp[avg_Hp<=180] = ((h1p + h2p) / 2.0)[avg_Hp<=180]
+    avg_Hp = (((np.fabs(h1p - h2p ) > 180) * 360) + h1p + h2p) / 2.0
 
     T = 1 - 0.17 * np.cos(np.radians(avg_Hp - 30)) + \
             0.24 * np.cos(np.radians(2 * avg_Hp)) + \
@@ -142,16 +142,10 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
             0.2  * np.cos(np.radians(4 * avg_Hp - 63))
 
     diff_h2p_h1p = h2p - h1p
+    delta_hp = diff_h2p_h1p + (diff_h2p_h1p > 180) * 360
+    delta_hp = delta_hp - (h2p > h1p) * -720
 
-    ###################
-    ### NEEDS FIXING HERE AND TESTING
-    ##################
-
-    delta_hp = np.fabs(diff_h2p_h1p)
-    delta_hp[delta_hp>180][h2p <= h1p] = diff_h2p_h1p[delta_hp>180][h2p <= h1p] + 360
-    delta_hp[delta_hp>180][h2p > h1p] = diff_h2p_h1p[delta_hp>180][h2p > h1p] - 360
-
-    delta_Lp = L2 - L1
+    delta_Lp = lab_color_matrix[:,0] - L
     delta_Cp = C2p - C1p
     delta_Hp = 2 * np.sqrt(C2p * C1p) * np.sin(np.radians(delta_hp) / 2.0)
 
@@ -168,4 +162,3 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
                       np.power(delta_Hp /(S_H * Kh), 2) +
                       R_T * (delta_Cp /(S_C * Kc)) * (delta_Hp / (S_H * Kh)))
     return delta_E
-
