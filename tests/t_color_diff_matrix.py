@@ -8,7 +8,7 @@ from colormath import color_diff_matrix
 
 import numpy as np
 
-class DeltaE_Tests(unittest.TestCase):
+class DeltaEMatrix_Tests(unittest.TestCase):
     def setUp(self):
         self.color_lab = LabColor(lab_l=0.9, lab_a=16.3, lab_b=-2.22)
 
@@ -51,14 +51,39 @@ class DeltaE_Tests(unittest.TestCase):
         self.assertAlmostEqual(results[1], expected[1], 3,
             "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f." % (results[1], expected[1]))
 
+    def test_cmc_accuracy(self):
+        # 2:1
+        results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cmc', pl=2, pc=1)
+
+        expected = np.array([1.443, 79.820])
+
+        self.assertAlmostEqual(results[0], expected[0], 3,
+            "DeltaE CMC formula error. Got %s, expected %s." % (results[0], expected[0]))
+
+        self.assertAlmostEqual(results[1], expected[1], 3,
+            "DeltaE CMC formula error. Got %s, expected %s." % (results[1], expected[1]))
+
+        # 1:1
+        results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cmc', pl=1, pc=1)
+
+        expected = np.array([1.482, 140.801])
+
+        self.assertAlmostEqual(results[0], expected[0], 3,
+            "DeltaE CMC formula error. Got %s, expected %s." % (results[0], expected[0]))
+
+        self.assertAlmostEqual(results[1], expected[1], 3,
+            "DeltaE CMC formula error. Got %s, expected %s." % (results[1], expected[1]))
+
+
     def test_cie2000_accuracy(self):
         results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie2000')
 
         expected = np.array([1.523, 65.653])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[0], expected[0]))
+            "DeltaE CIE2000 formula error. Got %s, expected %s." % (results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[1], expected[1]))
+            "DeltaE CIE2000 formula error. Got %s, expected %s." % (results[1], expected[1]))
+
 

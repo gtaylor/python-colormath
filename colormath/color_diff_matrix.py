@@ -50,13 +50,62 @@ def delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_1
     return np.sqrt(np.sum(np.power(LCH / params, 2), axis=0))
 
 
+def delta_e_cmc(lab_color_vector, lab_color_matrix, pl=2, pc=1):
+    """
+    ###########################
+    Calculates the Delta E (CIE1994) of two colors.
+
+    CMC values
+      Acceptability: pl=2, pc=1
+      Perceptability: pl=1, pc=1
+    ######################
+    """
+
+    L, a, b  = lab_color_vector
+
+    C_1 = np.sqrt(np.sum(np.power(lab_color_vector[1:], 2)))
+    C_2 = np.sqrt(np.sum(np.power(lab_color_matrix[:,1:], 2), axis=1))
+
+    delta_lab = lab_color_vector - lab_color_matrix
+
+    delta_L = delta_lab[:,0].copy()
+    delta_C = C_1 - C_2
+    delta_lab[:,0] = delta_C
+
+    H_1 = np.degrees(np.arctan2(b, a))
+
+    if H_1 < 0:
+        H_1 = H_1 + 360
+
+    F = np.sqrt(np.power(C_1, 4) / (np.power(C_1, 4) + 1900.0))
+    if 164 <= H_1 and H_1 <= 345:
+        T = 0.56 + abs(0.2 * np.cos(np.radians(H_1 + 168)))
+    else:
+        T = 0.36 + abs(0.4 * np.cos(np.radians(H_1 + 35)))
+
+    if L < 16:
+        S_L = 0.511
+    else:
+        S_L = (0.040975 * L) / (1 + 0.01765 * L)
+    S_C = ((0.0638 * C_1) / (1 + 0.0131 * C_1)) + 0.638
+    S_H = S_C * (F * T + 1 - F)
+
+    delta_C = C_1 - C_2
+
+    delta_H_sq = np.sum(np.power(delta_lab, 2) * np.array([-1,1,1]), axis=1)
+    delta_H = np.sqrt(delta_H_sq.clip(min=0))
+
+    LCH = np.vstack([delta_L, delta_C, delta_H])
+    params = np.array([[pl * S_L], [pc * S_C], [S_H]])
+
+    return np.sqrt(np.sum(np.power(LCH / params, 2), axis=0))
+
+
 def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     """
-    DOES NOT WORK
     #############################
     Calculates the Delta E (CIE2000) of two colors.
     ############################
-    DOES NOT WORK
     """
     L, a, b  = lab_color_vector
 
@@ -84,8 +133,8 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     h2p[h2p<0] += 360
 
     avg_Hp = np.fabs(h1p - h2p)
-    avg_Hp[fabs>180] = ((h1p + h2p + 360) / 2.0)[fabs>180]
-    avg_Hp[fabs<=180] = ((h1p + h2p) / 2.0)[fabs<=180]
+    avg_Hp[avg_Hp>180] = ((h1p + h2p + 360) / 2.0)[avg_Hp>180]
+    avg_Hp[avg_Hp<=180] = ((h1p + h2p) / 2.0)[avg_Hp<=180]
 
     T = 1 - 0.17 * np.cos(np.radians(avg_Hp - 30)) + \
             0.24 * np.cos(np.radians(2 * avg_Hp)) + \
@@ -98,12 +147,9 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     ### NEEDS FIXING HERE AND TESTING
     ##################
 
-    if np.fabs(diff_h2p_h1p) <= 180:
-        delta_hp = diff_h2p_h1p
-    elif (np.fabs(diff_h2p_h1p) > 180) and (h2p <= h1p):
-        delta_hp = diff_h2p_h1p + 360
-    else:
-        delta_hp = diff_h2p_h1p - 360
+    delta_hp = np.fabs(diff_h2p_h1p)
+    delta_hp[delta_hp>180][h2p <= h1p] = diff_h2p_h1p[delta_hp>180][h2p <= h1p] + 360
+    delta_hp[delta_hp>180][h2p > h1p] = diff_h2p_h1p[delta_hp>180][h2p > h1p] - 360
 
     delta_Lp = L2 - L1
     delta_Cp = C2p - C1p
@@ -123,57 +169,3 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
                       R_T * (delta_Cp /(S_C * Kc)) * (delta_Hp / (S_H * Kh)))
     return delta_E
 
-def delta_e_cmc(color_lab_vector, color_lab_matrix, pl=2, pc=1):
-    """
-    Does not work
-    ###########################
-    Calculates the Delta E (CIE1994) of two colors.
-
-    CMC values
-      Acceptability: pl=2, pc=1
-      Perceptability: pl=1, pc=1
-    ######################
-    Does not work
-    """
-    # Color 1
-    L1 = float(color1.lab_l)
-    a1 = float(color1.lab_a)
-    b1 = float(color1.lab_b)
-    # Color 2
-    L2 = float(color2.lab_l)
-    a2 = float(color2.lab_a)
-    b2 = float(color2.lab_b)
-
-    delta_L = L1 - L2
-    delta_a = a1 - a2
-    delta_b = b1 - b2
-
-    C_1 = sqrt(pow(a1, 2) + pow(b1, 2))
-    C_2 = sqrt(pow(a2, 2) + pow(b2, 2))
-
-    H_1 = degrees(atan2(b1, a1))
-
-    if H_1 < 0:
-        H_1 = H_1 + 360
-
-    F = sqrt(pow(C_1, 4) / (pow(C_1, 4) + 1900.0))
-    if 164 <= H_1 and H_1 <= 345:
-        T = 0.56 + abs(0.2 * cos(radians(H_1 + 168)))
-    else:
-        T = 0.36 + abs(0.4 * cos(radians(H_1 + 35)))
-
-    if L1 < 16:
-        S_L = 0.511
-    else:
-        S_L = (0.040975 * L1) / (1 + 0.01765 * L1)
-    S_C = ((0.0638 * C_1) / (1 + 0.0131 * C_1)) + 0.638
-    S_H = S_C * (F * T + 1 - F)
-
-    delta_C = C_1 - C_2
-    try:
-        delta_H = sqrt(pow(delta_a, 2) + pow(delta_b, 2) - pow(delta_C, 2))
-    except ValueError:
-        delta_H = 0.0
-
-    L_group = delta_L / (pl * S_L)
-    C_group = delta_C / (pc * S_C)
