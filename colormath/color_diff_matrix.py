@@ -1,6 +1,11 @@
 """
-Color Difference Equations for Matrices
+Color Difference Equations for Matrices. This is a direct port of the functions
+in color_diff.py. There is opportunity for optimisation especially for the more
+complex deltaE functions
+
+Eddie Bell - ejlbell@gmail.com - 17/01/14
 """
+
 import numpy as np
 
 def delta_e_cie1976(lab_color_vector, lab_color_matrix):
@@ -8,8 +13,6 @@ def delta_e_cie1976(lab_color_vector, lab_color_matrix):
     Calculates the Delta E (CIE1976) between `lab_color_vector` and all
     colors in `lab_color_matrix`.
     """
-
-    # euclidean distance
     return np.sqrt(np.sum(np.power(lab_color_vector - lab_color_matrix, 2), axis=1))
 
 
@@ -52,13 +55,11 @@ def delta_e_cie1994(lab_color_vector, lab_color_matrix, K_L=1, K_C=1, K_H=1, K_1
 
 def delta_e_cmc(lab_color_vector, lab_color_matrix, pl=2, pc=1):
     """
-    ###########################
     Calculates the Delta E (CIE1994) of two colors.
 
     CMC values
       Acceptability: pl=2, pc=1
       Perceptability: pl=1, pc=1
-    ######################
     """
 
     L, a, b  = lab_color_vector
@@ -105,9 +106,7 @@ def delta_e_cmc(lab_color_vector, lab_color_matrix, pl=2, pc=1):
 
 def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     """
-    #############################
     Calculates the Delta E (CIE2000) of two colors.
-    ############################
     """
     L, a, b  = lab_color_vector
 
