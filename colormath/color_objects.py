@@ -362,10 +362,9 @@ class LabColor(ColorBase):
 
     def delta_e_matrix(self, lab_color_matrix, mode='cie2000', *args, **kwargs):
         """
-        Compares ........  via Delta E. The ... must be of shape ... and
-        must be composed of LABColor objects. Implicit color-space conversion
-        is not supported due to the cost of the operator. Returns a distance
-        vector of shape (n,).
+        Compares this object with all colors in lab_color_matrix via Delta E.
+        The matrix must be of shape (n,3) and must be composed of floats.
+        Returns a distance vector of shape (n,).
 
         Valid modes:
          cie2000
