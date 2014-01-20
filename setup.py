@@ -2,6 +2,8 @@
 from distutils.core import setup
 import colormath
 
+from setuptools import setup
+
 LONG_DESCRIPTION = open('README.rst').read()
 
 CLASSIFIERS = [
