@@ -1,0 +1,12 @@
+1.0.9
+-----
+
+* Un-hardcode the observer angle in adaptation matrix. (Bastien Dejean)
+* Added an optional vectorized deltaE function. This uses NumPy array/matrix
+  math for a very large speed boost. (Eddie Bell)
+* Added this changelog. (Greg Taylor)
+
+1.0.8
+-----
+
+* Initial GitHub release.

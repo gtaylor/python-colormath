@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from distutils.core import setup
+
 import colormath
 
 from setuptools import setup
@@ -19,18 +19,19 @@ CLASSIFIERS = [
 
 KEYWORDS = 'color math conversions'
 
-setup(name='colormath',
-      version=colormath.VERSION,
-      description='Color math and conversion library.',
-      long_description = LONG_DESCRIPTION,
-      author='Gregory Taylor',
-      author_email='gtaylor@l11solutions.com',
-      url='http://code.google.com/p/python-colormath/',
-      download_url='http://pypi.python.org/pypi/colormath/',
-      packages=['colormath'],
-      platforms = ['Platform Independent'],
-      license = 'BSD',
-      classifiers = CLASSIFIERS,
-      keywords = KEYWORDS,
-      requires = ['numpy']
-     )
+setup(
+    name='colormath',
+    version=colormath.VERSION,
+    description='Color math and conversion library.',
+    long_description=LONG_DESCRIPTION,
+    author='Gregory Taylor',
+    author_email='gtaylor@l11solutions.com',
+    url='http://code.google.com/p/python-colormath/',
+    download_url='http://pypi.python.org/pypi/colormath/',
+    packages=['colormath'],
+    platforms=['Platform Independent'],
+    license='BSD',
+    classifiers=CLASSIFIERS,
+    keywords=KEYWORDS,
+    requires=['numpy']
+)

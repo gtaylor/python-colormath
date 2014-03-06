@@ -6,3 +6,4 @@ build
 dist
 MANIFEST
 .idea
+colormath.egg-info/
