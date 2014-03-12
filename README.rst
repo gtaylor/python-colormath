@@ -59,6 +59,6 @@ and submit an issue if you have any problems or questions.
 Legal Mumbo Jumbo
 -----------------
 
-Copyright (C) 2012 Gregory Taylor
+Copyright (C) 2014 Gregory Taylor
 
 This software is licensed under the BSD License.
