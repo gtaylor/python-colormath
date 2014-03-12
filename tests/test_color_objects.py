@@ -1,29 +1,37 @@
 """
 Various tests for color objects.
 """
-import unittest
-from colormath.color_objects import *
-from colormath.color_exceptions import *
 
-class SpectralConversions(unittest.TestCase):
+import unittest
+
+from colormath.color_exceptions import MissingValue, InvalidValue, \
+    InvalidObserver
+from colormath.color_objects import SpectralColor, XYZColor, xyYColor, LabColor, \
+    LuvColor, LCHabColor, LCHuvColor, RGBColor, HSLColor, HSVColor, CMYColor, \
+    CMYKColor
+
+
+class SpectralConversionTestCase(unittest.TestCase):
     def setUp(self):
         """
         While it is possible to specify the entire spectral color using
         positional arguments, set this thing up with keywords for the ease of
         manipulation.
         """
-        color = SpectralColor(spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
-                        spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
-                        spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
-                        spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,
-                        spec_500nm=0.0651, spec_510nm=0.0680, spec_520nm=0.0705,
-                        spec_530nm=0.0736, spec_540nm=0.0772, spec_550nm=0.0809,
-                        spec_560nm=0.0870, spec_570nm=0.0990, spec_580nm=0.1128,
-                        spec_590nm=0.1251, spec_600nm=0.1360, spec_610nm=0.1439,
-                        spec_620nm=0.1511, spec_630nm=0.1590, spec_640nm=0.1688,
-                        spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
-                        spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
-                        spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
+
+        color = SpectralColor(
+            spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
+            spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
+            spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
+            spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,
+            spec_500nm=0.0651, spec_510nm=0.0680, spec_520nm=0.0705,
+            spec_530nm=0.0736, spec_540nm=0.0772, spec_550nm=0.0809,
+            spec_560nm=0.0870, spec_570nm=0.0990, spec_580nm=0.1128,
+            spec_590nm=0.1251, spec_600nm=0.1360, spec_610nm=0.1439,
+            spec_620nm=0.1511, spec_630nm=0.1590, spec_640nm=0.1688,
+            spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
+            spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
+            spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
         self.color = color
                 
     def test_conversion_to_xyz(self):
@@ -38,25 +46,28 @@ class SpectralConversions(unittest.TestCase):
         clamp these to 0.0 instead of running into the domain errors. A badly
         or uncalibrated spectro can sometimes report negative values.
         """
-        color = SpectralColor(spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
-                        spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=-0.0605,
-                        spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
-                        spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,
-                        spec_500nm=0.0651, spec_510nm=0.0680, spec_520nm=0.0705,
-                        spec_530nm=-0.0736, spec_540nm=0.0772, spec_550nm=0.0809,
-                        spec_560nm=0.0870, spec_570nm=0.0990, spec_580nm=0.1128,
-                        spec_590nm=0.1251, spec_600nm=0.1360, spec_610nm=0.1439,
-                        spec_620nm=0.1511, spec_630nm=0.1590, spec_640nm=0.1688,
-                        spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
-                        spec_680nm=0.2397, spec_690nm=-0.2618, spec_700nm=0.2852,
-                        spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
+
+        color = SpectralColor(
+            spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
+            spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=-0.0605,
+            spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
+            spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,
+            spec_500nm=0.0651, spec_510nm=0.0680, spec_520nm=0.0705,
+            spec_530nm=-0.0736, spec_540nm=0.0772, spec_550nm=0.0809,
+            spec_560nm=0.0870, spec_570nm=0.0990, spec_580nm=0.1128,
+            spec_590nm=0.1251, spec_600nm=0.1360, spec_610nm=0.1439,
+            spec_620nm=0.1511, spec_630nm=0.1590, spec_640nm=0.1688,
+            spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
+            spec_680nm=0.2397, spec_690nm=-0.2618, spec_700nm=0.2852,
+            spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
         xyz = self.color.convert_to('xyz')
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('spectral')
         self.assertEqual(self.color, same_color)
 
-class XYZConversions(unittest.TestCase):
+
+class XYZConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = XYZColor(0.1, 0.2, 0.3)
         
@@ -87,8 +98,10 @@ class XYZConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('xyz')
         self.assertEqual(self.color, same_color)
-        
-class xyYConversions(unittest.TestCase):
+
+
+# noinspection PyPep8Naming
+class xyYConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = xyYColor(0.167, 0.333, 0.200)
         
@@ -101,8 +114,9 @@ class xyYConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('xyy')
         self.assertEqual(self.color, same_color)
-        
-class LabConversions(unittest.TestCase):
+
+
+class LabConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = LabColor(1.807, -3.749, -2.547)
         
@@ -121,8 +135,9 @@ class LabConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lab')
         self.assertEqual(self.color, same_color)
-        
-class LuvConversions(unittest.TestCase):
+
+
+class LuvConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = LuvColor(1.807, -2.564, -0.894)
         
@@ -141,8 +156,9 @@ class LuvConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('luv')
         self.assertEqual(self.color, same_color)
-        
-class LCHabConversions(unittest.TestCase):
+
+
+class LCHabConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = LCHabColor(1.807, 4.532, 214.191)
                 
@@ -168,8 +184,9 @@ class LCHabConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lchab')
         self.assertEqual(self.color, same_color)
-        
-class LCHuvConversions(unittest.TestCase):
+
+
+class LCHuvConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = LCHuvColor(1.807, 2.715, 199.228)
                 
@@ -195,8 +212,9 @@ class LCHuvConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lchuv')
         self.assertEqual(self.color, same_color)
-        
-class RGBConversions(unittest.TestCase):
+
+
+class RGBConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = RGBColor(123, 200, 50, rgb_type='sRGB')
     
@@ -308,8 +326,9 @@ class RGBConversions(unittest.TestCase):
         self.assertEqual(rgb.rgb_r, 123, "sRGB from hex failed: R coord")
         self.assertEqual(rgb.rgb_g, 200, "sRGB from hex failed: G coord")
         self.assertEqual(rgb.rgb_b, 50, "sRGB from hex failed: B coord")
-        
-class HSLConversions(unittest.TestCase):
+
+
+class HSLConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = HSLColor(200.0, 0.400, 0.500)
                 
@@ -322,8 +341,9 @@ class HSLConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('hsl')
         self.assertEqual(self.color, same_color)
-        
-class HSVConversions(unittest.TestCase):
+
+
+class HSVConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = HSVColor(91.0, 0.750, 0.784)
                 
@@ -336,8 +356,9 @@ class HSVConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('hsv')
         self.assertEqual(self.color, same_color)
-        
-class CMYConversions(unittest.TestCase):
+
+
+class CMYConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = CMYColor(0.518, 0.216, 0.804)
                 
@@ -357,8 +378,9 @@ class CMYConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('cmy')
         self.assertEqual(self.color, same_color)
-        
-class CMYKConversions(unittest.TestCase):
+
+
+class CMYKConversionTestCase(unittest.TestCase):
     def setUp(self):
         self.color = CMYKColor(0.385, 0.000, 0.750, 0.216)
                 
@@ -371,8 +393,9 @@ class CMYKConversions(unittest.TestCase):
     def test_convert_to_self(self):
         same_color = self.color.convert_to('cmyk')
         self.assertEqual(self.color, same_color)
-        
-class ValueTests(unittest.TestCase):
+
+
+class ValueTestCase(unittest.TestCase):
     def setUp(self):
         self.color = LabColor(lab_l = 1.807, lab_b = -2.547)
         
@@ -387,6 +410,3 @@ class ValueTests(unittest.TestCase):
     def test_invalid_observer(self):
         self.color.observer = 'THIS IS NOT A VALID OBSERVER ANGLE'
         self.assertRaises(InvalidObserver, self.color.convert_to, 'xyz')
-
-if __name__ == '__main__':
-    unittest.main()

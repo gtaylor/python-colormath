@@ -1,3 +1,10 @@
+1.0.10
+------
+
+* Removed the old custom test runner in favor of nose. (Greg Taylor)
+* Replacing simplified RGB->XYZ conversions with Bruce Lindbloom's. (Greg Taylor)
+* A round of PEP8 work. (Greg Taylor)
+
 1.0.9
 -----
 

@@ -1,14 +1,15 @@
 """
 Tests for color difference (Delta E) equations.
 """
+
 import unittest
-from colormath.color_objects import *
-from colormath.color_exceptions import *
-from colormath import color_diff_matrix
 
 import numpy as np
 
-class DeltaEMatrix_Tests(unittest.TestCase):
+from colormath.color_objects import LabColor
+
+
+class DeltaEMatrixTestCase(unittest.TestCase):
     def setUp(self):
         self.color_lab = LabColor(lab_l=0.9, lab_a=16.3, lab_b=-2.22)
 
@@ -23,10 +24,12 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         expected = np.array([2.151, 86.685])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CIE1976 formula error. Got %s, expected %s." % (results[0], expected[0]))
+            "DeltaE CIE1976 formula error. Got %s, expected %s." % (
+                results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CIE1976 formula error. Got %s, expected %s." % (results[1], expected[1]))
+            "DeltaE CIE1976 formula error. Got %s, expected %s." % (
+                results[1], expected[1]))
 
     def test_cie1994_accuracy(self):
         results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie1994')
@@ -34,10 +37,12 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         expected = np.array([1.249, 78.0778])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[0], expected[0]))
+            "DeltaE CIE1994 formula error. Got %s, expected %s." % (
+                results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CIE1994 formula error. Got %s, expected %s." % (results[1], expected[1]))
+            "DeltaE CIE1994 formula error. Got %s, expected %s." % (
+                results[1], expected[1]))
 
     def test_cie1994_accuracy_textile(self):
         results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie1994',
@@ -46,10 +51,12 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         expected = np.array([1.204, 50.854])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f." % (results[0], expected[0]))
+            "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f." % (
+                results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f." % (results[1], expected[1]))
+            "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f." % (
+                results[1], expected[1]))
 
     def test_cmc_accuracy(self):
         # 2:1
@@ -58,10 +65,12 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         expected = np.array([1.443, 79.820])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CMC formula error. Got %s, expected %s." % (results[0], expected[0]))
+            "DeltaE CMC formula error. Got %s, expected %s." % (
+                results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CMC formula error. Got %s, expected %s." % (results[1], expected[1]))
+            "DeltaE CMC formula error. Got %s, expected %s." % (
+                results[1], expected[1]))
 
         # 1:1
         results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cmc', pl=1, pc=1)
@@ -69,11 +78,12 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         expected = np.array([1.482, 140.801])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CMC formula error. Got %s, expected %s." % (results[0], expected[0]))
+            "DeltaE CMC formula error. Got %s, expected %s." % (
+                results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CMC formula error. Got %s, expected %s." % (results[1], expected[1]))
-
+            "DeltaE CMC formula error. Got %s, expected %s." % (
+                results[1], expected[1]))
 
     def test_cie2000_accuracy(self):
         results = self.color_lab.delta_e_matrix(self.color_lab_matrix, mode='cie2000')
@@ -81,10 +91,12 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         expected = np.array([1.523, 65.653])
 
         self.assertAlmostEqual(results[0], expected[0], 3,
-            "DeltaE CIE2000 formula error. Got %s, expected %s." % (results[0], expected[0]))
+            "DeltaE CIE2000 formula error. Got %s, expected %s." % (
+                results[0], expected[0]))
 
         self.assertAlmostEqual(results[1], expected[1], 3,
-            "DeltaE CIE2000 formula error. Got %s, expected %s." % (results[1], expected[1]))
+            "DeltaE CIE2000 formula error. Got %s, expected %s." % (
+                results[1], expected[1]))
 
     def test_cie2000_accuracy_2(self):
 
@@ -173,10 +185,11 @@ class DeltaEMatrix_Tests(unittest.TestCase):
         ]
 
         for i, color in enumerate(color1):
-          deltas = color.delta_e_matrix(color2, mode='cie2000')
-          result = deltas[i]
-          expected = diff[i]
+            deltas = color.delta_e_matrix(color2, mode='cie2000')
+            result = deltas[i]
+            expected = diff[i]
 
-          self.assertAlmostEqual(result, expected, 4,
-            "DeltaE CIE2000 formula error. Got %.4f, expected %.4f" % (result, expected))
+            self.assertAlmostEqual(result, expected, 4,
+                "DeltaE CIE2000 formula error. Got %.4f, expected %.4f" % (
+                    result, expected))
 

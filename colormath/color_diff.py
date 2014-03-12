@@ -1,12 +1,16 @@
 """
 Color Difference Equations
-""" 
-from math import *
+"""
 
+from math import sqrt, degrees, atan2, fabs, cos, radians, sin, exp
+
+
+# noinspection PyPep8Naming
 def delta_e_cie1976(color1, color2):
     """
     Calculates the Delta E (CIE1976) of two colors.
-    """        
+    """
+
     # Color 1 
     L1 = float(color1.lab_l)
     a1 = float(color1.lab_a)
@@ -22,6 +26,8 @@ def delta_e_cie1976(color1, color2):
     
     return sqrt(delta_L + delta_a + delta_b)
 
+
+# noinspection PyPep8Naming
 def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     """
     Calculates the Delta E (CIE1994) of two colors.
@@ -35,7 +41,8 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     K_L:
       1 default
       2 textiles
-    """        
+    """
+
     # Color 1 
     L1 = float(color1.lab_l)
     a1 = float(color1.lab_a)
@@ -68,10 +75,13 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     
     return sqrt(L_group + C_group + H_group)
 
+
+# noinspection PyPep8Naming
 def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     """
     Calculates the Delta E (CIE2000) of two colors.
-    """        
+    """
+
     # Color 1 
     L1 = float(color1.lab_l)
     a1 = float(color1.lab_a)
@@ -86,30 +96,30 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     C2 = sqrt(pow(a2, 2) + pow(b2, 2))
     avg_C1_C2 = (C1 + C2) / 2.0 
 
-    G = 0.5 * (1 - sqrt(pow(avg_C1_C2 , 7.0) / (pow(avg_C1_C2, 7.0) + pow(25.0, 7.0))))
+    G = 0.5 * (1 - sqrt(pow(avg_C1_C2, 7.0) / (pow(avg_C1_C2, 7.0) + pow(25.0, 7.0))))
 
     a1p = (1.0 + G) * a1
     a2p = (1.0 + G) * a2
     C1p = sqrt(pow(a1p, 2) + pow(b1, 2))
     C2p = sqrt(pow(a2p, 2) + pow(b2, 2))
-    avg_C1p_C2p =(C1p + C2p) / 2.0
+    avg_C1p_C2p = (C1p + C2p) / 2.0
    
-    if degrees(atan2(b1,a1p)) >= 0:
-        h1p = degrees(atan2(b1,a1p))
+    if degrees(atan2(b1, a1p)) >= 0:
+        h1p = degrees(atan2(b1, a1p))
     else:
-        h1p = degrees(atan2(b1,a1p)) + 360
+        h1p = degrees(atan2(b1, a1p)) + 360
       
-    if degrees(atan2(b2,a2p)) >= 0:
-        h2p = degrees(atan2(b2,a2p))
+    if degrees(atan2(b2, a2p)) >= 0:
+        h2p = degrees(atan2(b2, a2p))
     else:
-        h2p = degrees(atan2(b2,a2p)) + 360
+        h2p = degrees(atan2(b2, a2p)) + 360
       
     if fabs(h1p - h2p) > 180:
         avg_Hp = (h1p + h2p + 360) / 2.0
     else:
         avg_Hp = (h1p + h2p) / 2.0
 
-    T = 1 - 0.17 * cos(radians(avg_Hp - 30)) + 0.24 * cos(radians(2 * avg_Hp)) + 0.32 * cos(radians(3 * avg_Hp + 6)) - 0.2  * cos(radians(4 * avg_Hp - 63))
+    T = 1 - 0.17 * cos(radians(avg_Hp - 30)) + 0.24 * cos(radians(2 * avg_Hp)) + 0.32 * cos(radians(3 * avg_Hp + 6)) - 0.2 * cos(radians(4 * avg_Hp - 63))
 
     diff_h2p_h1p = h2p - h1p
     if fabs(diff_h2p_h1p) <= 180:
@@ -128,13 +138,15 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     S_H = 1 + 0.015 * avg_C1p_C2p * T
    
     delta_ro = 30 * exp(-(pow(((avg_Hp - 275) / 25), 2.0)))
-    R_C = sqrt((pow(avg_C1p_C2p, 7.0)) / (pow(avg_C1p_C2p, 7.0) + pow(25.0, 7.0)));
+    R_C = sqrt((pow(avg_C1p_C2p, 7.0)) / (pow(avg_C1p_C2p, 7.0) + pow(25.0, 7.0)))
     R_T = -2 * R_C * sin(2 * radians(delta_ro))
 
-    delta_E = sqrt(pow(delta_Lp /(S_L * Kl), 2) + pow(delta_Cp /(S_C * Kc), 2) + pow(delta_Hp /(S_H * Kh), 2) + R_T * (delta_Cp /(S_C * Kc)) * (delta_Hp / (S_H * Kh)))
+    delta_E = sqrt(pow(delta_Lp / (S_L * Kl), 2) + pow(delta_Cp / (S_C * Kc), 2) + pow(delta_Hp / (S_H * Kh), 2) + R_T * (delta_Cp / (S_C * Kc)) * (delta_Hp / (S_H * Kh)))
 
     return delta_E
 
+
+# noinspection PyPep8Naming
 def delta_e_cmc(color1, color2, pl=2, pc=1):
     """
     Calculates the Delta E (CIE1994) of two colors.
@@ -142,7 +154,8 @@ def delta_e_cmc(color1, color2, pl=2, pc=1):
     CMC values
       Acceptability: pl=2, pc=1
       Perceptability: pl=1, pc=1
-    """        
+    """
+
     # Color 1 
     L1 = float(color1.lab_l)
     a1 = float(color1.lab_a)
@@ -162,9 +175,10 @@ def delta_e_cmc(color1, color2, pl=2, pc=1):
     H_1 = degrees(atan2(b1, a1))
     
     if H_1 < 0:
-        H_1 = H_1 + 360
+        H_1 += 360
     
     F = sqrt(pow(C_1, 4) / (pow(C_1, 4) + 1900.0))
+    # noinspection PyChainedComparisons
     if 164 <= H_1 and H_1 <= 345:
         T = 0.56 + abs(0.2 * cos(radians(H_1 + 168)))
     else:

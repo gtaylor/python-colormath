@@ -8,7 +8,9 @@ from colormath import color_conversions
 from colormath import color_constants
 from colormath import density
 from colormath import color_diff, color_diff_matrix
-from colormath.color_exceptions import *
+from colormath.color_exceptions import InvalidConversion, InvalidObserver, \
+    MissingValue, InvalidValue, InvalidDeltaEMode, InvalidIlluminant, \
+    InvalidArgument
 
 
 class ColorBase(object):
