@@ -1,6 +1,7 @@
 """
 This module contains classes to represent various color spaces.
 """
+
 import numpy as np
 
 from colormath import color_conversions
@@ -9,16 +10,26 @@ from colormath import density
 from colormath import color_diff, color_diff_matrix
 from colormath.color_exceptions import *
 
+
 class ColorBase(object):
     """
     A base class holding some common methods and values.
     """
+
+    # This is a table of conversions to/from this color space in the
+    # sub-classed color class.
+    CONVERSIONS = {}
+    # Attribute names containing color data on the sub-class. For example,
+    # the RGBColor would be ['rgb_r', 'rgb_g', 'rgb_b']
+    VALUES = []
+    OTHER_VALUES = ['illuminant', 'observer']
+
+    # noinspection PyUnusedLocal
     def __init__(self, *args, **kwargs):
         # This is the most common illuminant, default to it.
         self.illuminant = 'd50'
         # This is the most commonly used observer angle.
         self.observer = '2'
-        self.OTHER_VALUES = ['illuminant', 'observer']
 
     def _transfer_kwargs(self, *args, **kwargs):
         """
@@ -27,6 +38,7 @@ class ColorBase(object):
 
         Also transfers *args to the corresponding tristimulus values.
         """
+
         # Used for tracking which member of the VALUES list we're on.
         counter = 0
         # This is the max number of args used for VALUES.
@@ -37,7 +49,7 @@ class ColorBase(object):
                 setattr(self, self.VALUES[counter], arg)
                 counter += 1
 
-        # Tranfser matching keywords.
+        # Transfer matching keywords.
         attrib_list = self.VALUES + self.OTHER_VALUES
         for key, val in list(kwargs.items()):
             if key in attrib_list:
@@ -52,6 +64,7 @@ class ColorBase(object):
         """
         Makes sure all string variables are lowercase beforehand.
         """
+
         self.illuminant = self.illuminant.lower()
         self.observer = str(self.observer)
 
@@ -59,6 +72,7 @@ class ColorBase(object):
         """
         Converts the color to the designated colorspace.
         """
+
         debug = kwargs.get('debug', False)
         try:
             # Look up the conversion path for the specified color space.
@@ -103,6 +117,7 @@ class ColorBase(object):
         an LabColor object will return (lab_l, lab_a, lab_b), where each
         member of the tuple is the float value for said variable.
         """
+
         retval = tuple()
         for val in self.VALUES:
             retval += (getattr(self, val, None),)
@@ -112,11 +127,12 @@ class ColorBase(object):
         """
         String representation of the color.
         """
+
         retval = self.__class__.__name__ + ' ('
         for val in self.VALUES:
             value = getattr(self, val, None)
             #print "VAL: %s Type: %s" % (val, value)
-            if value != None:
+            if value is not None:
                 retval += '%s:%.4f ' % (val, getattr(self, val))
         return retval.strip() + ')'
 
@@ -124,8 +140,9 @@ class ColorBase(object):
         """
         String representation of the object.
         """
+
         retval = self.__class__.__name__ + '('
-        attributes = [(attr,getattr(self, attr)) for attr in self.VALUES + self.OTHER_VALUES]
+        attributes = [(attr, getattr(self, attr)) for attr in self.VALUES + self.OTHER_VALUES]
         values = [x + "=" + repr(y) for x, y in attributes]
         retval += ','.join(values)
         return retval + ')'
@@ -134,12 +151,13 @@ class ColorBase(object):
         """
         Checks various fields for None or invalid values.
         """
+
         if self.observer not in ['2', '10']:
             raise InvalidObserver(self)
 
         for val in self.VALUES:
             value = getattr(self, val, None)
-            if value == None:
+            if value is None:
                 # A required value is missing.
                 raise MissingValue(self, val)
 
@@ -152,22 +170,22 @@ class ColorBase(object):
 
     def get_illuminant_xyz(self, observer=None, illuminant=None):
         """
-        Returns the color's illuminant's XYZ values.
-
-        observer: (string) Get the XYZ values for another observer angle. Must
-                           be either '2' or '10'.
-        illuminant: (string) Get the XYZ values for another illuminant.
+        :param str observer: Get the XYZ values for another observer angle. Must
+            be either '2' or '10'.
+        :param str illuminant: Get the XYZ values for another illuminant.
+        :returns: the color's illuminant's XYZ values.
         """
+
         try:
-            if observer == None:
+            if observer is None:
                 observer = self.observer
 
-            illums_observer = color_constants.ILLUMINANTS[self.observer]
+            illums_observer = color_constants.ILLUMINANTS[observer]
         except KeyError:
             raise InvalidObserver(self)
 
         try:
-            if illuminant == None:
+            if illuminant is None:
                 illuminant = self.illuminant
 
             illum_xyz = illums_observer[illuminant]
@@ -186,6 +204,7 @@ class ColorBase(object):
          cie2000
          cie1976
         """
+
         if not isinstance(other_color, ColorBase):
             raise InvalidArgument('delta_e_cie2000', 'other_color', other_color)
 
@@ -205,12 +224,14 @@ class ColorBase(object):
         else:
             raise InvalidDeltaEMode(mode)
 
+
 class SpectralColor(ColorBase):
     """
     Represents a color that may have operations done to it. You need not use
     this object with the library as long as you use all of the instance
     variables here.
     """
+
     CONVERSIONS = {
         "spectral": [None],
         "xyz": [color_conversions.Spectral_to_XYZ],
@@ -250,7 +271,8 @@ class SpectralColor(ColorBase):
         self.spec_350nm = 0.0
         self.spec_360nm = 0.0
         self.spec_370nm = 0.0
-        self.spec_380nm = 0.0 # begin Blue wavelengths
+        # begin Blue wavelengths
+        self.spec_380nm = 0.0
         self.spec_390nm = 0.0
         self.spec_400nm = 0.0
         self.spec_410nm = 0.0
@@ -261,8 +283,10 @@ class SpectralColor(ColorBase):
         self.spec_460nm = 0.0
         self.spec_470nm = 0.0
         self.spec_480nm = 0.0
-        self.spec_490nm = 0.0 # end Blue wavelengths
-        self.spec_500nm = 0.0 # start Green wavelengths
+        # end Blue wavelengths
+        self.spec_490nm = 0.0
+        # start Green wavelengths
+        self.spec_500nm = 0.0
         self.spec_510nm = 0.0
         self.spec_520nm = 0.0
         self.spec_530nm = 0.0
@@ -273,8 +297,10 @@ class SpectralColor(ColorBase):
         self.spec_580nm = 0.0
         self.spec_590nm = 0.0
         self.spec_600nm = 0.0
-        self.spec_610nm = 0.0 # end Green wavelengths
-        self.spec_620nm = 0.0 # start Red wavelengths
+        # end Green wavelengths
+        self.spec_610nm = 0.0
+        # start Red wavelengths
+        self.spec_620nm = 0.0
         self.spec_630nm = 0.0
         self.spec_640nm = 0.0
         self.spec_650nm = 0.0
@@ -285,7 +311,8 @@ class SpectralColor(ColorBase):
         self.spec_700nm = 0.0
         self.spec_710nm = 0.0
         self.spec_720nm = 0.0
-        self.spec_730nm = 0.0 # end Red wavelengths
+        # end Red wavelengths
+        self.spec_730nm = 0.0
         self.spec_740nm = 0.0
         self.spec_750nm = 0.0
         self.spec_760nm = 0.0
@@ -302,6 +329,7 @@ class SpectralColor(ColorBase):
         """
         Dump this color into NumPy array.
         """
+
         # This holds the obect's spectral data, and will be passed to
         # numpy.array() to create a numpy array (matrix) for the matrix math
         # that will be done during the conversion to XYZ.
@@ -324,15 +352,18 @@ class SpectralColor(ColorBase):
         or Blue) is chosen by comparing the Red, Green, and Blue components of
         the spectral sample (the values being red in via "filters").
         """
-        if density_standard != None:
+
+        if density_standard is not None:
             return density.ansi_density(self, density_standard)
         else:
             return density.auto_density(self)
+
 
 class LabColor(ColorBase):
     """
     Represents an Lab color.
     """
+
     CONVERSIONS = {
         "lab": [None],
         "xyz": [color_conversions.Lab_to_XYZ],
@@ -360,6 +391,7 @@ class LabColor(ColorBase):
         self.lab_b = None
         self._transfer_kwargs(*args, **kwargs)
 
+    # noinspection PyUnusedLocal
     def delta_e_matrix(self, lab_color_matrix, mode='cie2000', *args, **kwargs):
         """
         Compares this object with all colors in lab_color_matrix via Delta E.
@@ -378,20 +410,26 @@ class LabColor(ColorBase):
         mode = mode.lower()
 
         if mode == 'cie2000':
-            return color_diff_matrix.delta_e_cie2000(lab_color_vector, lab_color_matrix)
+            return color_diff_matrix.delta_e_cie2000(
+                lab_color_vector, lab_color_matrix)
         elif mode == 'cie1994':
-            return color_diff_matrix.delta_e_cie1994(lab_color_vector, lab_color_matrix, **kwargs)
+            return color_diff_matrix.delta_e_cie1994(
+                lab_color_vector, lab_color_matrix, **kwargs)
         elif mode == 'cie1976':
-            return color_diff_matrix.delta_e_cie1976(lab_color_vector, lab_color_matrix)
+            return color_diff_matrix.delta_e_cie1976(
+                lab_color_vector, lab_color_matrix)
         elif mode == 'cmc':
-            return color_diff_matrix.delta_e_cmc(lab_color_vector, lab_color_matrix, **kwargs)
+            return color_diff_matrix.delta_e_cmc(
+                lab_color_vector, lab_color_matrix, **kwargs)
         else:
             raise InvalidDeltaEMode(mode)
+
 
 class LCHabColor(ColorBase):
     """
     Represents an LCHab color.
     """
+
     CONVERSIONS = {
       "lchab": [None],
         "xyz": [color_conversions.LCHab_to_Lab, color_conversions.Lab_to_XYZ],
@@ -423,10 +461,12 @@ class LCHabColor(ColorBase):
         self.lch_h = None
         self._transfer_kwargs(*args, **kwargs)
 
+
 class LCHuvColor(ColorBase):
     """
     Represents an LCHuv color.
     """
+
     CONVERSIONS = {
       "lchuv": [None],
         "xyz": [color_conversions.LCHuv_to_Luv, color_conversions.Luv_to_XYZ],
@@ -458,10 +498,12 @@ class LCHuvColor(ColorBase):
         self.lch_h = None
         self._transfer_kwargs(*args, **kwargs)
 
+
 class LuvColor(ColorBase):
     """
     Represents an Luv color.
     """
+
     CONVERSIONS = {
         "luv": [None],
         "xyz": [color_conversions.Luv_to_XYZ],
@@ -489,10 +531,12 @@ class LuvColor(ColorBase):
         self.luv_v = None
         self._transfer_kwargs(*args, **kwargs)
 
+
 class XYZColor(ColorBase):
     """
     Represents an XYZ color.
     """
+
     CONVERSIONS = {
         "xyz": [None],
         "xyy": [color_conversions.XYZ_to_xyY],
@@ -531,13 +575,14 @@ class XYZColor(ColorBase):
                                                             source_illuminant,
                                                             target_illuminant))
             # Get the adjusted XYZ values, adapted for the target illuminant.
-            self.xyz_x, self.xyz_y, self.xyz_z = color_conversions.apply_XYZ_transformation(
-                                                   self.xyz_x,
-                                                   self.xyz_y,
-                                                   self.xyz_z,
-                                                   orig_illum=source_illuminant,
-                                                   targ_illum=target_illuminant,
-                                                   debug=debug)
+            self.xyz_x, self.xyz_y, self.xyz_z \
+                = color_conversions.apply_XYZ_transformation(
+                    self.xyz_x,
+                    self.xyz_y,
+                    self.xyz_z,
+                    orig_illum=source_illuminant,
+                    targ_illum=target_illuminant,
+                    debug=debug)
             self.illuminant = target_illuminant.lower()
 
     def __init__(self, *args, **kwargs):
@@ -547,10 +592,13 @@ class XYZColor(ColorBase):
         self.xyz_z = None
         self._transfer_kwargs(*args, **kwargs)
 
+
+# noinspection PyPep8Naming
 class xyYColor(ColorBase):
     """
     Represents an xYy color.
     """
+
     CONVERSIONS = {
         "xyy": [None],
         "xyz": [color_conversions.xyY_to_XYZ],
@@ -579,10 +627,12 @@ class xyYColor(ColorBase):
         self.xyy_Y = None
         self._transfer_kwargs(*args, **kwargs)
 
+
 class RGBColor(ColorBase):
     """
     Represents an RGB color.
     """
+
     CONVERSIONS = {
         "rgb": [None],
         "hsl": [color_conversions.RGB_to_HSL],
@@ -599,6 +649,7 @@ class RGBColor(ColorBase):
         "luv": [color_conversions.RGB_to_XYZ, color_conversions.XYZ_to_Luv],
     }
     VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
+    OTHER_VALUES = ['illuminant', 'observer', 'rgb_type']
 
     def __init__(self, *args, **kwargs):
         super(RGBColor, self).__init__(*args, **kwargs)
@@ -606,7 +657,6 @@ class RGBColor(ColorBase):
         self.rgb_g = None
         self.rgb_b = None
         self.rgb_type = 'srgb'
-        self.OTHER_VALUES.append('rgb_type')
         self._transfer_kwargs(*args, **kwargs)
 
     def __str__(self):
@@ -617,6 +667,7 @@ class RGBColor(ColorBase):
         """
         Converts the RGB value to a hex value in the form of: #RRGGBB
         """
+
         self.has_required_values()
         return '#%02x%02x%02x' % (self.rgb_r, self.rgb_g, self.rgb_b)
 
@@ -625,6 +676,7 @@ class RGBColor(ColorBase):
         Converts an RGB hex string like #RRGGBB and assigns the values to
         this RGBColor object.
         """
+
         colorstring = hex_str.strip()
         if colorstring[0] == '#':
             colorstring = colorstring[1:]
@@ -636,10 +688,12 @@ class RGBColor(ColorBase):
         self.rgb_g = g
         self.rgb_b = b
 
+
 class HSLColor(ColorBase):
     """
-    Represents a HSL color.
+    Represents an HSL color.
     """
+
     CONVERSIONS = {
         "hsl": [None],
         "hsv": [color_conversions.HSL_to_RGB, color_conversions.RGB_to_HSV],
@@ -660,6 +714,7 @@ class HSLColor(ColorBase):
                 color_conversions.XYZ_to_RGB],
     }
     VALUES = ['hsl_h', 'hsl_s', 'hsl_l']
+    OTHER_VALUES = ['illuminant', 'observer', 'rgb_type']
 
     def __init__(self, *args, **kwargs):
         super(HSLColor, self).__init__(*args, **kwargs)
@@ -667,13 +722,14 @@ class HSLColor(ColorBase):
         self.hsl_s = None
         self.hsl_l = None
         self.rgb_type = 'srgb'
-        self.OTHER_VALUES.append('rgb_type')
         self._transfer_kwargs(*args, **kwargs)
+
 
 class HSVColor(ColorBase):
     """
     Represents an HSV color.
     """
+
     CONVERSIONS = {
         "hsv": [None],
         "hsl": [color_conversions.HSV_to_RGB, color_conversions.RGB_to_HSL],
@@ -694,6 +750,7 @@ class HSVColor(ColorBase):
                 color_conversions.XYZ_to_RGB],
     }
     VALUES = ['hsv_h', 'hsv_s', 'hsv_v']
+    OTHER_VALUES = ['illuminant', 'observer', 'rgb_type']
 
     def __init__(self, *args, **kwargs):
         super(HSVColor, self).__init__(*args, **kwargs)
@@ -701,13 +758,14 @@ class HSVColor(ColorBase):
         self.hsv_s = None
         self.hsv_v = None
         self.rgb_type = 'srgb'
-        self.OTHER_VALUES.append('rgb_type')
         self._transfer_kwargs(*args, **kwargs)
+
 
 class CMYColor(ColorBase):
     """
     Represents a CMY color.
     """
+
     CONVERSIONS = {
         "cmy": [None],
        "cmyk": [color_conversions.CMY_to_CMYK],
@@ -736,10 +794,12 @@ class CMYColor(ColorBase):
         self.cmy_y = None
         self._transfer_kwargs(*args, **kwargs)
 
+
 class CMYKColor(ColorBase):
     """
     Represents a CMYK color.
     """
+
     CONVERSIONS = {
        "cmyk": [None],
         "cmy": [color_conversions.CMYK_to_CMY],
