@@ -213,42 +213,42 @@ class RGBConversions(unittest.TestCase):
     def test_conversion_to_hsl_max_r(self):
         color = RGBColor(255, 123, 50, rgb_type='sRGB')
         hsl = color.convert_to('hsl')
-        self.assertAlmostEqual(hsl.hsl_h, 21.366, 3, "RGB R to HSL failed: H coord")
-        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB R to HSL failed: S coord")
-        self.assertAlmostEqual(hsl.hsl_l, 0.598, 3, "RGB R to HSL failed: L coord")
+        self.assertAlmostEqual(hsl.hsl_h, 21.366, 3, "sRGB R to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "sRGB R to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.598, 3, "sRGB R to HSL failed: L coord")
         
     def test_conversion_to_hsl_max_g(self):
         color = RGBColor(123, 255, 50, rgb_type='sRGB')
         hsl = color.convert_to('hsl')
-        self.assertAlmostEqual(hsl.hsl_h, 98.634, 3, "RGB G to HSL failed: H coord")
-        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB G to HSL failed: S coord")
-        self.assertAlmostEqual(hsl.hsl_l, 0.598, 3, "RGB G to HSL failed: L coord")
+        self.assertAlmostEqual(hsl.hsl_h, 98.634, 3, "sRGB G to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "sRGB G to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.598, 3, "sRGB G to HSL failed: L coord")
         
     def test_conversion_to_hsl_max_b(self):
         color = RGBColor(123, 123, 255, rgb_type='sRGB')
         hsl = color.convert_to('hsl')
-        self.assertAlmostEqual(hsl.hsl_h, 240.000, 3, "RGB B to HSL failed: H coord")
-        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "RGB B to HSL failed: S coord")
-        self.assertAlmostEqual(hsl.hsl_l, 0.741, 3, "RGB B to HSL failed: L coord")
+        self.assertAlmostEqual(hsl.hsl_h, 240.000, 3, "sRGB B to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 1.000, 3, "sRGB B to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.741, 3, "sRGB B to HSL failed: L coord")
         
     def test_conversion_to_hsl_gray(self):
         color = RGBColor(123, 123, 123, rgb_type='sRGB')
         hsl = color.convert_to('hsl')
-        self.assertAlmostEqual(hsl.hsl_h, 0.000, 3, "RGB Gray to HSL failed: H coord")
-        self.assertAlmostEqual(hsl.hsl_s, 0.000, 3, "RGB Gray to HSL failed: S coord")
-        self.assertAlmostEqual(hsl.hsl_l, 0.482, 3, "RGB Gray to HSL failed: L coord")
+        self.assertAlmostEqual(hsl.hsl_h, 0.000, 3, "sRGB Gray to HSL failed: H coord")
+        self.assertAlmostEqual(hsl.hsl_s, 0.000, 3, "sRGB Gray to HSL failed: S coord")
+        self.assertAlmostEqual(hsl.hsl_l, 0.482, 3, "sRGB Gray to HSL failed: L coord")
         
     def test_conversion_to_hsv(self):
         hsv = self.color.convert_to('hsv')
-        self.assertAlmostEqual(hsv.hsv_h, 90.800, 3, "RGB Gray to HSV failed: H coord")
-        self.assertAlmostEqual(hsv.hsv_s, 0.750, 3, "RGB Gray to HSV failed: S coord")
-        self.assertAlmostEqual(hsv.hsv_v, 0.784, 3, "RGB Gray to HSV failed: V coord")
+        self.assertAlmostEqual(hsv.hsv_h, 90.800, 3, "sRGB Gray to HSV failed: H coord")
+        self.assertAlmostEqual(hsv.hsv_s, 0.750, 3, "sRGB Gray to HSV failed: S coord")
+        self.assertAlmostEqual(hsv.hsv_v, 0.784, 3, "sRGB Gray to HSV failed: V coord")
                 
     def test_conversion_to_cmy(self):
         cmy = self.color.convert_to('cmy')
-        self.assertAlmostEqual(cmy.cmy_c, 0.518, 3, "RGB to CMY failed: C coord")
-        self.assertAlmostEqual(cmy.cmy_m, 0.216, 3, "RGB to CMY failed: M coord")
-        self.assertAlmostEqual(cmy.cmy_y, 0.804, 3, "RGB to CMY failed: Y coord")
+        self.assertAlmostEqual(cmy.cmy_c, 0.518, 3, "sRGB to CMY failed: C coord")
+        self.assertAlmostEqual(cmy.cmy_m, 0.216, 3, "sRGB to CMY failed: M coord")
+        self.assertAlmostEqual(cmy.cmy_y, 0.804, 3, "sRGB to CMY failed: Y coord")
         
     def test_srgb_conversion_to_xyz_d50(self):
         """
@@ -256,18 +256,18 @@ class RGBConversions(unittest.TestCase):
         a target illuminant to something other than D65.
         """
         xyz = self.color.convert_to('xyz', target_illuminant='D50')
-        self.assertAlmostEqual(xyz.xyz_x, 0.313, 3, "RGB to XYZ failed: X coord")
-        self.assertAlmostEqual(xyz.xyz_y, 0.460, 3, "RGB to XYZ failed: Y coord")
-        self.assertAlmostEqual(xyz.xyz_z, 0.082, 3, "RGB to XYZ failed: Z coord")
+        self.assertAlmostEqual(xyz.xyz_x, 0.313, 3, "sRGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.460, 3, "sRGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.082, 3, "sRGB to XYZ failed: Z coord")
         
     def test_srgb_conversion_to_xyz_d65(self):
         """
         sRGB's native illuminant is D65. This is a straightforward conversion.
         """
         xyz = self.color.convert_to('xyz')
-        self.assertAlmostEqual(xyz.xyz_x, 0.294, 3, "RGB to XYZ failed: X coord")
-        self.assertAlmostEqual(xyz.xyz_y, 0.457, 3, "RGB to XYZ failed: Y coord")
-        self.assertAlmostEqual(xyz.xyz_z, 0.103, 3, "RGB to XYZ failed: Z coord")
+        self.assertAlmostEqual(xyz.xyz_x, 0.294, 3, "sRGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.457, 3, "sRGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.103, 3, "sRGB to XYZ failed: Z coord")
         
     def test_adobe_conversion_to_xyz_d65(self):
         """
@@ -277,9 +277,9 @@ class RGBConversions(unittest.TestCase):
         """
         adobe = RGBColor(123, 200, 50, rgb_type='adobe_rgb')
         xyz = adobe.convert_to('xyz')
-        self.assertAlmostEqual(xyz.xyz_x, 0.230, 3, "RGB to XYZ failed: X coord")
-        self.assertAlmostEqual(xyz.xyz_y, 0.430, 3, "RGB to XYZ failed: Y coord")
-        self.assertAlmostEqual(xyz.xyz_z, 0.074, 3, "RGB to XYZ failed: Z coord")
+        self.assertAlmostEqual(xyz.xyz_x, 0.230, 3, "Adobe RGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.430, 3, "Adobe RGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.074, 3, "Adobe RGB to XYZ failed: Z coord")
         
     def test_adobe_conversion_to_xyz_d50(self):
         """
@@ -290,9 +290,9 @@ class RGBConversions(unittest.TestCase):
         """
         adobe = RGBColor(123, 200, 50, rgb_type='adobe_rgb')
         xyz = adobe.convert_to('xyz', target_illuminant='D50')
-        self.assertAlmostEqual(xyz.xyz_x, 0.247, 3, "RGB to XYZ failed: X coord")
-        self.assertAlmostEqual(xyz.xyz_y, 0.431, 3, "RGB to XYZ failed: Y coord")
-        self.assertAlmostEqual(xyz.xyz_z, 0.060, 3, "RGB to XYZ failed: Z coord")
+        self.assertAlmostEqual(xyz.xyz_x, 0.247, 3, "Adobe RGB to XYZ failed: X coord")
+        self.assertAlmostEqual(xyz.xyz_y, 0.431, 3, "Adobe RGB to XYZ failed: Y coord")
+        self.assertAlmostEqual(xyz.xyz_z, 0.060, 3, "Adobe RGB to XYZ failed: Z coord")
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('rgb')
@@ -300,14 +300,14 @@ class RGBConversions(unittest.TestCase):
         
     def test_get_rgb_hex(self):
         hex_str = self.color.get_rgb_hex()
-        self.assertEqual(hex_str, "#7bc832", "RGB to hex conversion failed")
+        self.assertEqual(hex_str, "#7bc832", "sRGB to hex conversion failed")
         
     def test_set_from_rgb_hex(self):
         rgb = RGBColor()
         rgb.set_from_rgb_hex('#7bc832')
-        self.assertEqual(rgb.rgb_r, 123, "RGB from hex failed: R coord")
-        self.assertEqual(rgb.rgb_g, 200, "RGB from hex failed: G coord")
-        self.assertEqual(rgb.rgb_b, 50, "RGB from hex failed: B coord")
+        self.assertEqual(rgb.rgb_r, 123, "sRGB from hex failed: R coord")
+        self.assertEqual(rgb.rgb_g, 200, "sRGB from hex failed: G coord")
+        self.assertEqual(rgb.rgb_b, 50, "sRGB from hex failed: B coord")
         
 class HSLConversions(unittest.TestCase):
     def setUp(self):
