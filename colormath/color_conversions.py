@@ -1,22 +1,18 @@
 """
-Conversion between color spaces
+Conversion between color spaces.
+
+.. note:: This module makes extensive use of imports within functions.
+    That stinks.
 """
 
 import math
+
 import numpy
 from numpy.linalg import pinv
+
 from colormath import color_constants
 from colormath import spectral_constants
 from colormath.color_exceptions import InvalidIlluminant
-
-
-def _color_objects():
-    """
-    Awful hack to get around circular imports.
-    """
-
-    from colormath import color_objects
-    return color_objects
 
 
 def _transfer_common(old_cobj, new_cobj):
@@ -139,7 +135,8 @@ def Spectral_to_XYZ(cobj, debug=False, illuminant_override=None, *args, **kwargs
     Converts spectral readings to XYZ.
     """
 
-    xyzcolor = _color_objects().XYZColor()
+    from colormath.color_objects import XYZColor
+    xyzcolor = XYZColor()
     _transfer_common(cobj, xyzcolor)
     
     # If the user provides an illuminant_override numpy array, use it.
@@ -194,7 +191,8 @@ def Lab_to_LCHab(cobj, debug=False, *args, **kwargs):
     Convert from CIE Lab to LCH(ab).
     """
 
-    lchcolor = _color_objects().LCHabColor()
+    from colormath.color_objects import LCHabColor
+    lchcolor = LCHabColor()
     _transfer_common(cobj, lchcolor)
    
     lchcolor.lch_l = cobj.lab_l
@@ -215,8 +213,9 @@ def Lab_to_XYZ(cobj, debug=False, *args, **kwargs):
     Convert from Lab to XYZ
     """
 
+    from colormath.color_objects import XYZColor
     illum = cobj.get_illuminant_xyz()
-    xyzcolor = _color_objects().XYZColor()
+    xyzcolor = XYZColor()
     _transfer_common(cobj, xyzcolor)
    
     xyzcolor.xyz_y = (cobj.lab_l + 16.0) / 116.0
@@ -251,7 +250,8 @@ def Luv_to_LCHuv(cobj, debug=False, *args, **kwargs):
     Convert from CIE Luv to LCH(uv).
     """
 
-    lchcolor = _color_objects().LCHuvColor()
+    from colormath.color_objects import LCHuvColor
+    lchcolor = LCHuvColor()
     _transfer_common(cobj, lchcolor)
    
     lchcolor.lch_l = cobj.luv_l
@@ -271,7 +271,8 @@ def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
     Convert from Luv to XYZ.
     """
 
-    xyzcolor = _color_objects().XYZColor()
+    from colormath.color_objects import XYZColor
+    xyzcolor = XYZColor()
     _transfer_common(cobj, xyzcolor)
     illum = xyzcolor.get_illuminant_xyz()
 
@@ -310,7 +311,8 @@ def LCHab_to_Lab(cobj, debug=False, *args, **kwargs):
     Convert from LCH(ab) to Lab.
     """
 
-    labcolor = _color_objects().LabColor()
+    from colormath.color_objects import LabColor
+    labcolor = LabColor()
     _transfer_common(cobj, labcolor)
    
     labcolor.lab_l = float(cobj.lch_l)
@@ -325,7 +327,8 @@ def LCHuv_to_Luv(cobj, debug=False, *args, **kwargs):
     Convert from LCH(uv) to Luv.
     """
 
-    luvcolor = _color_objects().LuvColor()
+    from colormath.color_objects import LuvColor
+    luvcolor = LuvColor()
     _transfer_common(cobj, luvcolor)
    
     luvcolor.luv_l = float(cobj.lch_l)
@@ -340,7 +343,8 @@ def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
     Convert from xyY to XYZ.
     """
 
-    xyzcolor = _color_objects().XYZColor()
+    from colormath.color_objects import XYZColor
+    xyzcolor = XYZColor()
     _transfer_common(cobj, xyzcolor)
    
     xyzcolor.xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
@@ -356,7 +360,8 @@ def XYZ_to_xyY(cobj, debug=False, *args, **kwargs):
     Convert from XYZ to xyY.
     """
 
-    xyycolor = _color_objects().xyYColor()
+    from colormath.color_objects import xyYColor
+    xyycolor = xyYColor()
     _transfer_common(cobj, xyycolor)
    
     xyycolor.xyy_x = cobj.xyz_x / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
@@ -372,7 +377,8 @@ def XYZ_to_Luv(cobj, debug=False, *args, **kwargs):
     Convert from XYZ to Luv
     """
 
-    luvcolor = _color_objects().LuvColor()
+    from colormath.color_objects import LuvColor
+    luvcolor = LuvColor()
     _transfer_common(cobj, luvcolor)
    
     temp_x = cobj.xyz_x
@@ -405,8 +411,9 @@ def XYZ_to_Lab(cobj, debug=False, *args, **kwargs):
     Converts XYZ to Lab.
     """
 
+    from colormath.color_objects import LabColor
     illum = cobj.get_illuminant_xyz()
-    labcolor = _color_objects().LabColor()
+    labcolor = LabColor()
     _transfer_common(cobj, labcolor)
    
     temp_x = cobj.xyz_x / illum["X"]
@@ -482,8 +489,9 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     XYZ to RGB conversion.
     """
 
+    from colormath.color_objects import RGBColor
     target_rgb = target_rgb.lower()
-    rgbcolor = _color_objects().RGBColor()
+    rgbcolor = RGBColor()
     _transfer_common(cobj, rgbcolor)
     
     temp_X = cobj.xyz_x
@@ -560,7 +568,8 @@ def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
     Based off of: http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
     """
 
-    xyzcolor = _color_objects().XYZColor()
+    from colormath.color_objects import XYZColor
+    xyzcolor = XYZColor()
     _transfer_common(cobj, xyzcolor)
     
     temp_R, temp_G, temp_B = __downscale_rgb_vals(
@@ -630,7 +639,8 @@ def RGB_to_HSV(cobj, debug=False, *args, **kwargs):
     V values are a percentage, 0.0 to 1.0.
     """
 
-    hsvcolor = _color_objects().HSVColor()
+    from colormath.color_objects import HSVColor
+    hsvcolor = HSVColor()
     _transfer_common(cobj, hsvcolor)
     
     var_R = cobj.rgb_r / 255.0
@@ -667,7 +677,8 @@ def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
     L values are a percentage, 0.0 to 1.0.
     """
 
-    hslcolor = _color_objects().HSLColor()
+    from colormath.color_objects import HSLColor
+    hslcolor = HSLColor()
     _transfer_common(cobj, hslcolor)
     
     var_R = cobj.rgb_r / 255.0
@@ -727,7 +738,8 @@ def HSV_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
     V values are a percentage, 0.0 to 1.0.
     """
 
-    rgbcolor = _color_objects().RGBColor()
+    from colormath.color_objects import RGBColor
+    rgbcolor = RGBColor()
     _transfer_common(cobj, rgbcolor)
     
     H = cobj.hsv_h
@@ -783,7 +795,8 @@ def HSL_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
     HSL to RGB conversion.
     """
 
-    rgbcolor = _color_objects().RGBColor()
+    from colormath.color_objects import RGBColor
+    rgbcolor = RGBColor()
     _transfer_common(cobj, rgbcolor)
     
     H = cobj.hsl_h
@@ -827,7 +840,8 @@ def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
-    cmycolor = _color_objects().CMYColor()
+    from colormath.color_objects import CMYColor
+    cmycolor = CMYColor()
     _transfer_common(cobj, cmycolor)
    
     cmycolor.cmy_c = 1.0 - (cobj.rgb_r / 255.0)
@@ -845,7 +859,8 @@ def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
     NOTE: Returned values are in the range of 0-255.
     """
 
-    rgbcolor = _color_objects().RGBColor()
+    from colormath.color_objects import RGBColor
+    rgbcolor = RGBColor()
     _transfer_common(cobj, rgbcolor)
     
     rgbcolor.rgb_r = 1.0 - cobj.cmy_c
@@ -863,7 +878,8 @@ def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
-    cmykcolor = _color_objects().CMYKColor()
+    from colormath.color_objects import CMYKColor
+    cmykcolor = CMYKColor()
     _transfer_common(cobj, cmykcolor)
    
     var_k = 1.0
@@ -895,7 +911,8 @@ def CMYK_to_CMY(cobj, debug=False, *args, **kwargs):
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
-    cmycolor = _color_objects().CMYColor()
+    from colormath.color_objects import CMYColor
+    cmycolor = CMYColor()
     _transfer_common(cobj, cmycolor)
     
     cmycolor.cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
