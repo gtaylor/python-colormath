@@ -494,55 +494,53 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     rgbcolor.rgb_type = target_rgb
     return __upscale_rgb(rgbcolor)
 
+
+# noinspection PyPep8Naming
 def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
     """
     RGB to XYZ conversion. Expects 0-255 RGB values.
+
+    Based off of: http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
     """
+
     xyzcolor = _color_objects().XYZColor()
     _transfer_common(cobj, xyzcolor)
     
-    temp_R, temp_G, temp_B = __downscale_rgb_vals(cobj.rgb_r,
-                                                  cobj.rgb_g,
-                                                  cobj.rgb_b)
-   
+    temp_R, temp_G, temp_B = __downscale_rgb_vals(
+        cobj.rgb_r, cobj.rgb_g, cobj.rgb_b)
+    # RGB values downscaled to [0..1]
+    downscaled_chans = dict(r=temp_R, g=temp_G, b=temp_B)
+    # Will contain linearized RGB channels (removed the gamma func).
+    linear_channels = {}
+
     if cobj.rgb_type == "srgb":
-        # If it's sRGB...
-        if temp_R > 0.04045:
-            temp_R = math.pow((temp_R + 0.055) / 1.055, 2.4)
-        else:
-            temp_R = temp_R / 12.92
-   
-        if temp_G > 0.04045:
-            temp_G = math.pow((temp_G + 0.055) / 1.055, 2.4)
-        else:
-            temp_G = temp_G / 12.92
-   
-        if temp_B > 0.04045:
-            temp_B = math.pow((temp_B + 0.055) / 1.055, 2.4)
-        else:
-            temp_B = temp_B / 12.92
+        for channel in ['r', 'g', 'b']:
+            V = downscaled_chans[channel]
+            if V <= 0.04045:
+                linear_channels[channel] = V / 12.92
+            else:
+                linear_channels[channel] = math.pow((V + 0.055) / 1.055, 2.4)
     else:
         # If it's not sRGB...
         gamma = color_constants.RGB_SPECS[cobj.rgb_type]["gamma"]
-            
-        temp_R = math.pow(temp_R, gamma)
-        temp_G = math.pow(temp_G, gamma)
-        temp_B = math.pow(temp_B, gamma)
+
+        for channel in ['r', 'g', 'b']:
+            V = downscaled_chans[channel]
+            linear_channels[channel] = math.pow(V, gamma)
         
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
-    xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_RGB_matrix(temp_R, 
-                                          temp_G, temp_B, rgb_type=cobj.rgb_type, 
-                                          convtype="rgb_to_xyz", debug=debug)
-    
-    if target_illuminant == None:
+    xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_RGB_matrix(
+        linear_channels['r'], linear_channels['g'], linear_channels['b'],
+        rgb_type=cobj.rgb_type, convtype="rgb_to_xyz", debug=debug)
+
+    if target_illuminant is None:
         target_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
-        
-    # The illuminant of the original RGB object.
-    source_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
     
-    # This needs to be correct before the adaptation is applied.
-    xyzcolor.illuminant = source_illuminant
-    # This will take care of any illuminant changes for us.
+    # The illuminant of the original RGB object. This will always match
+    # the RGB colorspace's native illuminant.
+    xyzcolor.illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+    # This will take care of any illuminant changes for us (if source
+    # illuminant != target illuminant).
     xyzcolor.apply_adaptation(target_illuminant)
 
     return xyzcolor
