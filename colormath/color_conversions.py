@@ -6,6 +6,7 @@ Conversion between color spaces.
 """
 
 import math
+import logging
 
 import numpy
 from numpy.linalg import pinv
@@ -13,6 +14,8 @@ from numpy.linalg import pinv
 from colormath import color_constants
 from colormath import spectral_constants
 from colormath.color_exceptions import InvalidIlluminant
+
+logger = logging.getLogger(__name__)
 
 
 def _transfer_common(old_cobj, new_cobj):
@@ -66,7 +69,7 @@ def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
 
 # noinspection PyPep8Naming
 def apply_XYZ_transformation(val_x, val_y, val_z, orig_illum, targ_illum,
-                             observer='2', adaptation='bradford', debug=False):
+                             observer='2', adaptation='bradford'):
     """
     Applies an XYZ transformation matrix to convert XYZ values between
     illuminants. It is important to recognize that color transformation results
@@ -85,9 +88,8 @@ def apply_XYZ_transformation(val_x, val_y, val_z, orig_illum, targ_illum,
     orig_illum = orig_illum.lower()
     targ_illum = targ_illum.lower()
     adaptation = adaptation.lower()
-   
-    if debug:
-        print("  \* Applying adaptation matrix: %s" % adaptation)
+
+    logger.debug("  \* Applying adaptation matrix: %s", adaptation)
     # Retrieve the appropriate transformation matrix from the constants.
     transform_matrix = _get_adaptation_matrix(orig_illum, targ_illum, 
                                               observer, adaptation)
@@ -104,8 +106,7 @@ def apply_XYZ_transformation(val_x, val_y, val_z, orig_illum, targ_illum,
 
 
 # noinspection PyPep8Naming
-def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
-                     debug=False):
+def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     """
     Applies an RGB working matrix to convert from XYZ to RGB.
     The arguments are tersely named var1, var2, and var3 to allow for the passing
@@ -118,8 +119,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
     # Retrieve the appropriate transformation matrix from the constants.
     rgb_matrix = color_constants.RGB_SPECS[rgb_type]["conversions"][convtype]
    
-    if debug:
-        print("  \* Applying RGB conversion matrix: %s->%s" % (rgb_type, convtype))
+    logger.debug("  \* Applying RGB conversion matrix: %s->%s", rgb_type, convtype)
     # Stuff the RGB/XYZ values into a NumPy matrix for conversion.
     var_matrix = numpy.array((
         var1, var2, var3
@@ -130,7 +130,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb",
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def Spectral_to_XYZ(cobj, debug=False, illuminant_override=None, *args, **kwargs):
+def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
     """
@@ -186,7 +186,7 @@ def Spectral_to_XYZ(cobj, debug=False, illuminant_override=None, *args, **kwargs
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def Lab_to_LCHab(cobj, debug=False, *args, **kwargs):
+def Lab_to_LCHab(cobj, *args, **kwargs):
     """
     Convert from CIE Lab to LCH(ab).
     """
@@ -208,7 +208,7 @@ def Lab_to_LCHab(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def Lab_to_XYZ(cobj, debug=False, *args, **kwargs):
+def Lab_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Lab to XYZ
     """
@@ -245,7 +245,7 @@ def Lab_to_XYZ(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def Luv_to_LCHuv(cobj, debug=False, *args, **kwargs):
+def Luv_to_LCHuv(cobj, *args, **kwargs):
     """
     Convert from CIE Luv to LCH(uv).
     """
@@ -266,7 +266,7 @@ def Luv_to_LCHuv(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
+def Luv_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Luv to XYZ.
     """
@@ -306,7 +306,7 @@ def Luv_to_XYZ(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def LCHab_to_Lab(cobj, debug=False, *args, **kwargs):
+def LCHab_to_Lab(cobj, *args, **kwargs):
     """
     Convert from LCH(ab) to Lab.
     """
@@ -322,7 +322,7 @@ def LCHab_to_Lab(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def LCHuv_to_Luv(cobj, debug=False, *args, **kwargs):
+def LCHuv_to_Luv(cobj, *args, **kwargs):
     """
     Convert from LCH(uv) to Luv.
     """
@@ -338,7 +338,7 @@ def LCHuv_to_Luv(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
+def xyY_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from xyY to XYZ.
     """
@@ -355,7 +355,7 @@ def xyY_to_XYZ(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def XYZ_to_xyY(cobj, debug=False, *args, **kwargs):
+def XYZ_to_xyY(cobj, *args, **kwargs):
     """
     Convert from XYZ to xyY.
     """
@@ -372,7 +372,7 @@ def XYZ_to_xyY(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def XYZ_to_Luv(cobj, debug=False, *args, **kwargs):
+def XYZ_to_Luv(cobj, *args, **kwargs):
     """
     Convert from XYZ to Luv
     """
@@ -406,7 +406,7 @@ def XYZ_to_Luv(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def XYZ_to_Lab(cobj, debug=False, *args, **kwargs):
+def XYZ_to_Lab(cobj, *args, **kwargs):
     """
     Converts XYZ to Lab.
     """
@@ -484,7 +484,7 @@ def __upscale_rgb(rgbcolor):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
+def XYZ_to_RGB(cobj, target_rgb="sRGB", *args, **kwargs):
     """
     XYZ to RGB conversion.
     """
@@ -497,32 +497,28 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
     temp_X = cobj.xyz_x
     temp_Y = cobj.xyz_y
     temp_Z = cobj.xyz_z
-   
-    if debug:
-        print("  \- Target RGB space: %s" % target_rgb)
+
+    logger.debug("  \- Target RGB space: %s", target_rgb)
     target_illum = color_constants.RGB_SPECS[target_rgb]["native_illum"]
     cobj.illuminant = cobj.illuminant.lower()
-    if debug:
-        print("  \- Target native illuminant: %s" % target_illum)
-        print("  \- XYZ color's illuminant: %s" % cobj.illuminant)
+    logger.debug("  \- Target native illuminant: %s", target_illum)
+    logger.debug("  \- XYZ color's illuminant: %s", cobj.illuminant)
    
     # If the XYZ values were taken with a different reference white than the
     # native reference white of the target RGB space, a transformation matrix
     # must be applied.
     if cobj.illuminant != target_illum:
-        if debug:
-            print("  \* Applying transformation from %s to %s " % (cobj.illuminant,
-                                                                target_illum))
+        logger.debug("  \* Applying transformation from %s to %s ",
+                     cobj.illuminant, target_illum)
         # Get the adjusted XYZ values, adapted for the target illuminant.
-        temp_X, temp_Y, temp_Z = apply_XYZ_transformation(temp_X, temp_Y, temp_Z, 
-                                                        orig_illum=cobj.illuminant, 
-                                                        targ_illum=target_illum,
-                                                        debug=debug)
+        temp_X, temp_Y, temp_Z = apply_XYZ_transformation(
+            temp_X, temp_Y, temp_Z,
+            orig_illum=cobj.illuminant, targ_illum=target_illum)
    
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
-    rgbcolor.rgb_r, rgbcolor.rgb_g, rgbcolor.rgb_b = apply_RGB_matrix(temp_X, 
-                                          temp_Y, temp_Z, rgb_type=target_rgb, 
-                                          convtype="xyz_to_rgb", debug=debug)
+    rgbcolor.rgb_r, rgbcolor.rgb_g, rgbcolor.rgb_b = apply_RGB_matrix(
+        temp_X, temp_Y, temp_Z,
+        rgb_type=target_rgb, convtype="xyz_to_rgb")
 
     if target_rgb == "srgb":
         # If it's sRGB...
@@ -550,8 +546,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
             rgbcolor.rgb_g = 0
         if rgbcolor.rgb_b < 0:
             rgbcolor.rgb_b = 0
-      
-        #print "RGB", rgbcolor.rgb_r, rgbcolor.rgb_g, rgbcolor.rgb_b
+
         rgbcolor.rgb_r = math.pow(rgbcolor.rgb_r, (1 / gamma))
         rgbcolor.rgb_g = math.pow(rgbcolor.rgb_g, (1 / gamma))
         rgbcolor.rgb_b = math.pow(rgbcolor.rgb_b, (1 / gamma))
@@ -561,7 +556,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
+def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     """
     RGB to XYZ conversion. Expects 0-255 RGB values.
 
@@ -597,7 +592,7 @@ def RGB_to_XYZ(cobj, target_illuminant=None, debug=False, *args, **kwargs):
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
     xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_RGB_matrix(
         linear_channels['r'], linear_channels['g'], linear_channels['b'],
-        rgb_type=cobj.rgb_type, convtype="rgb_to_xyz", debug=debug)
+        rgb_type=cobj.rgb_type, convtype="rgb_to_xyz")
 
     if target_illuminant is None:
         target_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
@@ -630,7 +625,7 @@ def __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def RGB_to_HSV(cobj, debug=False, *args, **kwargs):
+def RGB_to_HSV(cobj, *args, **kwargs):
     """
     Converts from RGB to HSV.
     
@@ -668,7 +663,7 @@ def RGB_to_HSV(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def RGB_to_HSL(cobj, debug=False, *args, **kwargs):
+def RGB_to_HSL(cobj, *args, **kwargs):
     """
     Converts from RGB to HSL.
     
@@ -729,7 +724,7 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def HSV_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
+def HSV_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     """
     HSV to RGB conversion.
     
@@ -790,7 +785,7 @@ def HSV_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def HSL_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
+def HSL_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     """
     HSL to RGB conversion.
     """
@@ -833,7 +828,7 @@ def HSL_to_RGB(cobj, target_rgb=None, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
+def RGB_to_CMY(cobj, *args, **kwargs):
     """
     RGB to CMY conversion.
     
@@ -852,7 +847,7 @@ def RGB_to_CMY(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
+def CMY_to_RGB(cobj, *args, **kwargs):
     """
     Converts CMY to RGB via simple subtraction.
     
@@ -871,7 +866,7 @@ def CMY_to_RGB(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
+def CMY_to_CMYK(cobj, *args, **kwargs):
     """
     Converts from CMY to CMYK.
     
@@ -904,7 +899,7 @@ def CMY_to_CMYK(cobj, debug=False, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def CMYK_to_CMY(cobj, debug=False, *args, **kwargs):
+def CMYK_to_CMY(cobj, *args, **kwargs):
     """
     Converts CMYK to CMY.
     

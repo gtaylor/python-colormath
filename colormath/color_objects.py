@@ -2,6 +2,8 @@
 This module contains classes to represent various color spaces.
 """
 
+import logging
+
 import numpy as np
 
 from colormath import color_conversions
@@ -11,6 +13,8 @@ from colormath import color_diff, color_diff_matrix
 from colormath.color_exceptions import InvalidConversion, InvalidObserver, \
     MissingValue, InvalidValue, InvalidDeltaEMode, InvalidIlluminant, \
     InvalidArgument
+
+logger = logging.getLogger(__name__)
 
 
 class ColorBase(object):
@@ -75,7 +79,6 @@ class ColorBase(object):
         Converts the color to the designated colorspace.
         """
 
-        debug = kwargs.get('debug', False)
         try:
             # Look up the conversion path for the specified color space.
             conversions = self.CONVERSIONS[cs_to.lower()]
@@ -88,9 +91,8 @@ class ColorBase(object):
         # attempting a conversion.
         self.has_required_values()
 
-        if debug:
-            print('Converting %s to %s' % (self, cs_to))
-            print(' @ Conversion path: %s' % [conv.__name__ for conv in conversions])
+        logger.debug('Converting %s to %s', self, cs_to)
+        logger.debug(' @ Conversion path: %s', conversions)
 
         cobj = self
         # Iterate through the list of functions for the conversion path, storing
@@ -99,18 +101,16 @@ class ColorBase(object):
         for func in conversions:
             # Execute the function in this conversion step and store the resulting
             # Color object.
-            if debug:
-                print(' * Conversion: %s passed to %s()' % (
-                                        cobj.__class__.__name__, func.__name__))
-                print(' |->  in %s' % cobj)
+            logger.error(' * Conversion: %s passed to %s()',
+                         cobj.__class__.__name__, func)
+            logger.debug(' |->  in %s', cobj)
 
             if func:
                 # This can be None if you try to convert a color to the color
                 # space that is already in. IE: XYZ->XYZ.
                 cobj = func(cobj, *args, **kwargs)
 
-            if debug:
-                print(' |-< out %s' % cobj)
+            logger.debug(' |-< out %s', cobj)
         return cobj
 
     def get_value_tuple(self):
@@ -133,7 +133,6 @@ class ColorBase(object):
         retval = self.__class__.__name__ + ' ('
         for val in self.VALUES:
             value = getattr(self, val, None)
-            #print "VAL: %s Type: %s" % (val, value)
             if value is not None:
                 retval += '%s:%.4f ' % (val, getattr(self, val))
         return retval.strip() + ')'
@@ -555,27 +554,24 @@ class XYZColor(ColorBase):
     }
     VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
 
-    def apply_adaptation(self, target_illuminant, adaptation='bradford',
-                         debug=False):
+    def apply_adaptation(self, target_illuminant, adaptation='bradford'):
         """
         This applies an adaptation matrix to change the XYZ color's illuminant.
         You'll most likely only need this during RGB conversions.
         """
+
         # The illuminant of the original RGB object.
         source_illuminant = self.illuminant
 
-        if debug:
-            print("  \- Original illuminant: %s" % self.illuminant)
-            print("  \- Target illuminant: %s" % target_illuminant)
+        logger.debug("  \- Original illuminant: %s", self.illuminant)
+        logger.debug("  \- Target illuminant: %s", target_illuminant)
 
         # If the XYZ values were taken with a different reference white than the
         # native reference white of the target RGB space, a transformation matrix
         # must be applied.
         if source_illuminant != target_illuminant:
-            if debug:
-                print("  \* Applying transformation from %s to %s " % (
-                                                            source_illuminant,
-                                                            target_illuminant))
+            logger.debug("  \* Applying transformation from %s to %s ",
+                         source_illuminant, target_illuminant)
             # Get the adjusted XYZ values, adapted for the target illuminant.
             self.xyz_x, self.xyz_y, self.xyz_z \
                 = color_conversions.apply_XYZ_transformation(
@@ -583,8 +579,7 @@ class XYZColor(ColorBase):
                     self.xyz_y,
                     self.xyz_z,
                     orig_illum=source_illuminant,
-                    targ_illum=target_illuminant,
-                    debug=debug)
+                    targ_illum=target_illuminant)
             self.illuminant = target_illuminant.lower()
 
     def __init__(self, *args, **kwargs):

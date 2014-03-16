@@ -3,44 +3,45 @@ This module shows you how to perform color space conversions. Please see the
 chart on www.brucelindbloom.com/Math.html for an illustration of the conversions
 you may perform.
 """
-import example_config
+
 from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor
+
 
 def example_lab_to_xyz():
     """
-    This function shows a simple conversion of an Lab color to an XYZ color
-    with debugging on (to show verbose output so you can see what the library
-    is doing for you).
+    This function shows a simple conversion of an Lab color to an XYZ color.
     """
+
     print "=== Simple Example: Lab->XYZ ==="
     # Instantiate an Lab color object with the given values.
     lab = LabColor(0.903, 16.296, -2.22)
     # Show a string representation.
     print lab
     # Convert to XYZ.
-    xyz = lab.convert_to('xyz', debug=False)
+    xyz = lab.convert_to('xyz')
     print xyz
     print "=== End Example ===\n"
-    
+
+
 def example_lchab_to_lchuv():
     """
-    This function shows very complex chain of conversions in action. While this
-    requires no additional effort from the user, debugging mode will show you
-    all of the work that goes on behind the scenes.
+    This function shows very complex chain of conversions in action.
     
     LCHab to LCHuv involves four different calculations, making this the
     conversion requiring the most steps.
     """
+
     print "=== Complex Example: LCHab->LCHuv ==="
     # Instantiate an LCHab color object with the given values.
     lchab = LCHabColor(0.903, 16.447, 352.252)
     # Show a string representation.
     print lchab
     # Convert to LCHuv.
-    lchuv = lchab.convert_to('lchuv', debug=False)
+    lchuv = lchab.convert_to('lchuv')
     print lchuv
     print "=== End Example ===\n"
-    
+
+
 def example_lab_to_rgb():
     """
     Conversions to RGB are a little more complex mathematically. There are also
@@ -48,20 +49,23 @@ def example_lab_to_rgb():
     color space to RGB, sRGB is assumed unless otherwise specified with the
     target_rgb keyword arg.
     """
+
     print "=== RGB Example: Lab->RGB ==="
     # Instantiate an Lab color object with the given values.
     lab = LabColor(0.903, 16.296, -2.217)
     # Show a string representation.
     print lab
     # Convert to XYZ.
-    rgb = lab.convert_to('rgb', target_rgb='sRGB', debug=False)
+    rgb = lab.convert_to('rgb', target_rgb='sRGB')
     print rgb
     print "=== End Example ===\n"
-    
+
+
 def example_rgb_to_xyz():
     """
     The reverse is similar.
     """
+
     print "=== RGB Example: RGB->XYZ ==="
     # Instantiate an Lab color object with the given values.
     rgb = RGBColor(120, 130, 140, rgb_type='sRGB')
@@ -71,9 +75,9 @@ def example_rgb_to_xyz():
     xyz = rgb.convert_to('xyz', target_illuminant='D50')
     print xyz
     print "=== End Example ===\n"
-    
+
+
 def example_spectral_to_xyz():
-    print "=== Example: Spectral->XYZ ==="
     """
     Instantiate an Lab color object with the given values. Note that the
     spectral range can run from 340nm to 830nm. Any omitted values assume a
@@ -81,6 +85,8 @@ def example_spectral_to_xyz():
     we are providing an example reading from an X-Rite i1 Pro, which only
     measures between 380nm and 730nm.
     """
+
+    print "=== Example: Spectral->XYZ ==="
     spc = SpectralColor(observer=2, illuminant='d50', 
                         spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
                         spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
