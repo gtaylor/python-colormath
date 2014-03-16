@@ -10,8 +10,10 @@ cPickled (n,3) numpy array LAB values such that row q maps to
 index q in the lab color list
 """
 
+import sys
 import csv
 import bz2
+
 import numpy as np
 
 # Does some sys.path manipulation so we can run examples in-place.
@@ -22,11 +24,15 @@ from colormath.color_objects import LabColor
 
 
 # load list of 1000 random colors from the XKCD color chart
-reader = csv.DictReader(bz2.BZ2File('lab_matrix.csv.bz2'))
-lab_matrix = np.array([map(float, row.values()) for row in reader])
+if sys.version_info >= (3, 0):
+    reader = csv.DictReader(bz2.open('lab_matrix.csv.bz2', mode='rt'))
+    lab_matrix = np.array([list(map(float, row.values())) for row in reader])
+else:
+    reader = csv.DictReader(bz2.BZ2File('lab_matrix.csv.bz2'))
+    lab_matrix = np.array([map(float, row.values()) for row in reader])
 
 color = LabColor(lab_l=69.34, lab_a=-0.88, lab_b=-52.57)
 
 delta = color.delta_e_matrix(lab_matrix)
 
-print '%s is closest to %s' % (color, lab_matrix[np.argmin(delta)])
+print('%s is closest to %s' % (color, lab_matrix[np.argmin(delta)]))

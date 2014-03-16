@@ -1,17 +1,36 @@
-1.0.10
-------
+2.0.0
+-----
 
-* Removed the old custom test runner in favor of nose. (Greg Taylor)
-* Replacing simplified RGB->XYZ conversions with Bruce Lindbloom's. (Greg Taylor)
-* A round of PEP8 work. (Greg Taylor)
+Backwards Incompatible changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Minimum Python version is now 2.7.
+* Removed 'debug' kwargs in favor of Python's logging.
+
+Features
+^^^^^^^^
+* Python 3.3 support added.
+* Added tox.ini with supported environments.
+* Removed the old custom test runner in favor of nose.
+* Replacing simplified RGB->XYZ conversions with Bruce Lindbloom's.
+* A round of PEP8 work.
+
+Bugs
+^^^^
+
+* Corrected delta_e CMC example error. Should now run correctly.
 
 1.0.9
 -----
 
-* Un-hardcode the observer angle in adaptation matrix. (Bastien Dejean)
+Features
+^^^^^^^^
 * Added an optional vectorized deltaE function. This uses NumPy array/matrix
   math for a very large speed boost. (Eddie Bell)
-* Added this changelog. (Greg Taylor)
+* Added this changelog.
+
+Bugs
+^^^^
+* Un-hardcode the observer angle in adaptation matrix. (Bastien Dejean)
 
 1.0.8
 -----

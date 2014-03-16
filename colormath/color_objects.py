@@ -101,7 +101,7 @@ class ColorBase(object):
         for func in conversions:
             # Execute the function in this conversion step and store the resulting
             # Color object.
-            logger.error(' * Conversion: %s passed to %s()',
+            logger.debug(' * Conversion: %s passed to %s()',
                          cobj.__class__.__name__, func)
             logger.debug(' |->  in %s', cobj)
 
