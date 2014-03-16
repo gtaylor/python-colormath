@@ -1,6 +1,10 @@
 Python Color Math Module (colormath)
 ====================================
 
+.. image:: https://travis-ci.org/gtaylor/python-colormath.png?branch=master   :target: https://travis-ci.org/gtaylor/python-colormath
+.. image:: https://pypip.in/d/colormath/badge.png
+        :target: https://crate.io/packages/colormath/
+
 :Author: Greg Taylor
 :License: BSD
 
