@@ -4,6 +4,10 @@ chart on www.brucelindbloom.com/Math.html for an illustration of the conversions
 you may perform.
 """
 
+# Does some sys.path manipulation so we can run examples in-place.
+# noinspection PyUnresolvedReferences
+import example_config
+
 from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor
 
 

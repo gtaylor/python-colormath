@@ -2,6 +2,10 @@
 This module shows some examples of Delta E calculations of varying types.
 """
 
+# Does some sys.path manipulation so we can run examples in-place.
+# noinspection PyUnresolvedReferences
+import example_config
+
 from colormath.color_objects import LabColor
 
 # Reference color.
@@ -21,6 +25,6 @@ print " CIE1994: %.3f (Textiles)" % color1.delta_e(color2, mode='cie1994',
                                                    K_L=2)
 print " CIE2000: %.3f" % color1.delta_e(color2, mode='cie2000')
 # Typically used for acceptability.
-print "     CMC: %.3f (2:1)" % color1.delta_e(color2, mode='cmc', p1=2, pc=1)
-# Typically used to more closely model human percetion.
-print "     CMC: %.3f (1:1)" % color1.delta_e(color2, mode='cmc', p1=1, pc=1)
+print "     CMC: %.3f (2:1)" % color1.delta_e(color2, mode='cmc', pl=2, pc=1)
+# Typically used to more closely model human perception.
+print "     CMC: %.3f (1:1)" % color1.delta_e(color2, mode='cmc', pl=1, pc=1)

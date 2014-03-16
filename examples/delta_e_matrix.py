@@ -14,15 +14,18 @@ import csv
 import bz2
 import numpy as np
 
+# Does some sys.path manipulation so we can run examples in-place.
+# noinspection PyUnresolvedReferences
+import example_config
+
 from colormath.color_objects import LabColor
 
-import example_config
 
 # load list of 1000 random colors from the XKCD color chart
 reader = csv.DictReader(bz2.BZ2File('lab_matrix.csv.bz2'))
 lab_matrix = np.array([map(float, row.values()) for row in reader])
 
-color = LabColor(lab_l=69.34,lab_a=-0.88,lab_b=-52.57)
+color = LabColor(lab_l=69.34, lab_a=-0.88, lab_b=-52.57)
 
 delta = color.delta_e_matrix(lab_matrix)
 

@@ -2,6 +2,10 @@
 This module shows you how to perform various kinds of density calculations.
 """
 
+# Does some sys.path manipulation so we can run examples in-place.
+# noinspection PyUnresolvedReferences
+import example_config
+
 from colormath.color_objects import SpectralColor
 from colormath.density_standards import ANSI_STATUS_T_RED, ISO_VISUAL
 
