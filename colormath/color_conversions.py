@@ -18,15 +18,6 @@ from colormath.color_exceptions import InvalidIlluminant
 logger = logging.getLogger(__name__)
 
 
-def _transfer_common(old_cobj, new_cobj):
-    """
-    Transfer illuminant and observer data to a new color object.
-    """
-
-    new_cobj.illuminant = old_cobj.illuminant
-    new_cobj.observer = old_cobj.observer
-
-
 # noinspection PyPep8Naming
 def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
     """
@@ -136,8 +127,6 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     """
 
     from colormath.color_objects import XYZColor
-    xyzcolor = XYZColor()
-    _transfer_common(cobj, xyzcolor)
     
     # If the user provides an illuminant_override numpy array, use it.
     if illuminant_override:
@@ -178,11 +167,12 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     y_numerator = sample_by_ref_illum * std_obs_y
     z_numerator = sample_by_ref_illum * std_obs_z
     
-    xyzcolor.xyz_x = x_numerator.sum() / denom.sum()
-    xyzcolor.xyz_y = y_numerator.sum() / denom.sum()
-    xyzcolor.xyz_z = z_numerator.sum() / denom.sum()
+    xyz_x = x_numerator.sum() / denom.sum()
+    xyz_y = y_numerator.sum() / denom.sum()
+    xyz_z = z_numerator.sum() / denom.sum()
     
-    return xyzcolor
+    return XYZColor(
+        xyz_x, xyz_y, xyz_z, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -192,19 +182,18 @@ def Lab_to_LCHab(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import LCHabColor
-    lchcolor = LCHabColor()
-    _transfer_common(cobj, lchcolor)
    
-    lchcolor.lch_l = cobj.lab_l
-    lchcolor.lch_c = math.sqrt(math.pow(float(cobj.lab_a), 2) + math.pow(float(cobj.lab_b), 2))
-    lchcolor.lch_h = math.atan2(float(cobj.lab_b), float(cobj.lab_a))
+    lch_l = cobj.lab_l
+    lch_c = math.sqrt(math.pow(float(cobj.lab_a), 2) + math.pow(float(cobj.lab_b), 2))
+    lch_h = math.atan2(float(cobj.lab_b), float(cobj.lab_a))
    
-    if lchcolor.lch_h > 0:
-        lchcolor.lch_h = (lchcolor.lch_h / math.pi) * 180
+    if lch_h > 0:
+        lch_h = (lch_h / math.pi) * 180
     else:
-        lchcolor.lch_h = 360 - (math.fabs(lchcolor.lch_h) / math.pi) * 180
+        lch_h = 360 - (math.fabs(lch_h) / math.pi) * 180
       
-    return lchcolor
+    return LCHabColor(
+        lch_l, lch_c, lch_h, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -214,34 +203,33 @@ def Lab_to_XYZ(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import XYZColor
-    illum = cobj.get_illuminant_xyz()
-    xyzcolor = XYZColor()
-    _transfer_common(cobj, xyzcolor)
-   
-    xyzcolor.xyz_y = (cobj.lab_l + 16.0) / 116.0
-    xyzcolor.xyz_x = cobj.lab_a / 500.0 + xyzcolor.xyz_y
-    xyzcolor.xyz_z = xyzcolor.xyz_y - cobj.lab_b / 200.0
-   
-    if math.pow(xyzcolor.xyz_y, 3) > color_constants.CIE_E:
-        xyzcolor.xyz_y = math.pow(xyzcolor.xyz_y, 3)
-    else:
-        xyzcolor.xyz_y = (xyzcolor.xyz_y - 16.0 / 116.0) / 7.787
 
-    if math.pow(xyzcolor.xyz_x, 3) > color_constants.CIE_E:
-        xyzcolor.xyz_x = math.pow(xyzcolor.xyz_x, 3)
+    illum = cobj.get_illuminant_xyz()
+    xyz_y = (cobj.lab_l + 16.0) / 116.0
+    xyz_x = cobj.lab_a / 500.0 + xyz_y
+    xyz_z = xyz_y - cobj.lab_b / 200.0
+   
+    if math.pow(xyz_y, 3) > color_constants.CIE_E:
+        xyz_y = math.pow(xyz_y, 3)
     else:
-        xyzcolor.xyz_x = (xyzcolor.xyz_x - 16.0 / 116.0) / 7.787
-      
-    if math.pow(xyzcolor.xyz_z, 3) > color_constants.CIE_E:
-        xyzcolor.xyz_z = math.pow(xyzcolor.xyz_z, 3)
+        xyz_y = (xyz_y - 16.0 / 116.0) / 7.787
+
+    if math.pow(xyz_x, 3) > color_constants.CIE_E:
+        xyz_x = math.pow(xyz_x, 3)
     else:
-        xyzcolor.xyz_z = (xyzcolor.xyz_z - 16.0 / 116.0) / 7.787
+        xyz_x = (xyz_x - 16.0 / 116.0) / 7.787
       
-    xyzcolor.xyz_x = (illum["X"] * xyzcolor.xyz_x)
-    xyzcolor.xyz_y = (illum["Y"] * xyzcolor.xyz_y)
-    xyzcolor.xyz_z = (illum["Z"] * xyzcolor.xyz_z)
+    if math.pow(xyz_z, 3) > color_constants.CIE_E:
+        xyz_z = math.pow(xyz_z, 3)
+    else:
+        xyz_z = (xyz_z - 16.0 / 116.0) / 7.787
+      
+    xyz_x = (illum["X"] * xyz_x)
+    xyz_y = (illum["Y"] * xyz_y)
+    xyz_z = (illum["Z"] * xyz_z)
     
-    return xyzcolor
+    return XYZColor(
+        xyz_x, xyz_y, xyz_z, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -251,18 +239,17 @@ def Luv_to_LCHuv(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import LCHuvColor
-    lchcolor = LCHuvColor()
-    _transfer_common(cobj, lchcolor)
    
-    lchcolor.lch_l = cobj.luv_l
-    lchcolor.lch_c = math.sqrt(math.pow(cobj.luv_u, 2.0) + math.pow(cobj.luv_v, 2.0))
-    lchcolor.lch_h = math.atan2(float(cobj.luv_v), float(cobj.luv_u))
+    lch_l = cobj.luv_l
+    lch_c = math.sqrt(math.pow(cobj.luv_u, 2.0) + math.pow(cobj.luv_v, 2.0))
+    lch_h = math.atan2(float(cobj.luv_v), float(cobj.luv_u))
    
-    if lchcolor.lch_h > 0:
-        lchcolor.lch_h = (lchcolor.lch_h / math.pi) * 180
+    if lch_h > 0:
+        lch_h = (lch_h / math.pi) * 180
     else:
-        lchcolor.lch_h = 360 - (math.fabs(lchcolor.lch_h) / math.pi) * 180
-    return lchcolor
+        lch_h = 360 - (math.fabs(lch_h) / math.pi) * 180
+    return LCHuvColor(
+        lch_l, lch_c, lch_h, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -272,17 +259,16 @@ def Luv_to_XYZ(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import XYZColor
-    xyzcolor = XYZColor()
-    _transfer_common(cobj, xyzcolor)
-    illum = xyzcolor.get_illuminant_xyz()
 
+    illum = cobj.get_illuminant_xyz()
     # Without Light, there is no color. Short-circuit this and avoid some
     # zero division errors in the var_a_frac calculation.
     if cobj.luv_l <= 0.0:
-        xyzcolor.xyz_x = 0.0
-        xyzcolor.xyz_y = 0.0
-        xyzcolor.xyz_z = 0.0
-        return xyzcolor
+        xyz_x = 0.0
+        xyz_y = 0.0
+        xyz_z = 0.0
+        return XYZColor(
+            xyz_x, xyz_y, xyz_z, observer=cobj.observer, illuminant=cobj.illuminant)
 
     # Various variables used throughout the conversion.
     cie_k_times_e = color_constants.CIE_K * color_constants.CIE_E
@@ -293,16 +279,17 @@ def Luv_to_XYZ(cobj, *args, **kwargs):
 
     # Y-coordinate calculations.
     if cobj.luv_l > cie_k_times_e:
-        xyzcolor.xyz_y = math.pow((cobj.luv_l + 16.0) / 116.0, 3.0)
+        xyz_y = math.pow((cobj.luv_l + 16.0) / 116.0, 3.0)
     else:
-        xyzcolor.xyz_y = cobj.luv_l / color_constants.CIE_K
+        xyz_y = cobj.luv_l / color_constants.CIE_K
 
     # X-coordinate calculation.
-    xyzcolor.xyz_x = xyzcolor.xyz_y * 9.0 * var_u / (4.0 * var_v)
+    xyz_x = xyz_y * 9.0 * var_u / (4.0 * var_v)
     # Z-coordinate calculation.
-    xyzcolor.xyz_z = xyzcolor.xyz_y * (12.0 - 3.0 * var_u - 20.0 * var_v) / (4.0 * var_v)
+    xyz_z = xyz_y * (12.0 - 3.0 * var_u - 20.0 * var_v) / (4.0 * var_v)
 
-    return xyzcolor
+    return XYZColor(
+        xyz_x, xyz_y, xyz_z, illuminant=cobj.illuminant, observer=cobj.observer)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -312,13 +299,12 @@ def LCHab_to_Lab(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import LabColor
-    labcolor = LabColor()
-    _transfer_common(cobj, labcolor)
    
-    labcolor.lab_l = float(cobj.lch_l)
-    labcolor.lab_a = math.cos(math.radians(cobj.lch_h)) * float(cobj.lch_c)
-    labcolor.lab_b = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
-    return labcolor
+    lab_l = cobj.lch_l
+    lab_a = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
+    lab_b = math.sin(math.radians(cobj.lch_h)) * cobj.lch_c
+    return LabColor(
+        lab_l, lab_a, lab_b, illuminant=cobj.illuminant, observer=cobj.observer)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -328,13 +314,12 @@ def LCHuv_to_Luv(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import LuvColor
-    luvcolor = LuvColor()
-    _transfer_common(cobj, luvcolor)
    
-    luvcolor.luv_l = float(cobj.lch_l)
-    luvcolor.luv_u = math.cos(math.radians(cobj.lch_h)) * float(cobj.lch_c)
-    luvcolor.luv_v = math.sin(math.radians(cobj.lch_h)) * float(cobj.lch_c)
-    return luvcolor
+    luv_l = cobj.lch_l
+    luv_u = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
+    luv_v = math.sin(math.radians(cobj.lch_h)) * cobj.lch_c
+    return LuvColor(
+        luv_l, luv_u, luv_v, illuminant=cobj.illuminant, observer=cobj.observer)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -344,14 +329,13 @@ def xyY_to_XYZ(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import XYZColor
-    xyzcolor = XYZColor()
-    _transfer_common(cobj, xyzcolor)
    
-    xyzcolor.xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
-    xyzcolor.xyz_y = cobj.xyy_Y
-    xyzcolor.xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyzcolor.xyz_y) / cobj.xyy_y
+    xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
+    xyz_y = cobj.xyy_Y
+    xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyz_y) / cobj.xyy_y
     
-    return xyzcolor
+    return XYZColor(
+        xyz_x, xyz_y, xyz_z, illuminant=cobj.illuminant, observer=cobj.observer)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -361,14 +345,13 @@ def XYZ_to_xyY(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import xyYColor
-    xyycolor = xyYColor()
-    _transfer_common(cobj, xyycolor)
    
-    xyycolor.xyy_x = cobj.xyz_x / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
-    xyycolor.xyy_y = cobj.xyz_y / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
-    xyycolor.xyy_Y = cobj.xyz_y
+    xyy_x = cobj.xyz_x / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
+    xyy_y = cobj.xyz_y / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
+    xyy_Y = cobj.xyz_y
 
-    return xyycolor
+    return xyYColor(
+        xyy_x, xyy_y, xyy_Y, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -378,17 +361,15 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import LuvColor
-    luvcolor = LuvColor()
-    _transfer_common(cobj, luvcolor)
    
     temp_x = cobj.xyz_x
     temp_y = cobj.xyz_y
     temp_z = cobj.xyz_z
    
-    luvcolor.luv_u = (4.0 * temp_x) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
-    luvcolor.luv_v = (9.0 * temp_y) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
+    luv_u = (4.0 * temp_x) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
+    luv_v = (9.0 * temp_y) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
 
-    illum = luvcolor.get_illuminant_xyz()  
+    illum = cobj.get_illuminant_xyz()
     temp_y = temp_y / illum["Y"]
     if temp_y > color_constants.CIE_E:
         temp_y = math.pow(temp_y, (1.0 / 3.0))
@@ -398,11 +379,12 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     ref_U = (4.0 * illum["X"]) / (illum["X"] + (15.0 * illum["Y"]) + (3.0 * illum["Z"]))
     ref_V = (9.0 * illum["Y"]) / (illum["X"] + (15.0 * illum["Y"]) + (3.0 * illum["Z"]))
    
-    luvcolor.luv_l = (116.0 * temp_y) - 16.0
-    luvcolor.luv_u = 13.0 * luvcolor.luv_l * (luvcolor.luv_u - ref_U)
-    luvcolor.luv_v = 13.0 * luvcolor.luv_l * (luvcolor.luv_v - ref_V)
+    luv_l = (116.0 * temp_y) - 16.0
+    luv_u = 13.0 * luv_l * (luv_u - ref_U)
+    luv_v = 13.0 * luv_l * (luv_v - ref_V)
    
-    return luvcolor
+    return LuvColor(
+        luv_l, luv_u, luv_v, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -412,10 +394,8 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import LabColor
+
     illum = cobj.get_illuminant_xyz()
-    labcolor = LabColor()
-    _transfer_common(cobj, labcolor)
-   
     temp_x = cobj.xyz_x / illum["X"]
     temp_y = cobj.xyz_y / illum["Y"]
     temp_z = cobj.xyz_z / illum["Z"]
@@ -435,52 +415,11 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
     else:
         temp_z = (7.787 * temp_z) + (16.0 / 116.0)
       
-    labcolor.lab_l = (116.0 * temp_y) - 16.0
-    labcolor.lab_a = 500.0 * (temp_x - temp_y)
-    labcolor.lab_b = 200.0 * (temp_y - temp_z)
-    return labcolor
-
-
-def __downscale_rgb_vals(r, g, b):
-    """
-    Scales an RGB color object from an int 0-255 to decimal 0.0-1.0.
-    """
-
-    var_r = r / 255.0
-    var_g = g / 255.0
-    var_b = b / 255.0
-    
-    return var_r, var_g, var_b
-
-
-def __upscale_rgb(rgbcolor):
-    """
-    Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
-    """
-
-    # RGB values are to not go under 0.
-    if rgbcolor.rgb_r < 0:
-        rgbcolor.rgb_r = 0
-    if rgbcolor.rgb_g < 0:
-        rgbcolor.rgb_g = 0
-    if rgbcolor.rgb_b < 0:
-        rgbcolor.rgb_b = 0
-      
-    # Scale up to 0-255 values.
-    rgbcolor.rgb_r = int(math.floor(0.5 + rgbcolor.rgb_r * 255))
-    rgbcolor.rgb_g = int(math.floor(0.5 + rgbcolor.rgb_g * 255))
-    rgbcolor.rgb_b = int(math.floor(0.5 + rgbcolor.rgb_b * 255))
-   
-    # Cap RGB values at 255. This shouldn't happen, but it's here just in case
-    # things go out of gamut or other fun things.
-    if rgbcolor.rgb_r > 255:
-        rgbcolor.rgb_r = 255
-    if rgbcolor.rgb_g > 255:
-        rgbcolor.rgb_g = 255
-    if rgbcolor.rgb_b > 255:
-        rgbcolor.rgb_b = 255
-        
-    return rgbcolor
+    lab_l = (116.0 * temp_y) - 16.0
+    lab_a = 500.0 * (temp_x - temp_y)
+    lab_b = 200.0 * (temp_y - temp_z)
+    return LabColor(
+        lab_l, lab_a, lab_b, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -491,16 +430,13 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", *args, **kwargs):
 
     from colormath.color_objects import RGBColor
     target_rgb = target_rgb.lower()
-    rgbcolor = RGBColor()
-    _transfer_common(cobj, rgbcolor)
-    
+
     temp_X = cobj.xyz_x
     temp_Y = cobj.xyz_y
     temp_Z = cobj.xyz_z
 
     logger.debug("  \- Target RGB space: %s", target_rgb)
     target_illum = color_constants.RGB_SPECS[target_rgb]["native_illum"]
-    cobj.illuminant = cobj.illuminant.lower()
     logger.debug("  \- Target native illuminant: %s", target_illum)
     logger.debug("  \- XYZ color's illuminant: %s", cobj.illuminant)
    
@@ -514,45 +450,36 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", *args, **kwargs):
         temp_X, temp_Y, temp_Z = apply_XYZ_transformation(
             temp_X, temp_Y, temp_Z,
             orig_illum=cobj.illuminant, targ_illum=target_illum)
+        logger.debug("  \*   New values: %.3f, %.3f, %.3f",
+                     temp_X, temp_Y, temp_Z)
    
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
-    rgbcolor.rgb_r, rgbcolor.rgb_g, rgbcolor.rgb_b = apply_RGB_matrix(
+    rgb_r, rgb_g, rgb_b = apply_RGB_matrix(
         temp_X, temp_Y, temp_Z,
         rgb_type=target_rgb, convtype="xyz_to_rgb")
 
+    # v
+    linear_channels = dict(r=rgb_r, g=rgb_g, b=rgb_b)
+    # V
+    nonlinear_channels = {}
     if target_rgb == "srgb":
-        # If it's sRGB...
-        if rgbcolor.rgb_r > 0.0031308:
-            rgbcolor.rgb_r = (1.055 * math.pow(rgbcolor.rgb_r, 1.0 / 2.4)) - 0.055
-        else:
-            rgbcolor.rgb_r *= 12.92
-   
-        if rgbcolor.rgb_g > 0.0031308:
-            rgbcolor.rgb_g = (1.055 * math.pow(rgbcolor.rgb_g, 1.0 / 2.4)) - 0.055
-        else:
-            rgbcolor.rgb_g *= 12.92
-   
-        if rgbcolor.rgb_b > 0.0031308:
-            rgbcolor.rgb_b = (1.055 * math.pow(rgbcolor.rgb_b, 1.0 / 2.4)) - 0.055
-        else:
-            rgbcolor.rgb_b *= 12.92
+        for channel in ['r', 'g', 'b']:
+            v = linear_channels[channel]
+            if v <= 0.0031308:
+                nonlinear_channels[channel] = v * 12.92
+            else:
+                nonlinear_channels[channel] = 1.055 * math.pow(v, 1 / 2.4) - 0.055
     else:
         # If it's not sRGB...
         gamma = color_constants.RGB_SPECS[target_rgb]["gamma"]
-      
-        if rgbcolor.rgb_r < 0:
-            rgbcolor.rgb_r = 0
-        if rgbcolor.rgb_g < 0:
-            rgbcolor.rgb_g = 0
-        if rgbcolor.rgb_b < 0:
-            rgbcolor.rgb_b = 0
 
-        rgbcolor.rgb_r = math.pow(rgbcolor.rgb_r, (1 / gamma))
-        rgbcolor.rgb_g = math.pow(rgbcolor.rgb_g, (1 / gamma))
-        rgbcolor.rgb_b = math.pow(rgbcolor.rgb_b, (1 / gamma))
-      
-    rgbcolor.rgb_type = target_rgb
-    return __upscale_rgb(rgbcolor)
+        for channel in ['r', 'g', 'b']:
+            v = linear_channels[channel]
+            nonlinear_channels[channel] = v * 12.92
+
+    return RGBColor(
+        nonlinear_channels['r'], nonlinear_channels['g'], nonlinear_channels['b'],
+        rgb_type=target_rgb)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -564,19 +491,13 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     """
 
     from colormath.color_objects import XYZColor
-    xyzcolor = XYZColor()
-    _transfer_common(cobj, xyzcolor)
-    
-    temp_R, temp_G, temp_B = __downscale_rgb_vals(
-        cobj.rgb_r, cobj.rgb_g, cobj.rgb_b)
-    # RGB values downscaled to [0..1]
-    downscaled_chans = dict(r=temp_R, g=temp_G, b=temp_B)
+
     # Will contain linearized RGB channels (removed the gamma func).
     linear_channels = {}
 
     if cobj.rgb_type == "srgb":
         for channel in ['r', 'g', 'b']:
-            V = downscaled_chans[channel]
+            V = getattr(cobj, 'rgb_' + channel)
             if V <= 0.04045:
                 linear_channels[channel] = V / 12.92
             else:
@@ -586,11 +507,11 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
         gamma = color_constants.RGB_SPECS[cobj.rgb_type]["gamma"]
 
         for channel in ['r', 'g', 'b']:
-            V = downscaled_chans[channel]
+            V = getattr(cobj, 'rgb_' + channel)
             linear_channels[channel] = math.pow(V, gamma)
         
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
-    xyzcolor.xyz_x, xyzcolor.xyz_y, xyzcolor.xyz_z = apply_RGB_matrix(
+    xyz_x, xyz_y, xyz_z = apply_RGB_matrix(
         linear_channels['r'], linear_channels['g'], linear_channels['b'],
         rgb_type=cobj.rgb_type, convtype="rgb_to_xyz")
 
@@ -599,7 +520,8 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     
     # The illuminant of the original RGB object. This will always match
     # the RGB colorspace's native illuminant.
-    xyzcolor.illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+    illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+    xyzcolor = XYZColor(xyz_x, xyz_y, xyz_z, illuminant=illuminant)
     # This will take care of any illuminant changes for us (if source
     # illuminant != target illuminant).
     xyzcolor.apply_adaptation(target_illuminant)
@@ -635,12 +557,10 @@ def RGB_to_HSV(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import HSVColor
-    hsvcolor = HSVColor()
-    _transfer_common(cobj, hsvcolor)
     
-    var_R = cobj.rgb_r / 255.0
-    var_G = cobj.rgb_g / 255.0
-    var_B = cobj.rgb_b / 255.0
+    var_R = cobj.rgb_r
+    var_G = cobj.rgb_g
+    var_B = cobj.rgb_b
     
     var_max = max(var_R, var_G, var_B)
     var_min = min(var_R, var_G, var_B)
@@ -653,13 +573,13 @@ def RGB_to_HSV(cobj, *args, **kwargs):
         var_S = 1.0 - (var_min / var_max)
         
     var_V = var_max
-    
-    hsvcolor.rgb_type = cobj.rgb_type    
-    hsvcolor.hsv_h = var_H
-    hsvcolor.hsv_s = var_S
-    hsvcolor.hsv_v = var_V
 
-    return hsvcolor
+    hsv_h = var_H
+    hsv_s = var_S
+    hsv_v = var_V
+
+    return HSVColor(
+        var_H, var_S, var_V, rgb_type=cobj.rgb_type)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -673,12 +593,10 @@ def RGB_to_HSL(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import HSLColor
-    hslcolor = HSLColor()
-    _transfer_common(cobj, hslcolor)
     
-    var_R = cobj.rgb_r / 255.0
-    var_G = cobj.rgb_g / 255.0
-    var_B = cobj.rgb_b / 255.0
+    var_R = cobj.rgb_r
+    var_G = cobj.rgb_g
+    var_B = cobj.rgb_b
     
     var_max = max(var_R, var_G, var_B)
     var_min = min(var_R, var_G, var_B)
@@ -693,12 +611,8 @@ def RGB_to_HSL(cobj, *args, **kwargs):
     else:
         var_S = (var_max - var_min) / (2.0 - (2.0 * var_L))
     
-    hslcolor.rgb_type = cobj.rgb_type
-    hslcolor.hsl_h = var_H
-    hslcolor.hsl_s = var_S
-    hslcolor.hsl_l = var_L
-    
-    return hslcolor
+    return HSLColor(
+        var_H, var_S, var_L, rgb_type=cobj.rgb_type)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -734,8 +648,6 @@ def HSV_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     """
 
     from colormath.color_objects import RGBColor
-    rgbcolor = RGBColor()
-    _transfer_common(cobj, rgbcolor)
     
     H = cobj.hsv_h
     S = cobj.hsv_s
@@ -749,39 +661,40 @@ def HSV_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     var_t = V * (1.0 - (1.0 - var_f) * S)
        
     if h_sub_i == 0:
-        rgbcolor.rgb_r = V
-        rgbcolor.rgb_g = var_t
-        rgbcolor.rgb_b = var_p
+        rgb_r = V
+        rgb_g = var_t
+        rgb_b = var_p
     elif h_sub_i == 1:
-        rgbcolor.rgb_r = var_q
-        rgbcolor.rgb_g = V
-        rgbcolor.rgb_b = var_p
+        rgb_r = var_q
+        rgb_g = V
+        rgb_b = var_p
     elif h_sub_i == 2:
-        rgbcolor.rgb_r = var_p
-        rgbcolor.rgb_g = V
-        rgbcolor.rgb_b = var_t
+        rgb_r = var_p
+        rgb_g = V
+        rgb_b = var_t
     elif h_sub_i == 3:
-        rgbcolor.rgb_r = var_p
-        rgbcolor.rgb_g = var_q
-        rgbcolor.rgb_b = V
+        rgb_r = var_p
+        rgb_g = var_q
+        rgb_b = V
     elif h_sub_i == 4:
-        rgbcolor.rgb_r = var_t
-        rgbcolor.rgb_g = var_p
-        rgbcolor.rgb_b = V
+        rgb_r = var_t
+        rgb_g = var_p
+        rgb_b = V
     elif h_sub_i == 5:
-        rgbcolor.rgb_r = V
-        rgbcolor.rgb_g = var_p
-        rgbcolor.rgb_b = var_q
-    
-    __upscale_rgb(rgbcolor)
+        rgb_r = V
+        rgb_g = var_p
+        rgb_b = var_q
+    else:
+        raise ValueError("Unable to convert HSL->RGB due to value error.")
+
     # In the event that they define an HSV color and want to convert it to 
     # a particular RGB space, let them override it here.
     if target_rgb is not None:
-        rgbcolor.rgb_type = target_rgb
+        rgb_type = target_rgb
     else:
-        rgbcolor.rgb_type = cobj.rgb_type
+        rgb_type = cobj.rgb_type
         
-    return rgbcolor
+    return RGBColor(rgb_r, rgb_g, rgb_b, rgb_type=rgb_type)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -791,8 +704,6 @@ def HSL_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     """
 
     from colormath.color_objects import RGBColor
-    rgbcolor = RGBColor()
-    _transfer_common(cobj, rgbcolor)
     
     H = cobj.hsl_h
     S = cobj.hsl_s
@@ -812,19 +723,18 @@ def HSL_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     t_sub_G = h_sub_k
     t_sub_B = h_sub_k - (1.0 / 3.0)
     
-    rgbcolor.rgb_r = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_R)
-    rgbcolor.rgb_g = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_G)
-    rgbcolor.rgb_b = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_B)
+    rgb_r = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_R)
+    rgb_g = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_G)
+    rgb_b = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_B)
 
-    __upscale_rgb(rgbcolor)
     # In the event that they define an HSV color and want to convert it to 
     # a particular RGB space, let them override it here.
     if target_rgb is not None:
-        rgbcolor.rgb_type = target_rgb
+        rgb_type = target_rgb
     else:
-        rgbcolor.rgb_type = cobj.rgb_type    
+        rgb_type = cobj.rgb_type
     
-    return rgbcolor
+    return RGBColor(rgb_r, rgb_g, rgb_b, rgb_type=rgb_type)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -836,14 +746,12 @@ def RGB_to_CMY(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import CMYColor
-    cmycolor = CMYColor()
-    _transfer_common(cobj, cmycolor)
    
-    cmycolor.cmy_c = 1.0 - (cobj.rgb_r / 255.0)
-    cmycolor.cmy_m = 1.0 - (cobj.rgb_g / 255.0)
-    cmycolor.cmy_y = 1.0 - (cobj.rgb_b / 255.0)
+    cmy_c = 1.0 - cobj.rgb_r
+    cmy_m = 1.0 - cobj.rgb_g
+    cmy_y = 1.0 - cobj.rgb_b
     
-    return cmycolor
+    return CMYColor(cmy_c, cmy_m, cmy_y)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -855,14 +763,12 @@ def CMY_to_RGB(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import RGBColor
-    rgbcolor = RGBColor()
-    _transfer_common(cobj, rgbcolor)
     
-    rgbcolor.rgb_r = 1.0 - cobj.cmy_c
-    rgbcolor.rgb_g = 1.0 - cobj.cmy_m
-    rgbcolor.rgb_b = 1.0 - cobj.cmy_y
+    rgb_r = 1.0 - cobj.cmy_c
+    rgb_g = 1.0 - cobj.cmy_m
+    rgb_b = 1.0 - cobj.cmy_y
     
-    return __upscale_rgb(rgbcolor)
+    return RGBColor(rgb_r, rgb_g, rgb_b)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -874,8 +780,6 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import CMYKColor
-    cmykcolor = CMYKColor()
-    _transfer_common(cobj, cmykcolor)
    
     var_k = 1.0
     if cobj.cmy_c < var_k:
@@ -886,16 +790,16 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
         var_k = cobj.cmy_y
       
     if var_k == 1:
-        cmykcolor.cmyk_c = 0.0
-        cmykcolor.cmyk_m = 0.0
-        cmykcolor.cmyk_y = 0.0
+        cmyk_c = 0.0
+        cmyk_m = 0.0
+        cmyk_y = 0.0
     else:
-        cmykcolor.cmyk_c = (cobj.cmy_c - var_k) / (1.0 - var_k)
-        cmykcolor.cmyk_m = (cobj.cmy_m - var_k) / (1.0 - var_k)
-        cmykcolor.cmyk_y = (cobj.cmy_y - var_k) / (1.0 - var_k)
-    cmykcolor.cmyk_k = var_k
+        cmyk_c = (cobj.cmy_c - var_k) / (1.0 - var_k)
+        cmyk_m = (cobj.cmy_m - var_k) / (1.0 - var_k)
+        cmyk_y = (cobj.cmy_y - var_k) / (1.0 - var_k)
+    cmyk_k = var_k
 
-    return cmykcolor
+    return CMYKColor(cmyk_c, cmyk_m, cmyk_y, cmyk_k)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -907,11 +811,9 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
     """
 
     from colormath.color_objects import CMYColor
-    cmycolor = CMYColor()
-    _transfer_common(cobj, cmycolor)
     
-    cmycolor.cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
-    cmycolor.cmy_m = cobj.cmyk_m * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
-    cmycolor.cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
+    cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
+    cmy_m = cobj.cmyk_m * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
+    cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     
-    return cmycolor
+    return CMYColor(cmy_c, cmy_m, cmy_y)
