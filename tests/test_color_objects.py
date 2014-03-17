@@ -151,15 +151,13 @@ class LuvConversionTestCase(BaseColorConversionTest):
         self.assertEqual(self.color, same_color)
 
 
-class LCHabConversionTestCase(unittest.TestCase):
+class LCHabConversionTestCase(BaseColorConversionTest):
     def setUp(self):
         self.color = LCHabColor(1.807, 4.532, 214.191)
                 
     def test_conversion_to_lab(self):
         lab = self.color.convert_to('lab')
-        self.assertAlmostEqual(lab.lab_l, 1.807, 3, "LCHab to Lab failed: L coord")
-        self.assertAlmostEqual(lab.lab_a, -3.749, 3, "LCHab to Lab failed: a coord")
-        self.assertAlmostEqual(lab.lab_b, -2.547, 3, "LCHab to Lab failed: b coord")
+        self.assertColorMatch(lab, LabColor(1.807, -3.749, -2.547))
         
     def test_conversion_to_rgb_zero_div(self):
         """
@@ -168,26 +166,23 @@ class LCHabConversionTestCase(unittest.TestCase):
         
         Issue #13 in the Google Code tracker.
         """
+
         lchab = LCHabColor(0.0, 0.0, 0.0)
         rgb = lchab.convert_to('rgb')
-        self.assertEqual(rgb.rgb_r, 0.0, "LCHab to RGB failed: R coord")
-        self.assertEqual(rgb.rgb_g, 0.0, "LCHab to RGB failed: G coord")
-        self.assertEqual(rgb.rgb_b, 0.0, "LCHab to RGB failed: B coord")
+        self.assertColorMatch(rgb, RGBColor(0.0, 0.0, 0.0))
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lchab')
         self.assertEqual(self.color, same_color)
 
 
-class LCHuvConversionTestCase(unittest.TestCase):
+class LCHuvConversionTestCase(BaseColorConversionTest):
     def setUp(self):
         self.color = LCHuvColor(1.807, 2.715, 199.228)
                 
     def test_conversion_to_luv(self):
         luv = self.color.convert_to('luv')
-        self.assertAlmostEqual(luv.luv_l, 1.807, 3, "LCHuv to Luv failed: L coord")
-        self.assertAlmostEqual(luv.luv_u, -2.564, 3, "LCHuv to Luv failed: u coord")
-        self.assertAlmostEqual(luv.luv_v, -0.894, 3, "LCHuv to Luv failed: v coord")
+        self.assertColorMatch(luv, LuvColor(1.807, -2.564, -0.894))
         
     def test_conversion_to_rgb_zero_div(self):
         """
@@ -196,11 +191,10 @@ class LCHuvConversionTestCase(unittest.TestCase):
         
         Issue #13 in the Google Code tracker.
         """
+
         lchuv = LCHuvColor(0.0, 0.0, 0.0)
         rgb = lchuv.convert_to('rgb')
-        self.assertEqual(rgb.rgb_r, 0.0, "LCHuv to RGB failed: R coord")
-        self.assertEqual(rgb.rgb_g, 0.0, "LCHuv to RGB failed: G coord")
-        self.assertEqual(rgb.rgb_b, 0.0, "LCHuv to RGB failed: B coord")
+        self.assertColorMatch(rgb, RGBColor(0.0, 0.0, 0.0))
         
     def test_convert_to_self(self):
         same_color = self.color.convert_to('lchuv')
@@ -214,12 +208,7 @@ class RGBConversionTestCase(BaseColorConversionTest):
     def test_to_xyz_and_back(self):
         xyz = self.color.convert_to('xyz')
         rgb = xyz.convert_to('rgb')
-        self.assertAlmostEqual(self.color.rgb_r, rgb.rgb_r, 3, 
-                               "RGB to XYZ to RGB failed: R coord")
-        self.assertAlmostEqual(self.color.rgb_g, rgb.rgb_g, 3, 
-                               "RGB to XYZ to RGB failed: G coord")
-        self.assertAlmostEqual(self.color.rgb_b, rgb.rgb_b, 3, 
-                               "RGB to XYZ to RGB failed: B coord")
+        self.assertColorMatch(rgb, self.color)
         
     def test_conversion_to_hsl_max_r(self):
         color = RGBColor(255, 123, 50, rgb_type='sRGB', is_upscaled=True)
