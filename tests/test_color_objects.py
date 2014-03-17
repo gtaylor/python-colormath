@@ -4,9 +4,9 @@ Various tests for color objects.
 
 import unittest
 
-from colormath.color_objects import SpectralColor, XYZColor, xyYColor, LabColor, \
-    LuvColor, LCHabColor, LCHuvColor, RGBColor, HSLColor, HSVColor, CMYColor, \
-    CMYKColor
+from colormath.color_objects import SpectralColor, XYZColor, xyYColor, \
+    LabColor, LuvColor, LCHabColor, LCHuvColor, RGBColor, HSLColor, HSVColor, \
+    CMYColor, CMYKColor
 
 
 class BaseColorConversionTest(unittest.TestCase):

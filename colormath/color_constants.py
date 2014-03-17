@@ -114,6 +114,8 @@ ILLUMINANTS = {
     }
 }
 
+OBSERVERS = ILLUMINANTS.keys()
+
 # Chromatic Adaptation Matrices
 # http://brucelindbloom.com/Eqn_ChromAdapt.html
 ADAPTATION_MATRICES = {

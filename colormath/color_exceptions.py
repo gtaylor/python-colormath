@@ -66,8 +66,8 @@ class InvalidIlluminant(ColorMathException):
     Raised when an invalid illuminant is set on a ColorObj.
     """
 
-    def __init__(self, cobj):
-        self.value = "Invalid illuminant specified: %s" % cobj.illuminant
+    def __init__(self, illuminant):
+        self.value = "Invalid illuminant specified: %s" % illuminant
 
 
 class InvalidObserver(ColorMathException):

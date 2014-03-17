@@ -12,8 +12,7 @@ from colormath import color_constants
 from colormath import density
 from colormath import color_diff, color_diff_matrix
 from colormath.color_exceptions import InvalidConversion, InvalidObserver, \
-    MissingValue, InvalidValue, InvalidDeltaEMode, InvalidIlluminant, \
-    InvalidArgument
+    InvalidDeltaEMode, InvalidIlluminant, InvalidArgument
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +29,6 @@ class ColorBase(object):
     # the RGBColor would be ['rgb_r', 'rgb_g', 'rgb_b']
     VALUES = []
 
-    def __prep_strings(self):
-        """
-        Makes sure all string variables are lowercase beforehand.
-        """
-
-        pass
-
     def convert_to(self, cs_to, *args, **kwargs):
         """
         Converts the color to the designated colorspace.
@@ -47,12 +39,6 @@ class ColorBase(object):
             conversions = self.CONVERSIONS[cs_to.lower()]
         except KeyError:
             raise InvalidConversion(self.__class__.__name__, cs_to)
-
-        # Make sure any string variables are lowercase.
-        self.__prep_strings()
-        # Make sure the object has all of its required values before even
-        # attempting a conversion.
-        self.has_required_values()
 
         logger.debug('Converting %s to %s', self, cs_to)
         logger.debug(' @ Conversion path: %s', conversions)
@@ -85,7 +71,7 @@ class ColorBase(object):
 
         retval = tuple()
         for val in self.VALUES:
-            retval += (getattr(self, val, None),)
+            retval += (getattr(self, val),)
         return retval
 
     def __str__(self):
@@ -110,24 +96,6 @@ class ColorBase(object):
         values = [x + "=" + repr(y) for x, y in attributes]
         retval += ','.join(values)
         return retval + ')'
-
-    def has_required_values(self):
-        """
-        Checks various fields for None or invalid values.
-        """
-
-        for val in self.VALUES:
-            value = getattr(self, val, None)
-            if value is None:
-                # A required value is missing.
-                raise MissingValue(self, val)
-
-            try:
-                # If this fails, it's not a usable number.
-                float(value)
-            except ValueError:
-                raise InvalidValue(self, val, value)
-        return True
 
     def delta_e(self, other_color, mode='cie2000', *args, **kwargs):
         """
@@ -160,36 +128,38 @@ class ColorBase(object):
             raise InvalidDeltaEMode(mode)
 
 
-class ColorBaseWithIlluminant(ColorBase):
-
-    # noinspection PyAttributeOutsideInit
-    def __prep_strings(self):
-        """
-        Makes sure all string variables are lowercase beforehand.
-        """
-
-        self.illuminant = self.illuminant.lower()
-        self.observer = str(self.observer)
-
-    # noinspection PyAttributeOutsideInit
-    def set_illuminant(self, illuminant):
-        self.illuminant = illuminant.lower()
+class IlluminantMixin(object):
+    """
+    Color spaces that have a notion of an illuminant should inherit this.
+    """
 
     # noinspection PyAttributeOutsideInit
     def set_observer(self, observer):
-        if observer not in ['2', '10']:
+        """
+        Validates and sets the color's observer angle.
+
+        :param str observer: One of '2' or '10'.
+        """
+
+        observer = str(observer)
+        if observer not in color_constants.OBSERVERS:
             raise InvalidObserver(self)
         self.observer = observer
 
-    def has_required_values(self):
+    # noinspection PyAttributeOutsideInit
+    def set_illuminant(self, illuminant):
         """
-        Checks various fields for None or invalid values.
+        Validates and sets the color's illuminant.
+
+        .. tip:: Call this after setting your observer.
+
+        :param str illuminant: One of the various illuminants.
         """
 
-        if self.observer not in ['2', '10']:
-            raise InvalidObserver(self)
-
-        super(ColorBaseWithIlluminant, self).has_required_values()
+        illuminant = illuminant.lower()
+        if illuminant not in color_constants.ILLUMINANTS[self.observer]:
+            raise InvalidIlluminant(illuminant)
+        self.illuminant = illuminant
 
     def get_illuminant_xyz(self, observer=None, illuminant=None):
         """
@@ -212,15 +182,29 @@ class ColorBaseWithIlluminant(ColorBase):
                 illuminant = self.illuminant
 
             illum_xyz = illums_observer[illuminant]
-        except AttributeError:
-            raise InvalidIlluminant(self)
-        except KeyError:
-            raise InvalidIlluminant(self)
+        except (KeyError, AttributeError):
+            raise InvalidIlluminant(illuminant)
 
         return {'X': illum_xyz[0], 'Y': illum_xyz[1], 'Z': illum_xyz[2]}
 
 
-class SpectralColor(ColorBaseWithIlluminant):
+class ReflectiveColorBase(ColorBase):
+    """
+    Currently serves no purpose other than to categorize the color spaces.
+    """
+
+    pass
+
+
+class TransmissiveColorBase(ColorBase):
+    """
+    Currently serves no purpose other than to categorize the color spaces.
+    """
+
+    pass
+
+
+class SpectralColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents a color that may have operations done to it. You need not use
     this object with the library as long as you use all of the instance
@@ -274,7 +258,7 @@ class SpectralColor(ColorBaseWithIlluminant):
         spec_700nm=0.0, spec_710nm=0.0, spec_720nm=0.0, spec_730nm=0.0,
         spec_740nm=0.0, spec_750nm=0.0, spec_760nm=0.0, spec_770nm=0.0,
         spec_780nm=0.0, spec_790nm=0.0, spec_800nm=0.0, spec_810nm=0.0,
-        spec_820nm=0.0, spec_830nm=0.0, illuminant='d50', observer='2'):
+        spec_820nm=0.0, spec_830nm=0.0, observer='2', illuminant='d50'):
 
         super(SpectralColor, self).__init__()
         # Spectral fields
@@ -335,8 +319,8 @@ class SpectralColor(ColorBaseWithIlluminant):
         self.spec_820nm = float(spec_820nm)
         self.spec_830nm = float(spec_830nm)
 
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
     def get_numpy_array(self):
         """
@@ -372,7 +356,7 @@ class SpectralColor(ColorBaseWithIlluminant):
             return density.auto_density(self)
 
 
-class LabColor(ColorBaseWithIlluminant):
+class LabColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents an Lab color.
     """
@@ -397,13 +381,13 @@ class LabColor(ColorBaseWithIlluminant):
     }
     VALUES = ['lab_l', 'lab_a', 'lab_b']
 
-    def __init__(self, lab_l, lab_a, lab_b, illuminant='d50', observer='2'):
+    def __init__(self, lab_l, lab_a, lab_b, observer='2', illuminant='d50'):
         super(LabColor, self).__init__()
         self.lab_l = float(lab_l)
         self.lab_a = float(lab_a)
         self.lab_b = float(lab_b)
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
     # noinspection PyUnusedLocal
     def delta_e_matrix(self, lab_color_matrix, mode='cie2000', *args, **kwargs):
@@ -439,7 +423,7 @@ class LabColor(ColorBaseWithIlluminant):
             raise InvalidDeltaEMode(mode)
 
 
-class LCHabColor(ColorBaseWithIlluminant):
+class LCHabColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents an LCHab color.
     """
@@ -468,16 +452,16 @@ class LCHabColor(ColorBaseWithIlluminant):
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
 
-    def __init__(self, lch_l, lch_c, lch_h, illuminant='d50', observer='2'):
+    def __init__(self, lch_l, lch_c, lch_h, observer='2', illuminant='d50'):
         super(LCHabColor, self).__init__()
         self.lch_l = float(lch_l)
         self.lch_c = float(lch_c)
         self.lch_h = float(lch_h)
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
 
-class LCHuvColor(ColorBaseWithIlluminant):
+class LCHuvColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents an LCHuv color.
     """
@@ -506,16 +490,16 @@ class LCHuvColor(ColorBaseWithIlluminant):
     }
     VALUES = ['lch_l', 'lch_c', 'lch_h']
 
-    def __init__(self, lch_l, lch_c, lch_h, illuminant='d50', observer='2'):
+    def __init__(self, lch_l, lch_c, lch_h, observer='2', illuminant='d50'):
         super(LCHuvColor, self).__init__()
         self.lch_l = float(lch_l)
         self.lch_c = float(lch_c)
         self.lch_h = float(lch_h)
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
 
-class LuvColor(ColorBaseWithIlluminant):
+class LuvColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents an Luv color.
     """
@@ -540,16 +524,16 @@ class LuvColor(ColorBaseWithIlluminant):
     }
     VALUES = ['luv_l', 'luv_u', 'luv_v']
 
-    def __init__(self, luv_l, luv_u, luv_v, illuminant='d50', observer='2'):
+    def __init__(self, luv_l, luv_u, luv_v, observer='2', illuminant='d50'):
         super(LuvColor, self).__init__()
         self.luv_l = float(luv_l)
         self.luv_u = float(luv_u)
         self.luv_v = float(luv_v)
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
 
-class XYZColor(ColorBaseWithIlluminant):
+class XYZColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents an XYZ color.
     """
@@ -570,13 +554,13 @@ class XYZColor(ColorBaseWithIlluminant):
     }
     VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
 
-    def __init__(self, xyz_x, xyz_y, xyz_z, illuminant='d50', observer='2'):
+    def __init__(self, xyz_x, xyz_y, xyz_z, observer='2', illuminant='d50'):
         super(XYZColor, self).__init__()
         self.xyz_x = float(xyz_x)
         self.xyz_y = float(xyz_y)
         self.xyz_z = float(xyz_z)
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
     def apply_adaptation(self, target_illuminant, adaptation='bradford'):
         """
@@ -603,13 +587,14 @@ class XYZColor(ColorBaseWithIlluminant):
                     self.xyz_y,
                     self.xyz_z,
                     orig_illum=source_illuminant,
-                    targ_illum=target_illuminant)
+                    targ_illum=target_illuminant,
+                    observer=self.observer, adaptation=adaptation)
             # noinspection PyAttributeOutsideInit
             self.illuminant = target_illuminant.lower()
 
 
 # noinspection PyPep8Naming
-class xyYColor(ColorBaseWithIlluminant):
+class xyYColor(IlluminantMixin, ReflectiveColorBase):
     """
     Represents an xYy color.
     """
@@ -635,16 +620,16 @@ class xyYColor(ColorBaseWithIlluminant):
     }
     VALUES = ['xyy_x', 'xyy_y', 'xyy_Y']
 
-    def __init__(self, xyy_x, xyy_y, xyy_Y, illuminant='d50', observer='2'):
+    def __init__(self, xyy_x, xyy_y, xyy_Y, observer='2', illuminant='d50'):
         super(xyYColor, self).__init__()
         self.xyy_x = float(xyy_x)
         self.xyy_y = float(xyy_y)
         self.xyy_Y = float(xyy_Y)
-        self.set_illuminant(illuminant)
         self.set_observer(observer)
+        self.set_illuminant(illuminant)
 
 
-class RGBColor(ColorBase):
+class RGBColor(TransmissiveColorBase):
     """
     Represents an RGB color.
     """
@@ -683,7 +668,7 @@ class RGBColor(ColorBase):
         parent_str = super(RGBColor, self).__str__()
         return '%s [%s]' % (parent_str, self.rgb_type)
 
-    def get_rgb_upscaled(self):
+    def get_upscaled_value_tuple(self):
         """
         Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
         """
@@ -700,7 +685,7 @@ class RGBColor(ColorBase):
         Converts the RGB value to a hex value in the form of: #RRGGBB
         """
 
-        rgb_r, rgb_g, rgb_b = self.get_rgb_upscaled()
+        rgb_r, rgb_g, rgb_b = self.get_upscaled_value_tuple()
         return '#%02x%02x%02x' % (rgb_r, rgb_g, rgb_b)
 
     @classmethod
@@ -720,7 +705,7 @@ class RGBColor(ColorBase):
         return cls(r, g, b)
 
 
-class HSLColor(ColorBase):
+class HSLColor(TransmissiveColorBase):
     """
     Represents an HSL color.
     """
@@ -755,7 +740,7 @@ class HSLColor(ColorBase):
         self.rgb_type = rgb_type.lower()
 
 
-class HSVColor(ColorBase):
+class HSVColor(TransmissiveColorBase):
     """
     Represents an HSV color.
     """
@@ -790,7 +775,7 @@ class HSVColor(ColorBase):
         self.rgb_type = rgb_type.lower()
 
 
-class CMYColor(ColorBase):
+class CMYColor(ReflectiveColorBase):
     """
     Represents a CMY color.
     """
@@ -823,7 +808,7 @@ class CMYColor(ColorBase):
         self.cmy_y = float(cmy_y)
 
 
-class CMYKColor(ColorBase):
+class CMYKColor(ReflectiveColorBase):
     """
     Represents a CMYK color.
     """

@@ -137,7 +137,7 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
         try:
             reference_illum = spectral_constants.REF_ILLUM_TABLE[cobj.illuminant]
         except KeyError:
-            raise InvalidIlluminant(cobj)
+            raise InvalidIlluminant(cobj.illuminant)
         
     # Get the spectral distribution of the selected standard observer.
     if cobj.observer == '10':
