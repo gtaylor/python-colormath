@@ -8,7 +8,9 @@ you may perform.
 # noinspection PyUnresolvedReferences
 import example_config
 
-from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor
+from colormath.color_conversions import convert_color
+from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor, \
+    XYZColor, LCHuvColor
 
 
 def example_lab_to_xyz():
@@ -22,7 +24,7 @@ def example_lab_to_xyz():
     # Show a string representation.
     print(lab)
     # Convert to XYZ.
-    xyz = lab.convert_to('xyz')
+    xyz = convert_color(lab, XYZColor)
     print(xyz)
     print("=== End Example ===\n")
 
@@ -41,7 +43,7 @@ def example_lchab_to_lchuv():
     # Show a string representation.
     print(lchab)
     # Convert to LCHuv.
-    lchuv = lchab.convert_to('lchuv')
+    lchuv = convert_color(lchab, LCHuvColor)
     print(lchuv)
     print("=== End Example ===\n")
 
@@ -60,7 +62,7 @@ def example_lab_to_rgb():
     # Show a string representation.
     print(lab)
     # Convert to XYZ.
-    rgb = lab.convert_to('rgb', target_rgb='sRGB')
+    rgb = convert_color(lab, RGBColor, target_rgb='sRGB')
     print(rgb)
     print("=== End Example ===\n")
 
@@ -76,7 +78,7 @@ def example_rgb_to_xyz():
     # Show a string representation.
     print(rgb)
     # Convert RGB to XYZ using a D50 illuminant.
-    xyz = rgb.convert_to('xyz', target_illuminant='D50')
+    xyz = convert_color(rgb, XYZColor, target_illuminant='D50')
     print(xyz)
     print("=== End Example ===\n")
 
@@ -92,7 +94,7 @@ def example_spectral_to_xyz():
 
     print("=== Example: Spectral->XYZ ===")
     spc = SpectralColor(
-        observer=2, illuminant='d50',
+        observer='2', illuminant='d50',
         spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
         spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
         spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
@@ -105,7 +107,7 @@ def example_spectral_to_xyz():
         spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
         spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
         spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
-    xyz = spc.convert_to('xyz')
+    xyz = convert_color(spc, XYZColor)
     print(xyz)
     print("=== End Example ===\n")
     

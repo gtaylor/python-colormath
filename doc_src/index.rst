@@ -38,11 +38,6 @@ General Topics
    installation
    color_objects
    illuminants
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   conversions
+   delta_e
+   density

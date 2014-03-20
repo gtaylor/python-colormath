@@ -86,7 +86,7 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
 # noinspection PyPep8Naming
 def delta_e_cmc(color1, color2, pl=2, pc=1):
     """
-    Calculates the Delta E (CIE1994) of two colors.
+    Calculates the Delta E (CMC) of two colors.
     
     CMC values
       Acceptability: pl=2, pc=1

@@ -20,6 +20,7 @@ import numpy as np
 # noinspection PyUnresolvedReferences
 import example_config
 
+from colormath.color_diff_matrix import delta_e_cie2000
 from colormath.color_objects import LabColor
 
 
@@ -32,7 +33,7 @@ else:
     lab_matrix = np.array([map(float, row.values()) for row in reader])
 
 color = LabColor(lab_l=69.34, lab_a=-0.88, lab_b=-52.57)
-
-delta = color.delta_e_matrix(lab_matrix)
+lab_color_vector = np.array([color.lab_l, color.lab_a, color.lab_b])
+delta = delta_e_cie2000(lab_color_vector, lab_matrix)
 
 print('%s is closest to %s' % (color, lab_matrix[np.argmin(delta)]))

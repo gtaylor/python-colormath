@@ -907,9 +907,12 @@ def convert_color(color, target_cs, *args, **kwargs):
     """
     Converts the color to the designated color space.
 
-    :param color: A Color object to convert.
-    :param target_cs: The Color class to convert to.
+    :param color: A Color instance to convert.
+    :param target_cs: The Color class to convert to. Note that this is not
+        an instance, but a class.
     :returns: An instance of the type passed in as ``target_cs``.
+    :raises: :py:exc:`colormath.color_exceptions.UndefinedConversionError`
+        if conversion between the two color spaces isn't possible.
     """
 
     if isinstance(target_cs, str):
