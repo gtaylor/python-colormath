@@ -6,8 +6,8 @@ Backwards Incompatible changes
 * Minimum Python version is now 2.7.
 * Color.convert_to() is no more. Use colormath.color_conversions.convert_color()
   instead. API isn't as spiffy looking, but it's a lot less magical now.
-* RGBColor channels are now [0..1] instead of [1..255]. Can get the upscaled
-  Can use RGBColor.get_upscaled_value_tuple() to get the upscaled values.
+* RGBColor channels are now [0..1] instead of [1..255]. Can use 
+  RGBColor.get_upscaled_value_tuple() to get the upscaled values.
 * RGBColor.set_from_rgb_hex() was replaced with a RGBColor.new_from_rgb_hex(),
   which returns a properly formed RGBColor object.
 * RGBColor no longer accepts observer or illuminant kwargs.
