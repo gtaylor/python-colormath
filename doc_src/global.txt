@@ -1,0 +1,15 @@
+.. _GitHub project: https://github.com/gtaylor/python-colormath
+.. _issue tracker: https://github.com/gtaylor/python-colormath/issues
+.. _@gctaylor Twitter: https://twitter.com/#!/gctaylor
+
+.. _Python: http://python.org
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _NumPy: http://www.numpy.org/
+
+.. _virtualenv: http://pypi.python.org/pypi/virtualenv
+.. _virtualenvwrapper: http://www.doughellmann.com/projects/virtualenvwrapper/
+
+.. _git: http://git-scm.com/
+.. _GitHub: https://github.com/
+
+.. _BSD License: http://opensource.org/licenses/bsd-license.php
