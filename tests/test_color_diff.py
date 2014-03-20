@@ -151,7 +151,8 @@ class DeltaETestCase(unittest.TestCase):
         standard = LabColor(lab_l=0.9, lab_a=1, lab_b=1)
         sample = LabColor(lab_l=0.7, lab_a=0, lab_b=0)
         delta_e_cmc(standard, sample)
-        
+
+    # noinspection PyArgumentEqualDefault
     def test_cmc_accuracy(self):
         # Test 2:1
         result = delta_e_cmc(self.color1, self.color2, pl=2, pc=1)
