@@ -1,31 +1,18 @@
 Python Color Math Module (colormath)
 ====================================
 
-:Author: Greg Taylor
-:License: BSD
-
-What is it?
------------
+.. image:: https://travis-ci.org/gtaylor/python-colormath.png?branch=master   :target: https://travis-ci.org/gtaylor/python-colormath
+.. image:: https://pypip.in/d/colormath/badge.png
+        :target: https://crate.io/packages/colormath/
 
 This module implements a large number of different color operations such as
 color space conversions, Delta E, and density to spectral.
 
-Why?
-----
-
-Public documentation for color math is very limited, and there were no Python
-color math libraries with even a fraction of the common routines implemented.
-
 Requirements
 ------------
 
-colormath requires NumPy, which you may get from:
- 
-    http://numpy.scipy.org/
-
-Or via pip/easy_install::
-
-    pip install numpy
+* numpy
+* Python 2.7 or Python 3.3
 
 Installation
 ------------
@@ -34,12 +21,6 @@ The easiest way to install colormath is via pip/easy_install::
 
     pip install colormath
 
-Alternatively, download and extract the package from PyPi at
-http://pypi.python.org/pypi/colormath/, then extract and run the installer
-directly::
-
-  python setup.py install
-  
 Documentation
 -------------
 
@@ -59,6 +40,8 @@ and submit an issue if you have any problems or questions.
 Legal Mumbo Jumbo
 -----------------
 
-Copyright (C) 2012 Gregory Taylor
+Copyright (C) 2014 `Gregory Taylor`_
 
 This software is licensed under the BSD License.
+
+.. _Gregory Taylor: http://gc-taylor.com

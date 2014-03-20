@@ -6,3 +6,11 @@ build
 dist
 MANIFEST
 .idea
+colormath.egg-info/
+.tox
+.DS_Store
+doc_src/.doctrees
+doc_src/_sources/*
+doc_src/_static/*
+doc_src/*.html
+doc_src/_build/*

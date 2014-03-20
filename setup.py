@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from distutils.core import setup
+
 import colormath
 
 from setuptools import setup
@@ -14,23 +14,26 @@ CLASSIFIERS = [
     'Operating System :: OS Independent',
     'Programming Language :: Python',
     'Topic :: Scientific/Engineering :: Mathematics',
-    'Topic :: Software Development :: Libraries :: Python Modules'
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.3',
 ]
 
 KEYWORDS = 'color math conversions'
 
-setup(name='colormath',
-      version=colormath.VERSION,
-      description='Color math and conversion library.',
-      long_description = LONG_DESCRIPTION,
-      author='Gregory Taylor',
-      author_email='gtaylor@l11solutions.com',
-      url='http://code.google.com/p/python-colormath/',
-      download_url='http://pypi.python.org/pypi/colormath/',
-      packages=['colormath'],
-      platforms = ['Platform Independent'],
-      license = 'BSD',
-      classifiers = CLASSIFIERS,
-      keywords = KEYWORDS,
-      requires = ['numpy']
-     )
+setup(
+    name='colormath',
+    version=colormath.VERSION,
+    description='Color math and conversion library.',
+    long_description=LONG_DESCRIPTION,
+    author='Gregory Taylor',
+    author_email='gtaylor@gc-taylor.com',
+    url='https://github.com/gtaylor/python-colormath',
+    download_url='http://pypi.python.org/pypi/colormath/',
+    packages=['colormath'],
+    platforms=['Platform Independent'],
+    license='BSD',
+    classifiers=CLASSIFIERS,
+    keywords=KEYWORDS,
+    requires=['numpy']
+)

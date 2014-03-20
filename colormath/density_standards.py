@@ -1,6 +1,7 @@
 """
 Various density standards.
 """
+
 from numpy import array
 
 # Visual density is typically used on grey patches. Take a reading and get
