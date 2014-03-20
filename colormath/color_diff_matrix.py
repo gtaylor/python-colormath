@@ -149,14 +149,8 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
         0.2 * numpy.cos(numpy.radians(4 * avg_Hp - 63))
 
     diff_h2p_h1p = h2p - h1p
-
-    if numpy.fabs(diff_h2p_h1p) <= 180:
-        delta_hp = diff_h2p_h1p
-    elif (numpy.fabs(diff_h2p_h1p) > 180) and (h2p <= h1p):
-        delta_hp = h2p - h1p + 360
-    else:
-        # diff_h2p_h1p > 180 and h2p > h1p
-        delta_hp = numpy.fabs(h1p - h2p) - 360
+    delta_hp = diff_h2p_h1p + (numpy.fabs(diff_h2p_h1p) > 180) * 360
+    delta_hp -= (h2p > h1p) * 720
 
     delta_Lp = lab_color_matrix[:, 0] - L
     delta_Cp = C2p - C1p
