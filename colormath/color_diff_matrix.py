@@ -125,7 +125,7 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     C1p = np.sqrt(np.power(a1p, 2) + np.power(b, 2))
     C2p = np.sqrt(np.power(a2p, 2) + np.power(lab_color_matrix[:,2], 2))
 
-    avg_C1p_C2p =(C1p + C2p) / 2.0
+    avg_C1p_C2p = (C1p + C2p) / 2.0
 
     h1p = np.degrees(np.arctan2(b, a1p))
     h1p = h1p + (h1p < 0) * 360
@@ -141,7 +141,7 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
             0.2  * np.cos(np.radians(4 * avg_Hp - 63))
 
     diff_h2p_h1p = h2p - h1p
-    delta_hp = diff_h2p_h1p + (diff_h2p_h1p > 180) * 360
+    delta_hp = diff_h2p_h1p + (np.fabs(diff_h2p_h1p) > 180) * 360
     delta_hp = delta_hp - (h2p > h1p) * 720
 
     delta_Lp = lab_color_matrix[:,0] - L
