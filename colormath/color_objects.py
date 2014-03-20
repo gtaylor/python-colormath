@@ -9,7 +9,6 @@ import numpy as np
 
 from colormath import color_constants
 from colormath import density
-from colormath import color_diff, color_diff_matrix
 from colormath.chromatic_adaptation import apply_chromatic_adaptation_on_color
 from colormath.color_exceptions import InvalidObserverError, InvalidIlluminantError
 
@@ -123,9 +122,13 @@ class IlluminantMixin(object):
 
 class SpectralColor(IlluminantMixin, ColorBase):
     """
-    Represents a color that may have operations done to it. You need not use
-    this object with the library as long as you use all of the instance
-    variables here.
+    A SpectralColor represents a spectral power distribution, as read by
+    a spectrophotometer. Our current implementation has wavelength intervals
+    of 10nm, starting at 340nm and ending at 830nm.
+
+    Spectral colors are the lowest level, most "raw" measurement of color.
+    You may convert spectral colors to any other color space, but you can't
+    convert any other color space back to spectral.
     """
 
     VALUES = [
@@ -158,6 +161,10 @@ class SpectralColor(IlluminantMixin, ColorBase):
         spec_740nm=0.0, spec_750nm=0.0, spec_760nm=0.0, spec_770nm=0.0,
         spec_780nm=0.0, spec_790nm=0.0, spec_800nm=0.0, spec_810nm=0.0,
         spec_820nm=0.0, spec_830nm=0.0, observer='2', illuminant='d50'):
+        """
+        :param str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :param illuminant: See :doc:`illuminants` for valid values.
+        """
 
         super(SpectralColor, self).__init__()
         # Spectral fields

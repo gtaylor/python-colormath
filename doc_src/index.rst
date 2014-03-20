@@ -18,6 +18,7 @@ Some features include:
 * Chromatic adaptations (changing illuminants).
 * RGB to hex and vice-versa.
 * 16-bit RGB support.
+* Runs on Python 2.7 and Python 3.3.
 
 **License:** python-colormath is licensed under the `BSD License`_.
 
@@ -34,7 +35,9 @@ General Topics
 .. toctree::
    :maxdepth: 2
 
-
+   installation
+   color_objects
+   illuminants
 
 Indices and tables
 ==================
