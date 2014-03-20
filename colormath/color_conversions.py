@@ -9,91 +9,15 @@ import math
 import logging
 
 import numpy
-from numpy.linalg import pinv
 
 from colormath import color_constants
 from colormath import spectral_constants
-from colormath.color_exceptions import InvalidIlluminant
+from colormath.color_objects import ColorBase
+from colormath.chromatic_adaptation import apply_chromatic_adaptation
+from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
+
 
 logger = logging.getLogger(__name__)
-
-
-# noinspection PyPep8Naming
-def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
-    """
-    Calculate the correct transformation matrix based on origin and target
-    illuminants. The observer angle must be the same between illuminants.
-    
-    See colormath.color_constants.ADAPTATION_MATRICES for a list of possible
-    adaptations.
-    
-    Detailed conversion documentation is available at:
-    http://brucelindbloom.com/Eqn_ChromAdapt.html
-    """
-
-    # Get the appropriate transformation matrix, [MsubA].
-    transform_matrix = color_constants.ADAPTATION_MATRICES[adaptation]
-    # Calculate the inverse of the transform matrix, [MsubA]^(-1)
-    transform_matrix_inverse = pinv(transform_matrix)
-    
-    # Store the XYZ coordinates of the origin illuminant. Becomes XsubWS.
-    illum_from = color_constants.ILLUMINANTS[observer][orig_illum]
-    # Also store the XYZ coordinates of the target illuminant. Becomes XsubWD.
-    illum_to = color_constants.ILLUMINANTS[observer][targ_illum]
-    
-    # Calculate cone response domains.
-    pyb_source = numpy.dot(illum_from, transform_matrix)
-    pyb_dest = numpy.dot(illum_to, transform_matrix)
-    
-    # Break the cone response domains out into their appropriate variables.
-    P_sub_S, Y_sub_S, B_sub_S = pyb_source[0], pyb_source[1], pyb_source[2]
-    P_sub_D, Y_sub_D, B_sub_D = pyb_dest[0], pyb_dest[1], pyb_dest[2]
-    
-    # Assemble the middle matrix used in the final calculation of [M].
-    middle_matrix = numpy.array(((P_sub_D / P_sub_S, 0.0, 0.0),
-                                 (0.0, Y_sub_D / Y_sub_S, 0.0),
-                                 (0.0, 0.0, B_sub_D / B_sub_S)))
-    
-    return numpy.dot(numpy.dot(transform_matrix, middle_matrix), 
-                  transform_matrix_inverse)
-
-
-# noinspection PyPep8Naming
-def apply_XYZ_transformation(val_x, val_y, val_z, orig_illum, targ_illum,
-                             observer='2', adaptation='bradford'):
-    """
-    Applies an XYZ transformation matrix to convert XYZ values between
-    illuminants. It is important to recognize that color transformation results
-    in color errors, determined by how far the original illuminant is from the
-    target illuminant. For example, D65 to A could result in very high maximum
-    deviances.
-    
-    An informative article with estimate average Delta E values for each
-    illuminant conversion may be found at:
-    
-    http://brucelindbloom.com/ChromAdaptEval.html
-    """
-
-    # It's silly to have to do this, but some people may want to call this
-    # function directly, so we'll protect them from messing up upper/lower case.
-    orig_illum = orig_illum.lower()
-    targ_illum = targ_illum.lower()
-    adaptation = adaptation.lower()
-
-    logger.debug("  \* Applying adaptation matrix: %s", adaptation)
-    # Retrieve the appropriate transformation matrix from the constants.
-    transform_matrix = _get_adaptation_matrix(orig_illum, targ_illum, 
-                                              observer, adaptation)
-
-    # Stuff the XYZ values into a NumPy matrix for conversion.
-    XYZ_matrix = numpy.array((
-        val_x, val_y, val_z
-    ))
-    # Perform the adaptation via matrix multiplication.
-    result_matrix = numpy.dot(XYZ_matrix, transform_matrix)
-    
-    # Return individual X, Y, and Z coordinates.
-    return result_matrix[0], result_matrix[1], result_matrix[2]
 
 
 # noinspection PyPep8Naming
@@ -137,7 +61,7 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
         try:
             reference_illum = spectral_constants.REF_ILLUM_TABLE[cobj.illuminant]
         except KeyError:
-            raise InvalidIlluminant(cobj.illuminant)
+            raise InvalidIlluminantError(cobj.illuminant)
         
     # Get the spectral distribution of the selected standard observer.
     if cobj.observer == '10':
@@ -423,7 +347,7 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def XYZ_to_RGB(cobj, target_rgb="sRGB", *args, **kwargs):
+def XYZ_to_RGB(cobj, target_rgb="srgb", *args, **kwargs):
     """
     XYZ to RGB conversion.
     """
@@ -447,7 +371,7 @@ def XYZ_to_RGB(cobj, target_rgb="sRGB", *args, **kwargs):
         logger.debug("  \* Applying transformation from %s to %s ",
                      cobj.illuminant, target_illum)
         # Get the adjusted XYZ values, adapted for the target illuminant.
-        temp_X, temp_Y, temp_Z = apply_XYZ_transformation(
+        temp_X, temp_Y, temp_Z = apply_chromatic_adaptation(
             temp_X, temp_Y, temp_Z,
             orig_illum=cobj.illuminant, targ_illum=target_illum)
         logger.debug("  \*   New values: %.3f, %.3f, %.3f",
@@ -817,3 +741,212 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
     cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     
     return CMYColor(cmy_c, cmy_m, cmy_y)
+
+
+CONVERSION_TABLE = {
+    "SpectralColor": {
+        "SpectralColor": [None],
+        "XYZColor": [Spectral_to_XYZ],
+        "xyYColor": [Spectral_to_XYZ, XYZ_to_xyY],
+        "LabColor": [Spectral_to_XYZ, XYZ_to_Lab],
+        "LCHColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LuvColor": [Spectral_to_XYZ, XYZ_to_Luv],
+        "RGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "LabColor": {
+        "LabColor": [None],
+        "XYZColor": [Lab_to_XYZ],
+        "xyYColor": [Lab_to_XYZ, XYZ_to_xyY],
+      "LCHabColor": [Lab_to_LCHab],
+      "LCHuvColor": [Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [Lab_to_XYZ, XYZ_to_Luv],
+        "RGBColor": [Lab_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "LCHabColor": {
+      "LCHabColor": [None],
+        "XYZColor": [LCHab_to_Lab, Lab_to_XYZ],
+        "xyYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_xyY],
+        "LabColor": [LCHab_to_Lab],
+      "LCHuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv],
+        "RGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "LCHuvColor": {
+      "LCHuvColor": [None],
+        "XYZColor": [LCHuv_to_Luv, Luv_to_XYZ],
+        "xyYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_xyY],
+        "LabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab],
+        "LuvColor": [LCHuv_to_Luv],
+      "LCHabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "RGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "LuvColor": {
+        "LuvColor": [None],
+        "XYZColor": [Luv_to_XYZ],
+        "xyYColor": [Luv_to_XYZ, XYZ_to_xyY],
+        "LabColor": [Luv_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [Luv_to_LCHuv],
+        "RGBColor": [Luv_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "XYZColor": {
+        "XYZColor": [None],
+        "xyYColor": [XYZ_to_xyY],
+        "LabColor": [XYZ_to_Lab],
+      "LCHabColor": [XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [XYZ_to_Lab, Luv_to_LCHuv],
+        "LuvColor": [XYZ_to_Luv],
+        "RGBColor": [XYZ_to_RGB],
+        "HSLColor": [XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "xyYColor": {
+        "xyYColor": [None],
+        "XYZColor": [xyY_to_XYZ],
+        "LabColor": [xyY_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [xyY_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [xyY_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [xyY_to_XYZ, XYZ_to_Luv],
+        "RGBColor": [xyY_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+    },
+    "RGBColor": {
+        "RGBColor": [None],
+        "HSLColor": [RGB_to_HSL],
+        "HSVColor": [RGB_to_HSV],
+        "CMYColor": [RGB_to_CMY],
+       "CMYKColor": [RGB_to_CMY, CMY_to_CMYK],
+        "XYZColor": [RGB_to_XYZ],
+        "xyYColor": [RGB_to_XYZ, XYZ_to_xyY],
+        "LabColor": [RGB_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
+    },
+    "HSLColor": {
+        "HSLColor": [None],
+        "HSVColor": [HSL_to_RGB, RGB_to_HSV],
+        "RGBColor": [HSL_to_RGB],
+        "CMYColor": [HSL_to_RGB, RGB_to_CMY],
+       "CMYKColor": [HSL_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "XYZColor": [HSL_to_RGB, RGB_to_XYZ],
+        "xyYColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
+        "LabColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+    },
+    "HSVColor": {
+        "HSVColor": [None],
+        "HSLColor": [HSV_to_RGB, RGB_to_HSL],
+        "RGBColor": [HSV_to_RGB],
+        "CMYColor": [HSV_to_RGB, RGB_to_CMY],
+       "CMYKColor": [HSV_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "XYZColor": [HSV_to_RGB, RGB_to_XYZ],
+        "xyYColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
+        "LabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+    },
+    "CMYColor": {
+        "CMYColor": [None],
+       "CMYKColor": [CMY_to_CMYK],
+        "HSLColor": [CMY_to_RGB, RGB_to_HSL],
+        "HSVColor": [CMY_to_RGB, RGB_to_HSV],
+        "RGBColor": [CMY_to_RGB],
+        "XYZColor": [CMY_to_RGB, RGB_to_XYZ],
+        "xyYColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
+        "LabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+    },
+    "CMYKColor": {
+       "CMYKColor": [None],
+        "CMYColor": [CMYK_to_CMY],
+        "HSLColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSL],
+        "HSVColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSV],
+        "RGBColor": [CMYK_to_CMY, CMY_to_RGB],
+        "XYZColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ],
+        "xyYColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
+        "LabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+    }
+}
+
+
+def convert_color(color, target_cs, *args, **kwargs):
+    """
+    Converts the color to the designated color space.
+
+    :param color: A Color object to convert.
+    :param target_cs: The Color class to convert to.
+    :returns: An instance of the type passed in as ``target_cs``.
+    """
+
+    if isinstance(target_cs, str):
+        raise ValueError("target_cs parameter must be a Color object.")
+    if not issubclass(target_cs, ColorBase):
+        raise ValueError("target_cs parameter must be a Color object.")
+
+    # Find the origin color space's conversion table.
+    cs_table = CONVERSION_TABLE[color.__class__.__name__]
+    try:
+        # Look up the conversion path for the specified color space.
+        conversions = cs_table[target_cs.__name__]
+    except KeyError:
+        raise UndefinedConversionError(
+            color.__class__.__name__,
+            target_cs.__name__,
+        )
+
+    logger.debug('Converting %s to %s', color, target_cs)
+    logger.debug(' @ Conversion path: %s', conversions)
+
+    # Start with original color in case we convert to the same color space.
+    new_color = color
+    # Iterate through the list of functions for the conversion path, storing
+    # the results in a dictionary via update(). This way the user has access
+    # to all of the variables involved in the conversion.
+    for func in conversions:
+        # Execute the function in this conversion step and store the resulting
+        # Color object.
+        logger.debug(' * Conversion: %s passed to %s()',
+                     new_color.__class__.__name__, func)
+        logger.debug(' |->  in %s', new_color)
+
+        if func:
+            # This can be None if you try to convert a color to the color
+            # space that is already in. IE: XYZ->XYZ.
+            new_color = func(new_color, *args, **kwargs)
+
+        logger.debug(' |-< out %s', new_color)
+    return new_color

@@ -4,7 +4,8 @@
 Backwards Incompatible changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Minimum Python version is now 2.7.
-* Removed 'debug' kwargs in favor of Python's logging.
+* Color.convert_to() is no more. Use colormath.color_conversions.convert_color()
+  instead. API isn't as spiffy looking, but it's a lot less magical now.
 * RGBColor channels are now [0..1] instead of [1..255]. Can get the upscaled
   Can use RGBColor.get_upscaled_value_tuple() to get the upscaled values.
 * RGBColor.set_from_rgb_hex() was replaced with a RGBColor.new_from_rgb_hex(),
@@ -14,6 +15,9 @@ Backwards Incompatible changes
 * HSV no longer accepts observer or illuminant kwargs.
 * CMY no longer accepts observer or illuminant kwargs.
 * CMYK no longer accepts observer or illuminant kwargs.
+* Removed 'debug' kwargs in favor of Python's logging.
+* Completely re-worked exception list. Eliminated some redundant exceptions,
+  re-named basically everything else.
 
 Features
 ^^^^^^^^
@@ -24,15 +28,16 @@ Features
 * A round of PEP8 work.
 * Added a BaseColorConversionTest test class with some greatly improved
   color comparison. Much more useful in tracking down breakages.
-* Each color space inherits from one of ReflectiveColorBase or
-  TransmissiveColorBase. This currently serves no purpose other than to
-  allow for conditions in color software. Most (but not all) reflective
-  color spaces have illuminants.
+* Eliminated non-matrix delta E computations in favor of the matrix equivalents.
+  No need to maintain duplicate code, and the matrix stuff is faster for bulk
+  operations.
 
 Bugs
 ^^^^
 
 * Corrected delta_e CMC example error. Should now run correctly.
+* color_diff_matrix.delta_e_cie2000 had an edge case where certain angles
+  would result in an incorrect delta E.
 * Un-hardcoded XYZColor.apply_adaptation()'s adaptation and observer angles.
 
 1.0.9

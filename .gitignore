@@ -8,3 +8,4 @@ MANIFEST
 .idea
 colormath.egg-info/
 .tox
+.DS_Store
