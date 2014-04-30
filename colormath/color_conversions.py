@@ -708,7 +708,6 @@ CONVERSION_TABLE = {
         "LCHColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
         "LuvColor": [Spectral_to_XYZ, XYZ_to_Luv],
        "sRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
-   "AdobeRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -722,7 +721,6 @@ CONVERSION_TABLE = {
       "LCHuvColor": [Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [Lab_to_XYZ, XYZ_to_Luv],
        "sRGBColor": [Lab_to_XYZ, XYZ_to_RGB],
-   "AdobeRGBColor": [Lab_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -736,7 +734,6 @@ CONVERSION_TABLE = {
       "LCHuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv],
        "sRGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
-   "AdobeRGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
         "HSLColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -750,7 +747,6 @@ CONVERSION_TABLE = {
         "LuvColor": [LCHuv_to_Luv],
       "LCHabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
        "sRGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
-   "AdobeRGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
         "HSLColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -764,7 +760,6 @@ CONVERSION_TABLE = {
       "LCHabColor": [Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [Luv_to_LCHuv],
        "sRGBColor": [Luv_to_XYZ, XYZ_to_RGB],
-   "AdobeRGBColor": [Luv_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -778,7 +773,6 @@ CONVERSION_TABLE = {
       "LCHuvColor": [XYZ_to_Lab, Luv_to_LCHuv],
         "LuvColor": [XYZ_to_Luv],
        "sRGBColor": [XYZ_to_RGB],
-   "AdobeRGBColor": [XYZ_to_RGB],
         "HSLColor": [XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [XYZ_to_RGB, RGB_to_CMY],
@@ -792,7 +786,6 @@ CONVERSION_TABLE = {
       "LCHuvColor": [xyY_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [xyY_to_XYZ, XYZ_to_Luv],
        "sRGBColor": [xyY_to_XYZ, XYZ_to_RGB],
-   "AdobeRGBColor": [xyY_to_XYZ, XYZ_to_RGB],
         "HSLColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -802,7 +795,6 @@ CONVERSION_TABLE = {
         "HSLColor": [None],
         "HSVColor": [HSL_to_RGB, RGB_to_HSV],
        "sRGBColor": [HSL_to_RGB],
-   "AdobeRGBColor": [HSL_to_RGB],
         "CMYColor": [HSL_to_RGB, RGB_to_CMY],
        "CMYKColor": [HSL_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "XYZColor": [HSL_to_RGB, RGB_to_XYZ],
@@ -816,7 +808,6 @@ CONVERSION_TABLE = {
         "HSVColor": [None],
         "HSLColor": [HSV_to_RGB, RGB_to_HSL],
        "sRGBColor": [HSV_to_RGB],
-   "AdobeRGBColor": [HSV_to_RGB],
         "CMYColor": [HSV_to_RGB, RGB_to_CMY],
        "CMYKColor": [HSV_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "XYZColor": [HSV_to_RGB, RGB_to_XYZ],
@@ -832,7 +823,6 @@ CONVERSION_TABLE = {
         "HSLColor": [CMY_to_RGB, RGB_to_HSL],
         "HSVColor": [CMY_to_RGB, RGB_to_HSV],
        "sRGBColor": [CMY_to_RGB],
-   "AdobeRGBColor": [CMY_to_RGB],
         "XYZColor": [CMY_to_RGB, RGB_to_XYZ],
         "xyYColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
@@ -846,7 +836,6 @@ CONVERSION_TABLE = {
         "HSLColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSL],
         "HSVColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSV],
        "sRGBColor": [CMYK_to_CMY, CMY_to_RGB],
-   "AdobeRGBColor": [CMYK_to_CMY, CMY_to_RGB],
         "XYZColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ],
         "xyYColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
@@ -854,8 +843,11 @@ CONVERSION_TABLE = {
       "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
     },
-    "sRGBColor": {
-       "sRGBColor": [None],
+}
+
+# We use this as a template conversion dict for each RGB color space. They
+# are all identical.
+_RGB_CONVERSION_DICT_TEMPLATE = {
         "HSLColor": [RGB_to_HSL],
         "HSVColor": [RGB_to_HSV],
         "CMYColor": [RGB_to_CMY],
@@ -866,16 +858,23 @@ CONVERSION_TABLE = {
       "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
-    },
 }
 
 # Avoid the repetition, since the conversion tables for the various RGB
 # spaces are the same.
-_ADDITIONAL_RGB_SPACES = ["AdobeRGBColor"]
-for rgb_space in _ADDITIONAL_RGB_SPACES:
-    conv_dict = CONVERSION_TABLE["sRGBColor"].copy()
-    del conv_dict["sRGBColor"]
+_RGB_SPACES = ["sRGBColor", "AdobeRGBColor"]
+for rgb_space in _RGB_SPACES:
+    if rgb_space != "sRGBColor":
+        # This is a bit strange, but wherever we see sRGBColor in a conversion
+        # dict, duplicate it for each additional color space. Keeps us from
+        # having to manually type/update this for every single RGB space.
+        for key in CONVERSION_TABLE:
+            CONVERSION_TABLE[key][rgb_space] = CONVERSION_TABLE[key]["sRGBColor"]
+    # Avoid modifying the original template dict.
+    conv_dict = _RGB_CONVERSION_DICT_TEMPLATE.copy()
+    # No-ops conversions to self.
     conv_dict[rgb_space] = [None]
+    # The new RGB color space is now a part of the conversion table.
     CONVERSION_TABLE[rgb_space] = conv_dict
 
 
