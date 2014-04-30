@@ -6,7 +6,7 @@ import unittest
 
 from colormath.color_diff import delta_e_cie1976, delta_e_cie1994, \
     delta_e_cie2000, delta_e_cmc
-from colormath.color_objects import LabColor, RGBColor
+from colormath.color_objects import LabColor, sRGBColor
 
 
 class DeltaETestCase(unittest.TestCase):
@@ -210,6 +210,6 @@ class DeltaETestCase(unittest.TestCase):
             self.fail("DeltaE CIE1994 domain error.")
 
     def test_non_lab_color(self):
-        other_color = RGBColor(1.0, 0.5, 0.3)
+        other_color = sRGBColor(1.0, 0.5, 0.3)
         self.assertRaises(
             ValueError, delta_e_cie2000, self.color1, other_color)

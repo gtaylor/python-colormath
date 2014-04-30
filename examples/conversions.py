@@ -9,7 +9,7 @@ you may perform.
 import example_config
 
 from colormath.color_conversions import convert_color
-from colormath.color_objects import LabColor, LCHabColor, SpectralColor, RGBColor, \
+from colormath.color_objects import LabColor, LCHabColor, SpectralColor, sRGBColor, \
     XYZColor, LCHuvColor
 
 
@@ -62,7 +62,7 @@ def example_lab_to_rgb():
     # Show a string representation.
     print(lab)
     # Convert to XYZ.
-    rgb = convert_color(lab, RGBColor, target_rgb='sRGB')
+    rgb = convert_color(lab, sRGBColor)
     print(rgb)
     print("=== End Example ===\n")
 
@@ -74,7 +74,7 @@ def example_rgb_to_xyz():
 
     print("=== RGB Example: RGB->XYZ ===")
     # Instantiate an Lab color object with the given values.
-    rgb = RGBColor(120, 130, 140, rgb_type='sRGB')
+    rgb = sRGBColor(120, 130, 140)
     # Show a string representation.
     print(rgb)
     # Convert RGB to XYZ using a D50 illuminant.

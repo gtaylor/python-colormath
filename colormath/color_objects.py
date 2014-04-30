@@ -5,7 +5,7 @@ This module contains classes to represent various color spaces.
 import logging
 import math
 
-import numpy as np
+import numpy
 
 from colormath import color_constants
 from colormath import density
@@ -245,7 +245,7 @@ class SpectralColor(IlluminantMixin, ColorBase):
             values.append(getattr(self, val, 0.0))
 
         # Create and the actual numpy array/matrix from the spectral list.
-        color_array = np.array([values])
+        color_array = numpy.array([values])
         return color_array
 
     def calc_density(self, density_standard=None):
@@ -380,16 +380,17 @@ class xyYColor(IlluminantMixin, ColorBase):
         self.set_illuminant(illuminant)
 
 
-class RGBColor(ColorBase):
+class BaseRGBColor(ColorBase):
     """
-    Represents an RGB color.
+    Base class for all RGB color spaces.
+
+    .. warning:: Do not use this class directly!
     """
 
     VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
-    OTHER_VALUES = ['rgb_type']
 
-    def __init__(self, rgb_r, rgb_g, rgb_b, rgb_type='srgb', is_upscaled=False):
-        super(RGBColor, self).__init__()
+    def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=False):
+        super(BaseRGBColor, self).__init__()
         if is_upscaled:
             self.rgb_r = rgb_r / 255.0
             self.rgb_g = rgb_g / 255.0
@@ -398,11 +399,6 @@ class RGBColor(ColorBase):
             self.rgb_r = float(rgb_r)
             self.rgb_g = float(rgb_g)
             self.rgb_b = float(rgb_b)
-        self.rgb_type = rgb_type.lower()
-
-    def __str__(self):
-        parent_str = super(RGBColor, self).__str__()
-        return '%s [%s]' % (parent_str, self.rgb_type)
 
     def get_upscaled_value_tuple(self):
         """
@@ -428,7 +424,9 @@ class RGBColor(ColorBase):
     def new_from_rgb_hex(cls, hex_str):
         """
         Converts an RGB hex string like #RRGGBB and assigns the values to
-        this RGBColor object.
+        this sRGBColor object.
+
+        :rtype: sRGBColor
         """
 
         colorstring = hex_str.strip()
@@ -441,20 +439,61 @@ class RGBColor(ColorBase):
         return cls(r, g, b)
 
 
+# noinspection PyPep8Naming
+class sRGBColor(BaseRGBColor):
+    """
+    Represents an sRGB color.
+    """
+
+    rgb_gamma = 2.2
+    native_illuminant = "d65"
+    conversion_matrices = {
+        "xyz_to_rgb":
+            numpy.array((
+                ( 3.24071, -0.969258, 0.0556352),
+                (-1.53726, 1.87599, -0.203996),
+                (-0.498571, 0.0415557, 1.05707))),
+        "rgb_to_xyz":
+            numpy.array((
+                ( 0.412424, 0.212656, 0.0193324),
+                ( 0.357579, 0.715158, 0.119193),
+                ( 0.180464, 0.0721856, 0.950444))),
+    }
+
+
+class AdobeRGBColor(BaseRGBColor):
+    """
+    Represents an Adobe RGB color.
+    """
+
+    rgb_gamma = 2.2
+    native_illuminant = "d65"
+    conversion_matrices = {
+        "xyz_to_rgb":
+            numpy.array((
+                ( 2.04148, -0.969258, 0.0134455),
+                (-0.564977, 1.87599, -0.118373),
+                (-0.344713, 0.0415557, 1.01527))),
+        "rgb_to_xyz":
+            numpy.array((
+                ( 0.576700, 0.297361, 0.0270328),
+                ( 0.185556, 0.627355, 0.0706879),
+                ( 0.188212, 0.0752847, 0.991248))),
+    }
+
+
 class HSLColor(ColorBase):
     """
     Represents an HSL color.
     """
 
     VALUES = ['hsl_h', 'hsl_s', 'hsl_l']
-    OTHER_VALUES = ['rgb_type']
 
-    def __init__(self, hsl_h, hsl_s, hsl_l, rgb_type='srgb'):
+    def __init__(self, hsl_h, hsl_s, hsl_l):
         super(HSLColor, self).__init__()
         self.hsl_h = float(hsl_h)
         self.hsl_s = float(hsl_s)
         self.hsl_l = float(hsl_l)
-        self.rgb_type = rgb_type.lower()
 
 
 class HSVColor(ColorBase):
@@ -463,14 +502,12 @@ class HSVColor(ColorBase):
     """
 
     VALUES = ['hsv_h', 'hsv_s', 'hsv_v']
-    OTHER_VALUES = ['rgb_type']
 
-    def __init__(self, hsv_h, hsv_s, hsv_v, rgb_type='srgb'):
+    def __init__(self, hsv_h, hsv_s, hsv_v):
         super(HSVColor, self).__init__()
         self.hsv_h = float(hsv_h)
         self.hsv_s = float(hsv_s)
         self.hsv_v = float(hsv_v)
-        self.rgb_type = rgb_type.lower()
 
 
 class CMYColor(ColorBase):

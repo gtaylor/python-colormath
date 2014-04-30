@@ -6,8 +6,8 @@ import unittest
 
 from colormath.color_conversions import convert_color
 from colormath.color_objects import SpectralColor, XYZColor, xyYColor, \
-    LabColor, LuvColor, LCHabColor, LCHuvColor, RGBColor, HSLColor, HSVColor, \
-    CMYColor, CMYKColor
+    LabColor, LuvColor, LCHabColor, LCHuvColor, sRGBColor, HSLColor, HSVColor, \
+    CMYColor, CMYKColor, AdobeRGBColor
 
 
 class BaseColorConversionTest(unittest.TestCase):
@@ -92,8 +92,8 @@ class XYZConversionTestCase(BaseColorConversionTest):
     def test_conversion_to_rgb(self):
         # Picked a set of XYZ coordinates that would return a good RGB value.
         self.color = XYZColor(0.300, 0.200, 0.300)
-        rgb = convert_color(self.color, RGBColor)
-        self.assertColorMatch(rgb, RGBColor(0.715, 0.349, 0.663))
+        rgb = convert_color(self.color, sRGBColor)
+        self.assertColorMatch(rgb, sRGBColor(0.715, 0.349, 0.663))
 
     def test_conversion_to_luv(self):
         luv = convert_color(self.color, LuvColor)
@@ -169,8 +169,8 @@ class LCHabConversionTestCase(BaseColorConversionTest):
         """
 
         lchab = LCHabColor(0.0, 0.0, 0.0)
-        rgb = convert_color(lchab, RGBColor)
-        self.assertColorMatch(rgb, RGBColor(0.0, 0.0, 0.0))
+        rgb = convert_color(lchab, sRGBColor)
+        self.assertColorMatch(rgb, sRGBColor(0.0, 0.0, 0.0))
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, LCHabColor)
@@ -194,8 +194,8 @@ class LCHuvConversionTestCase(BaseColorConversionTest):
         """
 
         lchuv = LCHuvColor(0.0, 0.0, 0.0)
-        rgb = convert_color(lchuv, RGBColor)
-        self.assertColorMatch(rgb, RGBColor(0.0, 0.0, 0.0))
+        rgb = convert_color(lchuv, sRGBColor)
+        self.assertColorMatch(rgb, sRGBColor(0.0, 0.0, 0.0))
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, LCHuvColor)
@@ -204,30 +204,30 @@ class LCHuvConversionTestCase(BaseColorConversionTest):
 
 class RGBConversionTestCase(BaseColorConversionTest):
     def setUp(self):
-        self.color = RGBColor(0.482, 0.784, 0.196, rgb_type='sRGB')
+        self.color = sRGBColor(0.482, 0.784, 0.196)
 
     def test_to_xyz_and_back(self):
         xyz = convert_color(self.color, XYZColor)
-        rgb = convert_color(xyz, RGBColor)
+        rgb = convert_color(xyz, sRGBColor)
         self.assertColorMatch(rgb, self.color)
 
     def test_conversion_to_hsl_max_r(self):
-        color = RGBColor(255, 123, 50, rgb_type='sRGB', is_upscaled=True)
+        color = sRGBColor(255, 123, 50, is_upscaled=True)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(21.366, 1.000, 0.598))
 
     def test_conversion_to_hsl_max_g(self):
-        color = RGBColor(123, 255, 50, rgb_type='sRGB', is_upscaled=True)
+        color = sRGBColor(123, 255, 50, is_upscaled=True)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(98.634, 1.000, 0.598))
 
     def test_conversion_to_hsl_max_b(self):
-        color = RGBColor(0.482, 0.482, 1.0, rgb_type='sRGB')
+        color = sRGBColor(0.482, 0.482, 1.0)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(240.000, 1.000, 0.741))
 
     def test_conversion_to_hsl_gray(self):
-        color = RGBColor(0.482, 0.482, 0.482, rgb_type='sRGB')
+        color = sRGBColor(0.482, 0.482, 0.482)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(0.000, 0.000, 0.482))
 
@@ -262,7 +262,8 @@ class RGBConversionTestCase(BaseColorConversionTest):
         different conversion math that uses gamma, so test the alternate logic
         route for non-sRGB RGB colors.
         """
-        adobe = RGBColor(0.482, 0.784, 0.196, rgb_type='adobe_rgb')
+
+        adobe = AdobeRGBColor(0.482, 0.784, 0.196)
         xyz = convert_color(adobe, XYZColor)
         self.assertColorMatch(xyz, XYZColor(0.230, 0.429, 0.074))
 
@@ -273,12 +274,13 @@ class RGBConversionTestCase(BaseColorConversionTest):
         different, so test all of the other types with an adaptation matrix
         here.
         """
-        adobe = RGBColor(0.482, 0.784, 0.196, rgb_type='adobe_rgb')
+
+        adobe = AdobeRGBColor(0.482, 0.784, 0.196)
         xyz = convert_color(adobe, XYZColor, target_illuminant='D50')
         self.assertColorMatch(xyz, XYZColor(0.247, 0.431, 0.060))
 
     def test_convert_to_self(self):
-        same_color = convert_color(self.color, RGBColor)
+        same_color = convert_color(self.color, sRGBColor)
         self.assertEqual(self.color, same_color)
 
     def test_get_rgb_hex(self):
@@ -286,8 +288,8 @@ class RGBConversionTestCase(BaseColorConversionTest):
         self.assertEqual(hex_str, "#7bc832", "sRGB to hex conversion failed")
 
     def test_set_from_rgb_hex(self):
-        rgb = RGBColor.new_from_rgb_hex('#7bc832')
-        self.assertColorMatch(rgb, RGBColor(0.482, 0.784, 0.196))
+        rgb = sRGBColor.new_from_rgb_hex('#7bc832')
+        self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
 
 
 class HSLConversionTestCase(BaseColorConversionTest):
@@ -295,8 +297,8 @@ class HSLConversionTestCase(BaseColorConversionTest):
         self.color = HSLColor(200.0, 0.400, 0.500)
 
     def test_conversion_to_rgb(self):
-        rgb = convert_color(self.color, RGBColor)
-        self.assertColorMatch(rgb, RGBColor(0.300, 0.567, 0.700))
+        rgb = convert_color(self.color, sRGBColor)
+        self.assertColorMatch(rgb, sRGBColor(0.300, 0.567, 0.700))
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, HSLColor)
@@ -308,8 +310,8 @@ class HSVConversionTestCase(BaseColorConversionTest):
         self.color = HSVColor(91.0, 0.750, 0.784)
 
     def test_conversion_to_rgb(self):
-        rgb = convert_color(self.color, RGBColor)
-        self.assertColorMatch(rgb, RGBColor(0.480, 0.784, 0.196))
+        rgb = convert_color(self.color, sRGBColor)
+        self.assertColorMatch(rgb, sRGBColor(0.480, 0.784, 0.196))
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, HSVColor)
@@ -325,8 +327,8 @@ class CMYConversionTestCase(BaseColorConversionTest):
         self.assertColorMatch(cmyk, CMYKColor(0.385, 0.000, 0.750, 0.216))
 
     def test_conversion_to_rgb(self):
-        rgb = convert_color(self.color, RGBColor)
-        self.assertColorMatch(rgb, RGBColor(0.482, 0.784, 0.196))
+        rgb = convert_color(self.color, sRGBColor)
+        self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, CMYColor)

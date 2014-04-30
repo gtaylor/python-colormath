@@ -20,7 +20,7 @@ Example
 
 .. code-block:: python
 
-    from colormath.color_objects import LabColor, RGBColor
+    from colormath.color_objects import LabColor, XYZColor
     from colormath.color_conversions import convert_color
 
     lab = LabColor(0.903, 16.296, -2.22)

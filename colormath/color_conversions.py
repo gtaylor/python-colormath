@@ -12,7 +12,9 @@ import numpy
 
 from colormath import color_constants
 from colormath import spectral_constants
-from colormath.color_objects import ColorBase
+from colormath.color_objects import ColorBase, XYZColor, sRGBColor, LCHabColor, \
+    LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, CMYColor, \
+    CMYKColor
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
 from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
 
@@ -29,12 +31,12 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     follow suite.
     """
 
-    rgb_type = rgb_type.lower()
     convtype = convtype.lower()
     # Retrieve the appropriate transformation matrix from the constants.
-    rgb_matrix = color_constants.RGB_SPECS[rgb_type]["conversions"][convtype]
+    rgb_matrix = rgb_type.conversion_matrices[convtype]
    
-    logger.debug("  \* Applying RGB conversion matrix: %s->%s", rgb_type, convtype)
+    logger.debug("  \* Applying RGB conversion matrix: %s->%s",
+                 rgb_type.__class__.__name__, convtype)
     # Stuff the RGB/XYZ values into a NumPy matrix for conversion.
     var_matrix = numpy.array((
         var1, var2, var3
@@ -49,8 +51,6 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
     """
-
-    from colormath.color_objects import XYZColor
     
     # If the user provides an illuminant_override numpy array, use it.
     if illuminant_override:
@@ -104,8 +104,6 @@ def Lab_to_LCHab(cobj, *args, **kwargs):
     """
     Convert from CIE Lab to LCH(ab).
     """
-
-    from colormath.color_objects import LCHabColor
    
     lch_l = cobj.lab_l
     lch_c = math.sqrt(math.pow(float(cobj.lab_a), 2) + math.pow(float(cobj.lab_b), 2))
@@ -125,8 +123,6 @@ def Lab_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Lab to XYZ
     """
-
-    from colormath.color_objects import XYZColor
 
     illum = cobj.get_illuminant_xyz()
     xyz_y = (cobj.lab_l + 16.0) / 116.0
@@ -161,8 +157,6 @@ def Luv_to_LCHuv(cobj, *args, **kwargs):
     """
     Convert from CIE Luv to LCH(uv).
     """
-
-    from colormath.color_objects import LCHuvColor
    
     lch_l = cobj.luv_l
     lch_c = math.sqrt(math.pow(cobj.luv_u, 2.0) + math.pow(cobj.luv_v, 2.0))
@@ -181,8 +175,6 @@ def Luv_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Luv to XYZ.
     """
-
-    from colormath.color_objects import XYZColor
 
     illum = cobj.get_illuminant_xyz()
     # Without Light, there is no color. Short-circuit this and avoid some
@@ -221,8 +213,6 @@ def LCHab_to_Lab(cobj, *args, **kwargs):
     """
     Convert from LCH(ab) to Lab.
     """
-
-    from colormath.color_objects import LabColor
    
     lab_l = cobj.lch_l
     lab_a = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
@@ -236,8 +226,6 @@ def LCHuv_to_Luv(cobj, *args, **kwargs):
     """
     Convert from LCH(uv) to Luv.
     """
-
-    from colormath.color_objects import LuvColor
    
     luv_l = cobj.lch_l
     luv_u = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
@@ -251,8 +239,6 @@ def xyY_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from xyY to XYZ.
     """
-
-    from colormath.color_objects import XYZColor
    
     xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
     xyz_y = cobj.xyy_Y
@@ -268,8 +254,6 @@ def XYZ_to_xyY(cobj, *args, **kwargs):
     Convert from XYZ to xyY.
     """
 
-    from colormath.color_objects import xyYColor
-   
     xyy_x = cobj.xyz_x / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
     xyy_y = cobj.xyz_y / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
     xyy_Y = cobj.xyz_y
@@ -283,8 +267,6 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     """
     Convert from XYZ to Luv
     """
-
-    from colormath.color_objects import LuvColor
    
     temp_x = cobj.xyz_x
     temp_y = cobj.xyz_y
@@ -317,8 +299,6 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
     Converts XYZ to Lab.
     """
 
-    from colormath.color_objects import LabColor
-
     illum = cobj.get_illuminant_xyz()
     temp_x = cobj.xyz_x / illum["X"]
     temp_y = cobj.xyz_y / illum["Y"]
@@ -347,20 +327,17 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def XYZ_to_RGB(cobj, target_rgb="srgb", *args, **kwargs):
+def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     XYZ to RGB conversion.
     """
-
-    from colormath.color_objects import RGBColor
-    target_rgb = target_rgb.lower()
 
     temp_X = cobj.xyz_x
     temp_Y = cobj.xyz_y
     temp_Z = cobj.xyz_z
 
     logger.debug("  \- Target RGB space: %s", target_rgb)
-    target_illum = color_constants.RGB_SPECS[target_rgb]["native_illum"]
+    target_illum = target_rgb.native_illuminant
     logger.debug("  \- Target native illuminant: %s", target_illum)
     logger.debug("  \- XYZ color's illuminant: %s", cobj.illuminant)
    
@@ -386,7 +363,7 @@ def XYZ_to_RGB(cobj, target_rgb="srgb", *args, **kwargs):
     linear_channels = dict(r=rgb_r, g=rgb_g, b=rgb_b)
     # V
     nonlinear_channels = {}
-    if target_rgb == "srgb":
+    if target_rgb == sRGBColor:
         for channel in ['r', 'g', 'b']:
             v = linear_channels[channel]
             if v <= 0.0031308:
@@ -395,15 +372,12 @@ def XYZ_to_RGB(cobj, target_rgb="srgb", *args, **kwargs):
                 nonlinear_channels[channel] = 1.055 * math.pow(v, 1 / 2.4) - 0.055
     else:
         # If it's not sRGB...
-        gamma = color_constants.RGB_SPECS[target_rgb]["gamma"]
-
         for channel in ['r', 'g', 'b']:
             v = linear_channels[channel]
-            nonlinear_channels[channel] = v * 12.92
+            nonlinear_channels[channel] = math.pow(v, 1 / target_rgb.rgb_gamma)
 
-    return RGBColor(
-        nonlinear_channels['r'], nonlinear_channels['g'], nonlinear_channels['b'],
-        rgb_type=target_rgb)
+    return target_rgb(
+        nonlinear_channels['r'], nonlinear_channels['g'], nonlinear_channels['b'])
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -414,12 +388,10 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     Based off of: http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
     """
 
-    from colormath.color_objects import XYZColor
-
     # Will contain linearized RGB channels (removed the gamma func).
     linear_channels = {}
 
-    if cobj.rgb_type == "srgb":
+    if isinstance(cobj, sRGBColor):
         for channel in ['r', 'g', 'b']:
             V = getattr(cobj, 'rgb_' + channel)
             if V <= 0.04045:
@@ -428,7 +400,7 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
                 linear_channels[channel] = math.pow((V + 0.055) / 1.055, 2.4)
     else:
         # If it's not sRGB...
-        gamma = color_constants.RGB_SPECS[cobj.rgb_type]["gamma"]
+        gamma = cobj.rgb_gamma
 
         for channel in ['r', 'g', 'b']:
             V = getattr(cobj, 'rgb_' + channel)
@@ -437,14 +409,14 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
     xyz_x, xyz_y, xyz_z = apply_RGB_matrix(
         linear_channels['r'], linear_channels['g'], linear_channels['b'],
-        rgb_type=cobj.rgb_type, convtype="rgb_to_xyz")
+        rgb_type=cobj, convtype="rgb_to_xyz")
 
     if target_illuminant is None:
-        target_illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+        target_illuminant = cobj.native_illuminant
     
     # The illuminant of the original RGB object. This will always match
     # the RGB colorspace's native illuminant.
-    illuminant = color_constants.RGB_SPECS[cobj.rgb_type]["native_illum"]
+    illuminant = cobj.native_illuminant
     xyzcolor = XYZColor(xyz_x, xyz_y, xyz_z, illuminant=illuminant)
     # This will take care of any illuminant changes for us (if source
     # illuminant != target illuminant).
@@ -480,8 +452,6 @@ def RGB_to_HSV(cobj, *args, **kwargs):
     V values are a percentage, 0.0 to 1.0.
     """
 
-    from colormath.color_objects import HSVColor
-    
     var_R = cobj.rgb_r
     var_G = cobj.rgb_g
     var_B = cobj.rgb_b
@@ -503,7 +473,7 @@ def RGB_to_HSV(cobj, *args, **kwargs):
     hsv_v = var_V
 
     return HSVColor(
-        var_H, var_S, var_V, rgb_type=cobj.rgb_type)
+        var_H, var_S, var_V)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -515,8 +485,6 @@ def RGB_to_HSL(cobj, *args, **kwargs):
     S values are a percentage, 0.0 to 1.0.
     L values are a percentage, 0.0 to 1.0.
     """
-
-    from colormath.color_objects import HSLColor
     
     var_R = cobj.rgb_r
     var_G = cobj.rgb_g
@@ -536,7 +504,7 @@ def RGB_to_HSL(cobj, *args, **kwargs):
         var_S = (var_max - var_min) / (2.0 - (2.0 * var_L))
     
     return HSLColor(
-        var_H, var_S, var_L, rgb_type=cobj.rgb_type)
+        var_H, var_S, var_L)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -562,7 +530,7 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def HSV_to_RGB(cobj, target_rgb=None, *args, **kwargs):
+def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSV to RGB conversion.
     
@@ -570,8 +538,6 @@ def HSV_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     S values are a percentage, 0.0 to 1.0.
     V values are a percentage, 0.0 to 1.0.
     """
-
-    from colormath.color_objects import RGBColor
     
     H = cobj.hsv_h
     S = cobj.hsv_s
@@ -618,16 +584,14 @@ def HSV_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     else:
         rgb_type = cobj.rgb_type
         
-    return RGBColor(rgb_r, rgb_g, rgb_b, rgb_type=rgb_type)
+    return target_rgb(rgb_r, rgb_g, rgb_b)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def HSL_to_RGB(cobj, target_rgb=None, *args, **kwargs):
+def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSL to RGB conversion.
     """
-
-    from colormath.color_objects import RGBColor
     
     H = cobj.hsl_h
     S = cobj.hsl_s
@@ -658,7 +622,7 @@ def HSL_to_RGB(cobj, target_rgb=None, *args, **kwargs):
     else:
         rgb_type = cobj.rgb_type
     
-    return RGBColor(rgb_r, rgb_g, rgb_b, rgb_type=rgb_type)
+    return target_rgb(rgb_r, rgb_g, rgb_b)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -668,8 +632,6 @@ def RGB_to_CMY(cobj, *args, **kwargs):
     
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
-
-    from colormath.color_objects import CMYColor
    
     cmy_c = 1.0 - cobj.rgb_r
     cmy_m = 1.0 - cobj.rgb_g
@@ -679,20 +641,18 @@ def RGB_to_CMY(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
-def CMY_to_RGB(cobj, *args, **kwargs):
+def CMY_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     Converts CMY to RGB via simple subtraction.
     
     NOTE: Returned values are in the range of 0-255.
     """
-
-    from colormath.color_objects import RGBColor
     
     rgb_r = 1.0 - cobj.cmy_c
     rgb_g = 1.0 - cobj.cmy_m
     rgb_b = 1.0 - cobj.cmy_y
     
-    return RGBColor(rgb_r, rgb_g, rgb_b)
+    return target_rgb(rgb_r, rgb_g, rgb_b)
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
@@ -703,8 +663,6 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
-    from colormath.color_objects import CMYKColor
-   
     var_k = 1.0
     if cobj.cmy_c < var_k:
         var_k = cobj.cmy_c
@@ -734,8 +692,6 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
-    from colormath.color_objects import CMYColor
-    
     cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     cmy_m = cobj.cmyk_m * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
@@ -751,7 +707,8 @@ CONVERSION_TABLE = {
         "LabColor": [Spectral_to_XYZ, XYZ_to_Lab],
         "LCHColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
         "LuvColor": [Spectral_to_XYZ, XYZ_to_Luv],
-        "RGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
+       "sRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
+   "AdobeRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -764,7 +721,8 @@ CONVERSION_TABLE = {
       "LCHabColor": [Lab_to_LCHab],
       "LCHuvColor": [Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [Lab_to_XYZ, XYZ_to_Luv],
-        "RGBColor": [Lab_to_XYZ, XYZ_to_RGB],
+       "sRGBColor": [Lab_to_XYZ, XYZ_to_RGB],
+   "AdobeRGBColor": [Lab_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -777,7 +735,8 @@ CONVERSION_TABLE = {
         "LabColor": [LCHab_to_Lab],
       "LCHuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv],
-        "RGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
+       "sRGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
+   "AdobeRGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
         "HSLColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -790,7 +749,8 @@ CONVERSION_TABLE = {
         "LabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab],
         "LuvColor": [LCHuv_to_Luv],
       "LCHabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-        "RGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
+       "sRGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
+   "AdobeRGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
         "HSLColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -803,7 +763,8 @@ CONVERSION_TABLE = {
         "LabColor": [Luv_to_XYZ, XYZ_to_Lab],
       "LCHabColor": [Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [Luv_to_LCHuv],
-        "RGBColor": [Luv_to_XYZ, XYZ_to_RGB],
+       "sRGBColor": [Luv_to_XYZ, XYZ_to_RGB],
+   "AdobeRGBColor": [Luv_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
@@ -816,7 +777,8 @@ CONVERSION_TABLE = {
       "LCHabColor": [XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [XYZ_to_Lab, Luv_to_LCHuv],
         "LuvColor": [XYZ_to_Luv],
-        "RGBColor": [XYZ_to_RGB],
+       "sRGBColor": [XYZ_to_RGB],
+   "AdobeRGBColor": [XYZ_to_RGB],
         "HSLColor": [XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [XYZ_to_RGB, RGB_to_CMY],
@@ -829,29 +791,18 @@ CONVERSION_TABLE = {
       "LCHabColor": [xyY_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [xyY_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [xyY_to_XYZ, XYZ_to_Luv],
-        "RGBColor": [xyY_to_XYZ, XYZ_to_RGB],
+       "sRGBColor": [xyY_to_XYZ, XYZ_to_RGB],
+   "AdobeRGBColor": [xyY_to_XYZ, XYZ_to_RGB],
         "HSLColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
     },
-    "RGBColor": {
-        "RGBColor": [None],
-        "HSLColor": [RGB_to_HSL],
-        "HSVColor": [RGB_to_HSV],
-        "CMYColor": [RGB_to_CMY],
-       "CMYKColor": [RGB_to_CMY, CMY_to_CMYK],
-        "XYZColor": [RGB_to_XYZ],
-        "xyYColor": [RGB_to_XYZ, XYZ_to_xyY],
-        "LabColor": [RGB_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
-        "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
-    },
     "HSLColor": {
         "HSLColor": [None],
         "HSVColor": [HSL_to_RGB, RGB_to_HSV],
-        "RGBColor": [HSL_to_RGB],
+       "sRGBColor": [HSL_to_RGB],
+   "AdobeRGBColor": [HSL_to_RGB],
         "CMYColor": [HSL_to_RGB, RGB_to_CMY],
        "CMYKColor": [HSL_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "XYZColor": [HSL_to_RGB, RGB_to_XYZ],
@@ -864,7 +815,8 @@ CONVERSION_TABLE = {
     "HSVColor": {
         "HSVColor": [None],
         "HSLColor": [HSV_to_RGB, RGB_to_HSL],
-        "RGBColor": [HSV_to_RGB],
+       "sRGBColor": [HSV_to_RGB],
+   "AdobeRGBColor": [HSV_to_RGB],
         "CMYColor": [HSV_to_RGB, RGB_to_CMY],
        "CMYKColor": [HSV_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "XYZColor": [HSV_to_RGB, RGB_to_XYZ],
@@ -879,7 +831,8 @@ CONVERSION_TABLE = {
        "CMYKColor": [CMY_to_CMYK],
         "HSLColor": [CMY_to_RGB, RGB_to_HSL],
         "HSVColor": [CMY_to_RGB, RGB_to_HSV],
-        "RGBColor": [CMY_to_RGB],
+       "sRGBColor": [CMY_to_RGB],
+   "AdobeRGBColor": [CMY_to_RGB],
         "XYZColor": [CMY_to_RGB, RGB_to_XYZ],
         "xyYColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
@@ -892,24 +845,52 @@ CONVERSION_TABLE = {
         "CMYColor": [CMYK_to_CMY],
         "HSLColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSL],
         "HSVColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSV],
-        "RGBColor": [CMYK_to_CMY, CMY_to_RGB],
+       "sRGBColor": [CMYK_to_CMY, CMY_to_RGB],
+   "AdobeRGBColor": [CMYK_to_CMY, CMY_to_RGB],
         "XYZColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ],
         "xyYColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
       "LCHabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
-    }
+    },
+    "sRGBColor": {
+       "sRGBColor": [None],
+        "HSLColor": [RGB_to_HSL],
+        "HSVColor": [RGB_to_HSV],
+        "CMYColor": [RGB_to_CMY],
+       "CMYKColor": [RGB_to_CMY, CMY_to_CMYK],
+        "XYZColor": [RGB_to_XYZ],
+        "xyYColor": [RGB_to_XYZ, XYZ_to_xyY],
+        "LabColor": [RGB_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
+    },
 }
 
+# Avoid the repetition, since the conversion tables for the various RGB
+# spaces are the same.
+_ADDITIONAL_RGB_SPACES = ["AdobeRGBColor"]
+for rgb_space in _ADDITIONAL_RGB_SPACES:
+    conv_dict = CONVERSION_TABLE["sRGBColor"].copy()
+    del conv_dict["sRGBColor"]
+    conv_dict[rgb_space] = [None]
+    CONVERSION_TABLE[rgb_space] = conv_dict
 
-def convert_color(color, target_cs, *args, **kwargs):
+
+def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs):
     """
     Converts the color to the designated color space.
 
     :param color: A Color instance to convert.
     :param target_cs: The Color class to convert to. Note that this is not
         an instance, but a class.
+    :keyword BaseRGBColor through_rgb_type: If during your conversion between
+        your original and target color spaces you have to pass through RGB,
+        this determines which kind of RGB to use. For example, XYZ->HSL.
+        You probably don't need to specify this unless you have a special
+        usage case.
     :returns: An instance of the type passed in as ``target_cs``.
     :raises: :py:exc:`colormath.color_exceptions.UndefinedConversionError`
         if conversion between the two color spaces isn't possible.
@@ -949,7 +930,7 @@ def convert_color(color, target_cs, *args, **kwargs):
         if func:
             # This can be None if you try to convert a color to the color
             # space that is already in. IE: XYZ->XYZ.
-            new_color = func(new_color, *args, **kwargs)
+            new_color = func(new_color, target_rgb=through_rgb_type, *args, **kwargs)
 
         logger.debug(' |-< out %s', new_color)
     return new_color
