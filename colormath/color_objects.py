@@ -21,8 +21,12 @@ class ColorBase(object):
     """
 
     # Attribute names containing color data on the sub-class. For example,
-    # the RGBColor would be ['rgb_r', 'rgb_g', 'rgb_b']
+    # sRGBColor would be ['rgb_r', 'rgb_g', 'rgb_b']
     VALUES = []
+    # If this object as converted such that its values passed through an
+    # RGB colorspace, this is set to the class for said RGB color space.
+    # Allows reversing conversions automatically and accurately.
+    _through_rgb_type = None
 
     def get_value_tuple(self):
         """

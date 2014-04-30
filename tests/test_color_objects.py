@@ -267,6 +267,20 @@ class RGBConversionTestCase(BaseColorConversionTest):
         xyz = convert_color(adobe, XYZColor)
         self.assertColorMatch(xyz, XYZColor(0.230, 0.429, 0.074))
 
+    def test_conversion_through_rgb(self):
+        """
+        Make sure our convenience RGB tracking feature is working. For example,
+        going from XYZ->HSL via Adobe RGB, then taking that HSL object and
+        converting back to XYZ should also use Adobe RGB (instead of the
+        default of sRGB).
+        """
+
+        xyz = convert_color(self.color, XYZColor)
+        hsl = convert_color(xyz, HSLColor, through_rgb_type=AdobeRGBColor)
+        # Notice how we don't have to pass through_rgb_type explicitly.
+        xyz2 = convert_color(hsl, XYZColor)
+        self.assertColorMatch(xyz, xyz2)
+
     def test_adobe_conversion_to_xyz_d50(self):
         """
         Adobe RGB's native illuminant is D65, so an adaptation matrix is

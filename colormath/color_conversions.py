@@ -916,6 +916,26 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs)
 
     # Start with original color in case we convert to the same color space.
     new_color = color
+
+    # We have to be careful to use the same RGB color space that created
+    # an object (if it was created by a conversion) in order to get correct
+    # results. For example, XYZ->HSL via Adobe RGB should default to Adobe
+    # RGB when taking that generated HSL object back to XYZ.
+    # noinspection PyProtectedMember
+    if through_rgb_type != sRGBColor:
+        # User overrides take priority over everything.
+        # noinspection PyProtectedMember
+        target_rgb = through_rgb_type
+    elif color._through_rgb_type:
+        # Otherwise, a value on the color object is the next best thing,
+        # when available.
+        # noinspection PyProtectedMember
+        target_rgb = color._through_rgb_type
+    else:
+        # We could collapse this into a single if statement above,
+        # but I think this reads better.
+        target_rgb = through_rgb_type
+
     # Iterate through the list of functions for the conversion path, storing
     # the results in a dictionary via update(). This way the user has access
     # to all of the variables involved in the conversion.
@@ -929,7 +949,13 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs)
         if func:
             # This can be None if you try to convert a color to the color
             # space that is already in. IE: XYZ->XYZ.
-            new_color = func(new_color, target_rgb=through_rgb_type, *args, **kwargs)
+            new_color = func(new_color, target_rgb=target_rgb, *args, **kwargs)
 
         logger.debug(' |-< out %s', new_color)
+
+    # If this conversion had something other than the default sRGB color space
+    # requested,
+    if through_rgb_type != sRGBColor:
+        new_color._through_rgb_type = through_rgb_type
+
     return new_color
