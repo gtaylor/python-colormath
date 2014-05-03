@@ -27,7 +27,7 @@ Documentation
 
 For documentation, see the project webpage at:
 
-    http://code.google.com/p/python-colormath/
+    http://python-colormath.readthedocs.org/en/latest/
     
 There are also a lot of useful examples under the examples directory within
 this directory.
