@@ -133,6 +133,9 @@ class SpectralColor(IlluminantMixin, ColorBase):
     Spectral colors are the lowest level, most "raw" measurement of color.
     You may convert spectral colors to any other color space, but you can't
     convert any other color space back to spectral.
+
+    See `Spectral power distribution <http://en.wikipedia.org/wiki/Spectral_power_distribution>`_
+    on Wikipedia for some higher level details on how these work.
     """
 
     VALUES = [
@@ -166,8 +169,8 @@ class SpectralColor(IlluminantMixin, ColorBase):
         spec_780nm=0.0, spec_790nm=0.0, spec_800nm=0.0, spec_810nm=0.0,
         spec_820nm=0.0, spec_830nm=0.0, observer='2', illuminant='d50'):
         """
-        :param str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
-        :param illuminant: See :doc:`illuminants` for valid values.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
 
         super(SpectralColor, self).__init__()
@@ -268,12 +271,22 @@ class SpectralColor(IlluminantMixin, ColorBase):
 
 class LabColor(IlluminantMixin, ColorBase):
     """
-    Represents an Lab color.
+    Represents a CIE Lab color. For more information on CIE Lab,
+    see `Lab color space <http://en.wikipedia.org/wiki/Lab_color_space>`_ on
+    Wikipedia.
     """
 
     VALUES = ['lab_l', 'lab_a', 'lab_b']
 
     def __init__(self, lab_l, lab_a, lab_b, observer='2', illuminant='d50'):
+        """
+        :param float lab_l: L coordinate.
+        :param float lab_a: a coordinate.
+        :param float lab_b: b coordinate.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
+        """
+
         super(LabColor, self).__init__()
         self.lab_l = float(lab_l)
         self.lab_a = float(lab_a)
@@ -284,12 +297,25 @@ class LabColor(IlluminantMixin, ColorBase):
 
 class LCHabColor(IlluminantMixin, ColorBase):
     """
-    Represents an LCHab color.
+    Represents an CIE LCH color that was converted to LCH by passing through
+    CIE Lab.  This differs from :py:class:`LCHuvColor`, which was converted to
+    LCH through CIE Luv.
+
+    See `Introduction to Colour Spaces <http://www.colourphil.co.uk/lab_lch_colour_space.shtml>`_
+    by Phil Cruse for an illustration of how CIE LCH differs from CIE Lab.
     """
 
     VALUES = ['lch_l', 'lch_c', 'lch_h']
 
     def __init__(self, lch_l, lch_c, lch_h, observer='2', illuminant='d50'):
+        """
+        :param float lch_l: L coordinate.
+        :param float lch_c: C coordinate.
+        :param float lch_h: H coordinate.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
+        """
+
         super(LCHabColor, self).__init__()
         self.lch_l = float(lch_l)
         self.lch_c = float(lch_c)
@@ -300,12 +326,25 @@ class LCHabColor(IlluminantMixin, ColorBase):
 
 class LCHuvColor(IlluminantMixin, ColorBase):
     """
-    Represents an LCHuv color.
+    Represents an CIE LCH color that was converted to LCH by passing through
+    CIE Luv.  This differs from :py:class:`LCHabColor`, which was converted to
+    LCH through CIE Lab.
+
+    See `Introduction to Colour Spaces <http://www.colourphil.co.uk/lab_lch_colour_space.shtml>`_
+    by Phil Cruse for an illustration of how CIE LCH differs from CIE Lab.
     """
 
     VALUES = ['lch_l', 'lch_c', 'lch_h']
 
     def __init__(self, lch_l, lch_c, lch_h, observer='2', illuminant='d50'):
+        """
+        :param float lch_l: L coordinate.
+        :param float lch_c: C coordinate.
+        :param float lch_h: H coordinate.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
+        """
+
         super(LCHuvColor, self).__init__()
         self.lch_l = float(lch_l)
         self.lch_c = float(lch_c)
@@ -322,6 +361,14 @@ class LuvColor(IlluminantMixin, ColorBase):
     VALUES = ['luv_l', 'luv_u', 'luv_v']
 
     def __init__(self, luv_l, luv_u, luv_v, observer='2', illuminant='d50'):
+        """
+        :param float luv_l: L coordinate.
+        :param float luv_u: u coordinate.
+        :param float luv_v: v coordinate.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
+        """
+
         super(LuvColor, self).__init__()
         self.luv_l = float(luv_l)
         self.luv_u = float(luv_u)
@@ -338,6 +385,14 @@ class XYZColor(IlluminantMixin, ColorBase):
     VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
 
     def __init__(self, xyz_x, xyz_y, xyz_z, observer='2', illuminant='d50'):
+        """
+        :param float xyz_x: X coordinate.
+        :param float xyz_y: Y coordinate.
+        :param float xyz_z: Z coordinate.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
+        """
+
         super(XYZColor, self).__init__()
         self.xyz_x = float(xyz_x)
         self.xyz_y = float(xyz_y)
@@ -376,6 +431,14 @@ class xyYColor(IlluminantMixin, ColorBase):
     VALUES = ['xyy_x', 'xyy_y', 'xyy_Y']
 
     def __init__(self, xyy_x, xyy_y, xyy_Y, observer='2', illuminant='d50'):
+        """
+        :param float xyy_x: x coordinate.
+        :param float xyy_y: y coordinate.
+        :param float xyy_Y: Y coordinate.
+        :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
+        :keyword str illuminant: See :doc:`illuminants` for valid values.
+        """
+
         super(xyYColor, self).__init__()
         self.xyy_x = float(xyy_x)
         self.xyy_y = float(xyy_y)
@@ -394,6 +457,14 @@ class BaseRGBColor(ColorBase):
     VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
 
     def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=False):
+        """
+        :param float rgb_r: R coordinate. 0...1. 1-255 if is_upscaled=True.
+        :param float rgb_g: G coordinate. 0...1. 1-255 if is_upscaled=True.
+        :param float rgb_b: B coordinate. 0...1. 1-255 if is_upscaled=True.
+        :keyword bool is_upscaled: If False, RGB coordinate values are
+            beteween 0.0 and 1.0. If True, RGB values are between 1 and 255.
+        """
+
         super(BaseRGBColor, self).__init__()
         if is_upscaled:
             self.rgb_r = rgb_r / 255.0
@@ -403,11 +474,15 @@ class BaseRGBColor(ColorBase):
             self.rgb_r = float(rgb_r)
             self.rgb_g = float(rgb_g)
             self.rgb_b = float(rgb_b)
+        self.is_upscaled = is_upscaled
 
     def get_upscaled_value_tuple(self):
         """
         Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
         """
+
+        if self.is_upscaled:
+            return self.get_value_tuple()
 
         # Scale up to 0-255 values.
         rgb_r = int(math.floor(0.5 + self.rgb_r * 255))
@@ -419,6 +494,8 @@ class BaseRGBColor(ColorBase):
     def get_rgb_hex(self):
         """
         Converts the RGB value to a hex value in the form of: #RRGGBB
+
+        :rtype: str
         """
 
         rgb_r, rgb_g, rgb_b = self.get_upscaled_value_tuple()
@@ -494,6 +571,12 @@ class HSLColor(ColorBase):
     VALUES = ['hsl_h', 'hsl_s', 'hsl_l']
 
     def __init__(self, hsl_h, hsl_s, hsl_l):
+        """
+        :param float hsl_h: H coordinate.
+        :param float hsl_s: S coordinate.
+        :param float hsl_l: L coordinate.
+        """
+
         super(HSLColor, self).__init__()
         self.hsl_h = float(hsl_h)
         self.hsl_s = float(hsl_s)
@@ -508,6 +591,12 @@ class HSVColor(ColorBase):
     VALUES = ['hsv_h', 'hsv_s', 'hsv_v']
 
     def __init__(self, hsv_h, hsv_s, hsv_v):
+        """
+        :param float hsv_h: H coordinate.
+        :param float hsv_s: S coordinate.
+        :param float hsv_v: V coordinate.
+        """
+
         super(HSVColor, self).__init__()
         self.hsv_h = float(hsv_h)
         self.hsv_s = float(hsv_s)
@@ -522,6 +611,12 @@ class CMYColor(ColorBase):
     VALUES = ['cmy_c', 'cmy_m', 'cmy_y']
 
     def __init__(self, cmy_c, cmy_m, cmy_y):
+        """
+        :param float cmy_c: C coordinate.
+        :param float cmy_m: M coordinate.
+        :param float cmy_y: Y coordinate.
+        """
+
         super(CMYColor, self).__init__()
         self.cmy_c = float(cmy_c)
         self.cmy_m = float(cmy_m)
@@ -536,6 +631,13 @@ class CMYKColor(ColorBase):
     VALUES = ['cmyk_c', 'cmyk_m', 'cmyk_y', 'cmyk_k']
 
     def __init__(self, cmyk_c, cmyk_m, cmyk_y, cmyk_k):
+        """
+        :param float cmyk_c: C coordinate.
+        :param float cmyk_m: M coordinate.
+        :param float cmyk_y: Y coordinate.
+        :param float cmyk_k: K coordinate.
+        """
+
         super(CMYKColor, self).__init__()
         self.cmyk_c = float(cmyk_c)
         self.cmyk_m = float(cmyk_m)

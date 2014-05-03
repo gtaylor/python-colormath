@@ -701,12 +701,13 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
 
 CONVERSION_TABLE = {
     "SpectralColor": {
-        "SpectralColor": [None],
+   "SpectralColor": [None],
         "XYZColor": [Spectral_to_XYZ],
         "xyYColor": [Spectral_to_XYZ, XYZ_to_xyY],
         "LabColor": [Spectral_to_XYZ, XYZ_to_Lab],
-        "LCHColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-        "LuvColor": [Spectral_to_XYZ, XYZ_to_Luv],
+      "LCHabColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [Spectral_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LuvColor": [Spectral_to_XYZ, Lab_to_XYZ, XYZ_to_Luv],
        "sRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
