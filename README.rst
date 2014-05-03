@@ -13,7 +13,7 @@ Requirements
 ------------
 
 * numpy
-* Python 2.7 or Python 3.3
+* Python 2.7 or Python 3.3+
 
 Installation
 ------------
@@ -27,7 +27,7 @@ Documentation
 
 For documentation, see the project webpage at:
 
-    http://python-colormath.readthedocs.org/en/latest/
+    http://python-colormath.readthedocs.org/
     
 There are also a lot of useful examples under the examples directory within
 this directory.
