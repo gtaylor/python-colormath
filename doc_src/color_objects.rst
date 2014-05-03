@@ -44,10 +44,15 @@ xyYColor
 
 .. autoclass:: colormath.color_objects.xyYColor
 
-RGBColor
---------
+sRGBColor
+---------
 
-.. autoclass:: colormath.color_objects.RGBColor
+.. autoclass:: colormath.color_objects.sRGBColor
+
+AdobeRGBColor
+-------------
+
+.. autoclass:: colormath.color_objects.AdobeRGBColor
 
 HSLColor
 --------
