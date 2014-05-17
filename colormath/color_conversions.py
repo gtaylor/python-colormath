@@ -893,10 +893,9 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor,
         You probably don't need to specify this unless you have a special
         usage case.
     :type target_illuminant: None or str
-    :keyword target_illuminant: If you want the converted color to use a
-        specific illuminant, specify it here. This is mostly useful for
-        conversions from RGB to other color spaces, due to each RGB space
-        having different native illuminants.
+    :keyword target_illuminant: If during conversion from RGB to a reflective
+        color space you want to explicitly end up with a certain illuminant,
+        pass this here. Otherwise the RGB space's native illuminant will be used.
     :returns: An instance of the type passed in as ``target_cs``.
     :raises: :py:exc:`colormath.color_exceptions.UndefinedConversionError`
         if conversion between the two color spaces isn't possible.
