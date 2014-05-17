@@ -293,6 +293,17 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
         luv_l, luv_u, luv_v, observer=cobj.observer, illuminant=cobj.illuminant)
 
 
+__CIE_1_3 = 1.0 / 3.0
+__CIE_1_3_29_6_POW_2 = 1.0 / 3.0 * math.pow(116.0 / 24.0, 2.0)
+__CIE_4_29 = 16.0 / 116.0
+__CIE_6_29_POW_3 = math.pow(24.0 / 116.0, 3.0)
+
+def __cie_lab_f(x):
+    if x > __CIE_6_29_POW_3:
+        return math.pow(x, __CIE_1_3)
+    else:
+        return (__CIE_1_3_29_6_POW_2 * x) + (__CIE_4_29)
+
 # noinspection PyPep8Naming,PyUnusedLocal
 def XYZ_to_Lab(cobj, *args, **kwargs):
     """
@@ -300,31 +311,15 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
     """
 
     illum = cobj.get_illuminant_xyz()
-    temp_x = cobj.xyz_x / illum["X"]
-    temp_y = cobj.xyz_y / illum["Y"]
-    temp_z = cobj.xyz_z / illum["Z"]
-   
-    if temp_x > color_constants.CIE_E:
-        temp_x = math.pow(temp_x, (1.0 / 3.0))
-    else:
-        temp_x = (7.787 * temp_x) + (16.0 / 116.0)     
+    temp_x = __cie_lab_f(cobj.xyz_x / illum["X"])
+    temp_y = __cie_lab_f(cobj.xyz_y / illum["Y"])
+    temp_z = __cie_lab_f(cobj.xyz_z / illum["Z"])
 
-    if temp_y > color_constants.CIE_E:
-        temp_y = math.pow(temp_y, (1.0 / 3.0))
-    else:
-        temp_y = (7.787 * temp_y) + (16.0 / 116.0)
-   
-    if temp_z > color_constants.CIE_E:
-        temp_z = math.pow(temp_z, (1.0 / 3.0))
-    else:
-        temp_z = (7.787 * temp_z) + (16.0 / 116.0)
-      
     lab_l = (116.0 * temp_y) - 16.0
     lab_a = 500.0 * (temp_x - temp_y)
     lab_b = 200.0 * (temp_y - temp_z)
     return LabColor(
         lab_l, lab_a, lab_b, observer=cobj.observer, illuminant=cobj.illuminant)
-
 
 # noinspection PyPep8Naming,PyUnusedLocal
 def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
