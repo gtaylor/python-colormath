@@ -5,6 +5,14 @@
 Release Notes
 =============
 
+2.0.1
+-----
+
+Bug Fixes
+^^^^^^^^^
+* Direct conversions to non-sRGB colorspaces returned sRGBColor objects.
+  Reported by Cezary Wagner.
+
 2.0.0
 -----
 
@@ -42,8 +50,8 @@ Features
   No need to maintain duplicate code, and the matrix stuff is faster for bulk
   operations.
 
-Bugs
-^^^^
+Bug Fixes
+^^^^^^^^^
 
 * Corrected delta_e CMC example error. Should now run correctly.
 * color_diff_matrix.delta_e_cie2000 had an edge case where certain angles
@@ -59,8 +67,8 @@ Features
   math for a very large speed boost. (Eddie Bell)
 * Added this changelog.
 
-Bugs
-^^^^
+Bug Fixes
+^^^^^^^^^
 * Un-hardcode the observer angle in adaptation matrix. (Bastien Dejean)
 
 1.0.8
