@@ -14,6 +14,8 @@ Features
 * convert_color() now has an explicitly defined/documented target_illuminant
   kwarg, instead of letting this fall through to its **kwargs. This should
   make IDE auto-complete better and provide more clarity.
+* Added clamped_rgb_r, clamped_rgb_g, and clamped_rgb_b to RGB color spaces.
+  Use these if you have to have in-gamut, potentially compressed coordinates.
 
 Bug Fixes
 ^^^^^^^^^

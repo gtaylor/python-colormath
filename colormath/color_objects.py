@@ -542,6 +542,40 @@ class BaseRGBColor(ColorBase):
             self.rgb_b = float(rgb_b)
         self.is_upscaled = is_upscaled
 
+    def _clamp_rgb_coordinate(self, coord):
+        """
+        Clamps an RGB coordinate, taking into account whether or not the
+        color is upscaled or not.
+
+        :param float coord: The coordinate value.
+        :rtype: float
+        :returns: The clamped value.
+        """
+
+    @property
+    def clamped_rgb_r(self):
+        """
+        The clamped (0-1 or 1-255) R value.
+        """
+
+        return self._clamp_rgb_coordinate(self.rgb_r)
+
+    @property
+    def clamped_rgb_g(self):
+        """
+        The clamped (0-1 or 1-255) G value.
+        """
+
+        return self._clamp_rgb_coordinate(self.rgb_g)
+
+    @property
+    def clamped_rgb_b(self):
+        """
+        The clamped (0-1 or 1-255) B value.
+        """
+
+        return self._clamp_rgb_coordinate(self.rgb_b)
+
     def get_upscaled_value_tuple(self):
         """
         Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
