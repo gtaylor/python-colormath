@@ -555,7 +555,7 @@ class BaseRGBColor(ColorBase):
     @property
     def clamped_rgb_r(self):
         """
-        The clamped (0-1 or 1-255) R value.
+        The clamped (0.0-1.0) R value.
         """
 
         return self._clamp_rgb_coordinate(self.rgb_r)
@@ -563,7 +563,7 @@ class BaseRGBColor(ColorBase):
     @property
     def clamped_rgb_g(self):
         """
-        The clamped (0-1 or 1-255) G value.
+        The clamped (0.0-1.0) G value.
         """
 
         return self._clamp_rgb_coordinate(self.rgb_g)
@@ -571,7 +571,7 @@ class BaseRGBColor(ColorBase):
     @property
     def clamped_rgb_b(self):
         """
-        The clamped (0-1 or 1-255) B value.
+        The clamped (0.0-1.0) B value.
         """
 
         return self._clamp_rgb_coordinate(self.rgb_b)
@@ -580,9 +580,6 @@ class BaseRGBColor(ColorBase):
         """
         Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
         """
-
-        if self.is_upscaled:
-            return self.get_value_tuple()
 
         # Scale up to 0-255 values.
         rgb_r = int(math.floor(0.5 + self.rgb_r * 255))
@@ -625,6 +622,10 @@ class sRGBColor(BaseRGBColor):
     """
     Represents an sRGB color.
 
+    .. note:: If you pass in upscaled values, we automatically scale them
+        down to 0.0-1.0. If you need the old upscaled values, you can
+        retrieve them with :py:meth:`get_upscaled_value_tuple`.
+
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
@@ -653,6 +654,10 @@ class sRGBColor(BaseRGBColor):
 class AdobeRGBColor(BaseRGBColor):
     """
     Represents an Adobe RGB color.
+
+    .. note:: If you pass in upscaled values, we automatically scale them
+        down to 0.0-1.0. If you need the old upscaled values, you can
+        retrieve them with :py:meth:`get_upscaled_value_tuple`.
 
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
