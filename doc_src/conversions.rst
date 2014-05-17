@@ -49,3 +49,33 @@ to use a different RGB space for a conversion, you can do something like this:
     # If you are going to convert back to XYZ, make sure you use the same
     # RGB color space on the way back.
     xyz2 = convert_color(hsl, XYZColor, through_rgb_type=AdobeRGBColor)
+
+RGB conversions and native illuminants
+--------------------------------------
+
+When converting RGB colors to any of the CIE spaces, we have to pass through
+the XYZ color space. This serves as a crossroads for conversions to basically
+all of the reflective color spaces (CIE Lab, LCH, Luv, etc). The RGB spaces
+are reflective, where the illumination is provided. In the case of a reflective
+space like XYZ, the illuminant must be supplied by a light source.
+
+Each RGB space has its own native illuminant, which can vary from space
+to space. To see some of these for yourself, check out
+Bruce Lindbloom's `XYZ to RGB matrices <http://www.brucelindbloom.com/Eqn_RGB_XYZ_Matrix.html>`_.
+
+
+To cite the most commonly used RGB color space as an example, sRGB has a
+native illuminant of D65. When we convert RGB to XYZ, that native illuminant
+carries over unless explicitly overridden. If you aren't expecting this behavior,
+you'll end up with variations in your converted color's numbers.
+
+To explicitly request a specific illuminant, provide the ``target_illuminant``
+keyword when using :py:func:`colormath.color_conversions.convert_color`.
+
+.. code-block:: python
+
+    from colormath.color_objects import XYZColor, sRGBColor
+    from colormath.color_conversions import convert_color
+
+    rgb = RGBColor(0.1, 0.2, 0.3)
+    xyz = convert_color(rgb, XYZColor, target_illuminant='d50')

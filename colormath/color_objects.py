@@ -74,6 +74,9 @@ class IlluminantMixin(object):
         """
         Validates and sets the color's observer angle.
 
+        .. note:: This only changes the observer angle value. It does no conversion
+            of the color's coordinates.
+
         :param str observer: One of '2' or '10'.
         """
 
@@ -86,6 +89,10 @@ class IlluminantMixin(object):
     def set_illuminant(self, illuminant):
         """
         Validates and sets the color's illuminant.
+
+        .. note:: This only changes the illuminant. It does no conversion
+            of the color's coordinates. For this, you'll want to refer to
+            :py:meth:`XYZColor.apply_adaptation <colormath.color_objects.XYZColor.apply_adaptation>`.
 
         .. tip:: Call this after setting your observer.
 
@@ -232,6 +239,11 @@ class SpectralColor(IlluminantMixin, ColorBase):
         self.spec_820nm = float(spec_820nm)
         self.spec_830nm = float(spec_830nm)
 
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -288,9 +300,18 @@ class LabColor(IlluminantMixin, ColorBase):
         """
 
         super(LabColor, self).__init__()
+        #: L coordinate
         self.lab_l = float(lab_l)
+        #: a coordinate
         self.lab_a = float(lab_a)
+        #: b coordinate
         self.lab_b = float(lab_b)
+
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -317,9 +338,18 @@ class LCHabColor(IlluminantMixin, ColorBase):
         """
 
         super(LCHabColor, self).__init__()
+        #: L coordinate
         self.lch_l = float(lch_l)
+        #: C coordinate
         self.lch_c = float(lch_c)
+        #: H coordinate
         self.lch_h = float(lch_h)
+
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -346,9 +376,18 @@ class LCHuvColor(IlluminantMixin, ColorBase):
         """
 
         super(LCHuvColor, self).__init__()
+        #: L coordinate
         self.lch_l = float(lch_l)
+        #: C coordinate
         self.lch_c = float(lch_c)
+        #: H coordinate
         self.lch_h = float(lch_h)
+
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -370,9 +409,18 @@ class LuvColor(IlluminantMixin, ColorBase):
         """
 
         super(LuvColor, self).__init__()
+        #: L coordinate
         self.luv_l = float(luv_l)
+        #: u coordinate
         self.luv_u = float(luv_u)
+        #: v coordinate
         self.luv_v = float(luv_v)
+
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -394,9 +442,18 @@ class XYZColor(IlluminantMixin, ColorBase):
         """
 
         super(XYZColor, self).__init__()
+        #: X coordinate
         self.xyz_x = float(xyz_x)
+        #: Y coordinate
         self.xyz_y = float(xyz_y)
+        #: Z coordinate
         self.xyz_z = float(xyz_z)
+
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -440,9 +497,18 @@ class xyYColor(IlluminantMixin, ColorBase):
         """
 
         super(xyYColor, self).__init__()
+        #: x coordinate
         self.xyy_x = float(xyy_x)
+        #: y coordinate
         self.xyy_y = float(xyy_y)
+        #: Y coordinate
         self.xyy_Y = float(xyy_Y)
+
+        #: The color's observer angle. Set with :py:meth:`set_observer`.
+        self.observer = None
+        #: The color's illuminant. Set with :py:meth:`set_illuminant`.
+        self.illuminant = None
+
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
@@ -524,9 +590,17 @@ class BaseRGBColor(ColorBase):
 class sRGBColor(BaseRGBColor):
     """
     Represents an sRGB color.
+
+    :ivar float rgb_r: R coordinate
+    :ivar float rgb_g: G coordinate
+    :ivar float rgb_b: B coordinate
+    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+        0.0-1.0.
     """
 
+    #: RGB space's gamma constant.
     rgb_gamma = 2.2
+    #: The RGB space's native illuminant. Important when converting to XYZ.
     native_illuminant = "d65"
     conversion_matrices = {
         "xyz_to_rgb":
@@ -545,9 +619,17 @@ class sRGBColor(BaseRGBColor):
 class AdobeRGBColor(BaseRGBColor):
     """
     Represents an Adobe RGB color.
+
+    :ivar float rgb_r: R coordinate
+    :ivar float rgb_g: G coordinate
+    :ivar float rgb_b: B coordinate
+    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+        0.0-1.0.
     """
 
+    #: RGB space's gamma constant.
     rgb_gamma = 2.2
+    #: The RGB space's native illuminant. Important when converting to XYZ.
     native_illuminant = "d65"
     conversion_matrices = {
         "xyz_to_rgb":
@@ -578,8 +660,11 @@ class HSLColor(ColorBase):
         """
 
         super(HSLColor, self).__init__()
+        #: H coordinate
         self.hsl_h = float(hsl_h)
+        #: S coordinate
         self.hsl_s = float(hsl_s)
+        #: L coordinate
         self.hsl_l = float(hsl_l)
 
 
@@ -598,8 +683,11 @@ class HSVColor(ColorBase):
         """
 
         super(HSVColor, self).__init__()
+        #: H coordinate
         self.hsv_h = float(hsv_h)
+        #: S coordinate
         self.hsv_s = float(hsv_s)
+        #: V coordinate
         self.hsv_v = float(hsv_v)
 
 
@@ -618,8 +706,11 @@ class CMYColor(ColorBase):
         """
 
         super(CMYColor, self).__init__()
+        #: C coordinate
         self.cmy_c = float(cmy_c)
+        #: M coordinate
         self.cmy_m = float(cmy_m)
+        #: Y coordinate
         self.cmy_y = float(cmy_y)
 
 
@@ -639,7 +730,11 @@ class CMYKColor(ColorBase):
         """
 
         super(CMYKColor, self).__init__()
+        #: C coordinate
         self.cmyk_c = float(cmyk_c)
+        #: M coordinate
         self.cmyk_m = float(cmyk_m)
+        #: Y coordinate
         self.cmyk_y = float(cmyk_y)
+        #: K coordinate
         self.cmyk_k = float(cmyk_k)

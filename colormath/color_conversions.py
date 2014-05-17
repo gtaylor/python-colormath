@@ -879,7 +879,8 @@ for rgb_space in _RGB_SPACES:
     CONVERSION_TABLE[rgb_space] = conv_dict
 
 
-def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs):
+def convert_color(color, target_cs, through_rgb_type=sRGBColor,
+                  target_illuminant=None, *args, **kwargs):
     """
     Converts the color to the designated color space.
 
@@ -891,6 +892,11 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs)
         this determines which kind of RGB to use. For example, XYZ->HSL.
         You probably don't need to specify this unless you have a special
         usage case.
+    :type target_illuminant: None or str
+    :keyword target_illuminant: If you want the converted color to use a
+        specific illuminant, specify it here. This is mostly useful for
+        conversions from RGB to other color spaces, due to each RGB space
+        having different native illuminants.
     :returns: An instance of the type passed in as ``target_cs``.
     :raises: :py:exc:`colormath.color_exceptions.UndefinedConversionError`
         if conversion between the two color spaces isn't possible.
@@ -956,7 +962,11 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs)
         if func:
             # This can be None if you try to convert a color to the color
             # space that is already in. IE: XYZ->XYZ.
-            new_color = func(new_color, target_rgb=target_rgb, *args, **kwargs)
+            new_color = func(
+                new_color,
+                target_rgb=target_rgb,
+                target_illuminant=target_illuminant,
+                *args, **kwargs)
 
         logger.debug(' |-< out %s', new_color)
 

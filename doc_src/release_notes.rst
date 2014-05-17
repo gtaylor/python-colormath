@@ -8,6 +8,13 @@ Release Notes
 2.0.1
 -----
 
+Features
+^^^^^^^^
+* Lots of documentation improvements.
+* convert_color() now has an explicitly defined/documented target_illuminant
+  kwarg, instead of letting this fall through to its **kwargs. This should
+  make IDE auto-complete better and provide more clarity.
+
 Bug Fixes
 ^^^^^^^^^
 * Direct conversions to non-sRGB colorspaces returned sRGBColor objects.
