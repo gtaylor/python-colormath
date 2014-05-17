@@ -313,6 +313,9 @@ class HSLConversionTestCase(BaseColorConversionTest):
     def test_conversion_to_rgb(self):
         rgb = convert_color(self.color, sRGBColor)
         self.assertColorMatch(rgb, sRGBColor(0.300, 0.567, 0.700))
+        # Make sure this converts to AdobeRGBColor instead of sRGBColor.
+        adobe_rgb = convert_color(self.color, AdobeRGBColor)
+        self.assertIsInstance(adobe_rgb, AdobeRGBColor)
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, HSLColor)

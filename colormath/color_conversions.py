@@ -14,7 +14,7 @@ from colormath import color_constants
 from colormath import spectral_constants
 from colormath.color_objects import ColorBase, XYZColor, sRGBColor, LCHabColor, \
     LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, CMYColor, \
-    CMYKColor
+    CMYKColor, BaseRGBColor
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
 from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
 
@@ -917,6 +917,12 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor, *args, **kwargs)
 
     # Start with original color in case we convert to the same color space.
     new_color = color
+
+    if issubclass(target_cs, BaseRGBColor):
+        # If the target_cs is an RGB color space of some sort, then we
+        # have to set our through_rgb_type to make sure the conversion returns
+        # the expected RGB colorspace (instead of defaulting to sRGBColor).
+        through_rgb_type = target_cs
 
     # We have to be careful to use the same RGB color space that created
     # an object (if it was created by a conversion) in order to get correct
