@@ -13,7 +13,6 @@ SpectralColor
 
 .. autoclass:: colormath.color_objects.SpectralColor
 
-
 LabColor
 --------
 
