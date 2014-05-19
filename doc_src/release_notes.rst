@@ -5,6 +5,15 @@
 Release Notes
 =============
 
+2.0.2
+-----
+
+Bug Fixes
+^^^^^^^^^
+
+* Apparently I didn't add the function body for the clamped RGB properties.
+  Yikes.
+
 2.0.1
 -----
 

@@ -552,6 +552,11 @@ class BaseRGBColor(ColorBase):
         :returns: The clamped value.
         """
 
+        if not self.is_upscaled:
+            return min(max(coord, 0.0), 1.0)
+        else:
+            return min(max(coord, 1), 255)
+
     @property
     def clamped_rgb_r(self):
         """
