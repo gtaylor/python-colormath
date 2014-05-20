@@ -206,6 +206,37 @@ class RGBConversionTestCase(BaseColorConversionTest):
     def setUp(self):
         self.color = sRGBColor(0.482, 0.784, 0.196)
 
+    def test_channel_clamping(self):
+        high_r = sRGBColor(1.482, 0.2, 0.3)
+        self.assertEqual(high_r.clamped_rgb_r, 1.0)
+        self.assertEqual(high_r.clamped_rgb_g, high_r.rgb_g)
+        self.assertEqual(high_r.clamped_rgb_b, high_r.rgb_b)
+
+        low_r = sRGBColor(-0.1, 0.2, 0.3)
+        self.assertEqual(low_r.clamped_rgb_r, 0.0)
+        self.assertEqual(low_r.clamped_rgb_g, low_r.rgb_g)
+        self.assertEqual(low_r.clamped_rgb_b, low_r.rgb_b)
+
+        high_g = sRGBColor(0.2, 1.482, 0.3)
+        self.assertEqual(high_g.clamped_rgb_r, high_g.rgb_r)
+        self.assertEqual(high_g.clamped_rgb_g, 1.0)
+        self.assertEqual(high_g.clamped_rgb_b, high_g.rgb_b)
+
+        low_g = sRGBColor(0.2, -0.1, 0.3)
+        self.assertEqual(low_g.clamped_rgb_r, low_g.rgb_r)
+        self.assertEqual(low_g.clamped_rgb_g, 0.0)
+        self.assertEqual(low_g.clamped_rgb_b, low_g.rgb_b)
+
+        high_b = sRGBColor(0.1, 0.2, 1.482)
+        self.assertEqual(high_b.clamped_rgb_r, high_b.rgb_r)
+        self.assertEqual(high_b.clamped_rgb_g, high_b.rgb_g)
+        self.assertEqual(high_b.clamped_rgb_b, 1.0)
+
+        low_b = sRGBColor(0.1, 0.2, -0.1)
+        self.assertEqual(low_b.clamped_rgb_r, low_b.rgb_r)
+        self.assertEqual(low_b.clamped_rgb_g, low_b.rgb_g)
+        self.assertEqual(low_b.clamped_rgb_b, 0.0)
+
     def test_to_xyz_and_back(self):
         xyz = convert_color(self.color, XYZColor)
         rgb = convert_color(xyz, sRGBColor)
