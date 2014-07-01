@@ -782,3 +782,46 @@ class CMYKColor(ColorBase):
         self.cmyk_y = float(cmyk_y)
         #: K coordinate
         self.cmyk_k = float(cmyk_k)
+
+
+class IPTColor(ColorBase):
+    """
+    Represents an IPT color.
+
+    Reference:
+    Fairchild, M. D. (2013). Color appearance models, 3rd Ed. (pp. 271-272). John Wiley & Sons.
+    """
+
+    VALUES = ['ipt_i', 'ipt_p', 'ipt_t']
+
+    conversion_matrices = {
+        "xyz_to_lms":
+            numpy.array((
+                ( 0.4002, 0.7075, -0.0807),
+                (-0.2280, 1.1500,  0.0612),
+                ( 0.0000, 0.0000,  0.9184))),
+        "lms_to_ipt":
+            numpy.array(
+                ((0.4000, 0.4000, 0.2000),
+                 (4.4550, -4.8510, 0.3960),
+                 (0.8056, 0.3572, -1.1628))),
+    }
+
+    def __init__(self, ipt_i, ipt_p, ipt_t):
+        """
+        :param ipt_i: I coordinate.
+        :param ipt_p: P coordinate.
+        :param ipt_t: T coordinate.
+        """
+
+        super(IPTColor, self).__init__()
+        #: I coordinate
+        self.ipt_i = ipt_i
+        #: P coordinate
+        self.ipt_p = ipt_p
+        #: T coordinate
+        self.ipt_t = ipt_t
+
+    @property
+    def hue_angle(self):
+        return numpy.arctan2(self.ipt_t, self.ipt_p)

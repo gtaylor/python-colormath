@@ -14,7 +14,7 @@ from colormath import color_constants
 from colormath import spectral_constants
 from colormath.color_objects import ColorBase, XYZColor, sRGBColor, LCHabColor, \
     LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, CMYColor, \
-    CMYKColor, BaseRGBColor
+    CMYKColor, BaseRGBColor, IPTColor
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
 from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
 
@@ -699,6 +699,43 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
     return CMYColor(cmy_c, cmy_m, cmy_y)
 
 
+# noinspection PyPep8Naming,PyUnusedLocal
+def XYZ_to_IPT(cobj, *args, **kwargs):
+    """
+    Converts XYZ to IPT.
+
+    NOTE: XYZ values need to be adapted to 2° D65
+
+    Reference:
+    Fairchild, M. D. (2013). Color appearance models, 3rd Ed. (pp. 271-272). John Wiley & Sons.
+    """
+
+    if cobj.illuminant != 'd65' or cobj.observer != '2':
+        raise ValueError('XYZColor for XYZ->IPT conversion needs to be D65 adapted.')
+    xyz_values = numpy.array(cobj.get_value_tuple())
+    lms_values = numpy.dot(IPTColor.conversion_matrices['xyz_to_lms'], xyz_values)
+
+    lms_prime = numpy.sign(lms_values) * numpy.abs(lms_values) ** 0.43
+
+    ipt_values = numpy.dot(IPTColor.conversion_matrices['lms_to_ipt'], lms_prime)
+    return IPTColor(*ipt_values)
+
+
+# noinspection PyPep8Naming,PyUnusedLocal
+def IPT_to_XYZ(cobj, *args, **kwargs):
+    """
+    Converts XYZ to IPT.
+    """
+
+    ipt_values = numpy.array(cobj.get_value_tuple())
+    lms_values = numpy.dot(numpy.linalg.inv(IPTColor.conversion_matrices['lms_to_ipt']), ipt_values)
+
+    lms_prime = numpy.sign(lms_values) * numpy.abs(lms_values) ** (1 / 0.43)
+
+    xyz_values = numpy.dot(numpy.linalg.inv(IPTColor.conversion_matrices['xyz_to_lms']), lms_prime)
+    return XYZColor(*xyz_values, observer='2', illuminant='d65')
+
+
 CONVERSION_TABLE = {
     "SpectralColor": {
    "SpectralColor": [None],
@@ -778,6 +815,7 @@ CONVERSION_TABLE = {
         "HSVColor": [XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [XYZ_to_IPT],
     },
     "xyYColor": {
         "xyYColor": [None],
@@ -843,6 +881,11 @@ CONVERSION_TABLE = {
       "LCHabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+    },
+    "IPTColor": {
+        "IPTColor": [None],
+       "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
+        "XYZColor": [IPT_to_XYZ],
     },
 }
 

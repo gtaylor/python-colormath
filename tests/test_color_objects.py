@@ -7,7 +7,7 @@ import unittest
 from colormath.color_conversions import convert_color
 from colormath.color_objects import SpectralColor, XYZColor, xyYColor, \
     LabColor, LuvColor, LCHabColor, LCHuvColor, sRGBColor, HSLColor, HSVColor, \
-    CMYColor, CMYKColor, AdobeRGBColor
+    CMYColor, CMYKColor, AdobeRGBColor, IPTColor
 
 
 class BaseColorConversionTest(unittest.TestCase):
@@ -98,6 +98,11 @@ class XYZConversionTestCase(BaseColorConversionTest):
     def test_conversion_to_luv(self):
         luv = convert_color(self.color, LuvColor)
         self.assertColorMatch(luv, LuvColor(51.837, -73.561, -25.657))
+
+    def test_conversion_to_ipt(self):
+        self.color.set_illuminant('D65')
+        ipt = convert_color(self.color, IPTColor)
+        self.assertColorMatch(ipt, IPTColor(0.5063, -0.3183, -0.1160))
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, XYZColor)
@@ -394,3 +399,32 @@ class CMYKConversionTestCase(BaseColorConversionTest):
     def test_convert_to_self(self):
         same_color = convert_color(self.color, CMYKColor)
         self.assertEqual(self.color, same_color)
+
+
+class IPTConversionTestCase(BaseColorConversionTest):
+    def setUp(self):
+        self.color = IPTColor(0.5, 0.5, 0.5)
+
+    def test_convert_so_self(self):
+        same_color = convert_color(self.color, IPTColor)
+        self.assertEqual(self.color, same_color)
+
+    def test_convert_to_XYZ(self):
+        xyz = convert_color(self.color, XYZColor)
+        self.assertColorMatch(xyz, XYZColor(0.4497, 0.2694, 0.0196, illuminant='d65', observer='2'))
+
+    def test_consistency(self):
+        xyz = convert_color(self.color, XYZColor)
+        same_color = convert_color(xyz, IPTColor)
+        self.assertColorMatch(self.color, same_color)
+
+    def test_illuminant_guard(self):
+        xyz = XYZColor(1, 1, 1, illuminant='d50', observer='2')
+        ipt_conversion = lambda: convert_color(xyz, IPTColor)
+        self.assertRaises(ValueError, ipt_conversion)
+
+    def test_observer_guard(self):
+        xyz = XYZColor(1, 1, 1, illuminant='d65', observer='10')
+        ipt_conversion = lambda: convert_color(xyz, IPTColor)
+        self.assertRaises(ValueError, ipt_conversion)
+
