@@ -750,6 +750,7 @@ CONVERSION_TABLE = {
         "HSVColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [Spectral_to_XYZ, XYZ_to_IPT]
     },
     "LabColor": {
         "LabColor": [None],
@@ -763,6 +764,7 @@ CONVERSION_TABLE = {
         "HSVColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [Lab_to_XYZ, XYZ_to_IPT]
     },
     "LCHabColor": {
       "LCHabColor": [None],
@@ -776,6 +778,7 @@ CONVERSION_TABLE = {
         "HSVColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_IPT]
     },
     "LCHuvColor": {
       "LCHuvColor": [None],
@@ -789,6 +792,7 @@ CONVERSION_TABLE = {
         "HSVColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_IPT]
     },
     "LuvColor": {
         "LuvColor": [None],
@@ -802,6 +806,7 @@ CONVERSION_TABLE = {
         "HSVColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [Luv_to_XYZ, XYZ_to_IPT]
     },
     "XYZColor": {
         "XYZColor": [None],
@@ -829,6 +834,7 @@ CONVERSION_TABLE = {
         "HSVColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
        "CMYKColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "IPTColor": [xyY_to_XYZ, XYZ_to_IPT],
     },
     "HSLColor": {
         "HSLColor": [None],
@@ -842,6 +848,7 @@ CONVERSION_TABLE = {
       "LCHabColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+        "IPTColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "HSVColor": {
         "HSVColor": [None],
@@ -855,6 +862,7 @@ CONVERSION_TABLE = {
       "LCHabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+        "IPTColor": [HSV_to_RGB, RGB_to_HSV, XYZ_to_IPT],
     },
     "CMYColor": {
         "CMYColor": [None],
@@ -868,6 +876,7 @@ CONVERSION_TABLE = {
       "LCHabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+        "IPTColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "CMYKColor": {
        "CMYKColor": [None],
@@ -881,11 +890,22 @@ CONVERSION_TABLE = {
       "LCHabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
+        "IPTColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "IPTColor": {
         "IPTColor": [None],
        "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
         "XYZColor": [IPT_to_XYZ],
+        "xyYColor": [IPT_to_XYZ, XYZ_to_xyY],
+        "LabColor": [IPT_to_XYZ, XYZ_to_Lab],
+      "LCHabColor": [IPT_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+      "LCHuvColor": [IPT_to_XYZ, XYZ_to_Lab, Luv_to_LCHuv],
+        "LuvColor": [IPT_to_XYZ, XYZ_to_Luv],
+       "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
+        "HSLColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
+        "HSVColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
+        "CMYColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
+       "CMYKColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
     },
 }
 
