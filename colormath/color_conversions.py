@@ -704,7 +704,7 @@ def XYZ_to_IPT(cobj, *args, **kwargs):
     """
     Converts XYZ to IPT.
 
-    NOTE: XYZ values need to be adapted to 2° D65
+    NOTE: XYZ values need to be adapted to 2 degree D65
 
     Reference:
     Fairchild, M. D. (2013). Color appearance models, 3rd Ed. (pp. 271-272). John Wiley & Sons.
