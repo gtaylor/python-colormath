@@ -10,7 +10,7 @@ import example_config
 
 from colormath.color_conversions import convert_color
 from colormath.color_objects import LabColor, LCHabColor, SpectralColor, sRGBColor, \
-    XYZColor, LCHuvColor
+    XYZColor, LCHuvColor, IPTColor
 
 
 def example_lab_to_xyz():
@@ -110,6 +110,22 @@ def example_spectral_to_xyz():
     xyz = convert_color(spc, XYZColor)
     print(xyz)
     print("=== End Example ===\n")
+
+
+def example_lab_to_ipt():
+    """
+    This function shows a simple conversion of an XYZ color to an IPT color.
+    """
+
+    print("=== Simple Example: XYZ->IPT ===")
+    # Instantiate an XYZ color object with the given values.
+    xyz = XYZColor(0.5, 0.5, 0.5, illuminant='d65')
+    # Show a string representation.
+    print(xyz)
+    # Convert to IPT.
+    ipt = convert_color(xyz, IPTColor)
+    print(ipt)
+    print("=== End Example ===\n")
     
 # Feel free to comment/un-comment examples as you please.
 example_lab_to_xyz()
@@ -117,3 +133,4 @@ example_lchab_to_lchuv()
 example_lab_to_rgb()
 example_spectral_to_xyz()
 example_rgb_to_xyz()
+example_lab_to_ipt()

@@ -72,3 +72,8 @@ CMYKColor
 ---------
 
 .. autoclass:: colormath.color_objects.CMYKColor
+
+IPTColor
+---------
+
+.. autoclass:: colormath.color_objects.IPTColor
