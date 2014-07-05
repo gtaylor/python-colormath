@@ -4,6 +4,7 @@ Conversion between color spaces.
 .. note:: This module makes extensive use of imports within functions.
     That stinks.
 """
+from abc import ABCMeta, abstractmethod
 
 import math
 import logging
@@ -14,7 +15,7 @@ from colormath import color_constants
 from colormath import spectral_constants
 from colormath.color_objects import ColorBase, XYZColor, sRGBColor, LCHabColor, \
     LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, CMYColor, \
-    CMYKColor, BaseRGBColor, IPTColor
+    CMYKColor, BaseRGBColor, IPTColor, SpectralColor, AdobeRGBColor
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
 from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
 
@@ -45,8 +46,130 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     result_matrix = numpy.dot(rgb_matrix, var_matrix)
     return result_matrix[0], result_matrix[1], result_matrix[2]
 
+# Avoid the repetition, since the conversion tables for the various RGB
+# spaces are the same.
+_RGB_SPACES = [sRGBColor, AdobeRGBColor]
+
+
+class ConversionManager():
+    __metaclass__ = ABCMeta
+
+    def add_type_conversion(self, start_type, target_type, conversion_function):
+        """
+        Register a conversion function between two color spaces.
+        :param start_type: Starting color space.
+        :param target_type: Target color space.
+        :param conversion_function: Conversion function.
+        """
+        logger.debug('Registered conversion from %s to %s', start_type, target_type)
+
+
+    @abstractmethod
+    def get_conversion_path(self, start_type, target_type):
+        """
+        Return a list of conversion functions that if applied iteratively on a color of the start_type color space result
+        in a color in the result_type color space.
+
+        Raises an UndefinedConversionError if no valid conversion path can be found.
+
+        :param start_type: Starting color space type.
+        :param target_type: Target color space type.
+        :return: List of conversion functions.
+        """
+        pass
+
+    @staticmethod
+    def _normalise_type(color_type):
+        """
+        Return the highest superclass that is valid for color space conversions (e.g., AdobeRGB -> BaseRGBColor)
+        """
+        if issubclass(color_type, BaseRGBColor):
+            return BaseRGBColor
+        else:
+            return color_type
+
+
+class CuratedConversionManager(ConversionManager):
+    def get_conversion_path(self, start_type, target_type):
+        # Find the origin color space's conversion table.
+        cs_table = CONVERSION_TABLE[start_type.__name__]
+        try:
+            # Look up the conversion path for the specified color space.
+            return cs_table[target_type.__name__]
+        except KeyError:
+            raise UndefinedConversionError(
+                start_type.__class__.__name__,
+                target_type.__name__,
+            )
+
+
+class GraphConversionManager(ConversionManager):
+    def __init__(self):
+        self.conversion_graph = networkx.DiGraph()
+
+    def get_conversion_path(self, start_type, target_type):
+        start_type = self._normalise_type(start_type)
+        target_type = self._normalise_type(target_type)
+        try:
+            # Retrieve node sequence that leads from start_type to target_type.
+            path = networkx.shortest_path(self.conversion_graph, start_type, target_type)
+            # Look up edges between nodes and retrieve the conversion function for each edge.
+            return [self.conversion_graph.get_edge_data(node_a, node_b)['conversion_function'] for node_a, node_b in
+                    zip(path[:-1], path[1:])]
+        except networkx.NetworkXNoPath:
+            raise UndefinedConversionError(
+                start_type.__class__.__name__,
+                target_type.__name__,
+            )
+
+    def add_type_conversion(self, start_type, target_type, conversion_function):
+        super(GraphConversionManager, self).add_type_conversion(start_type, target_type, conversion_function)
+        self.conversion_graph.add_edge(start_type, target_type, {'conversion_function': conversion_function})
+
+
+class DummyConversionManager(ConversionManager):
+    def add_type_conversion(self, start_type, target_type, conversion_function):
+        pass
+
+    def get_conversion_path(self, start_type, target_type):
+        raise UndefinedConversionError(
+            start_type.__class__.__name__,
+            target_type.__name__,
+        )
+
+
+_conversion_manager = None
+try:
+    import networkx
+
+    _conversion_manager = GraphConversionManager()
+except ImportError:
+    _conversion_manager = CuratedConversionManager()
+
+
+def color_conversion_function(start_type, target_type):
+    """
+    Decorator to indicate a function that performs a conversion from one color space to another.
+
+    This decorator will return the original function unmodified, however it will be registered in the _conversion_manager
+    so it can be used to perform color space transformations between color spaces that do not have direct conversion functions
+    (e.g., Luv to CMYK).
+
+    Note: For a conversion to/from RGB supply the BaseRGBColor class.
+
+    :param start_type: Starting color space type
+    :param target_type: Target color space type
+    """
+
+    def decorator(f):
+        _conversion_manager.add_type_conversion(start_type, target_type, f)
+        return f
+
+    return decorator
+
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(SpectralColor, XYZColor)
 def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
@@ -100,6 +223,7 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(LabColor, LCHabColor)
 def Lab_to_LCHab(cobj, *args, **kwargs):
     """
     Convert from CIE Lab to LCH(ab).
@@ -119,6 +243,7 @@ def Lab_to_LCHab(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(LabColor, XYZColor)
 def Lab_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Lab to XYZ
@@ -153,6 +278,7 @@ def Lab_to_XYZ(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(LuvColor, LCHuvColor)
 def Luv_to_LCHuv(cobj, *args, **kwargs):
     """
     Convert from CIE Luv to LCH(uv).
@@ -171,6 +297,7 @@ def Luv_to_LCHuv(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(LuvColor, XYZColor)
 def Luv_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Luv to XYZ.
@@ -209,6 +336,7 @@ def Luv_to_XYZ(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(LCHabColor, LabColor)
 def LCHab_to_Lab(cobj, *args, **kwargs):
     """
     Convert from LCH(ab) to Lab.
@@ -222,6 +350,7 @@ def LCHab_to_Lab(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(LCHuvColor, LuvColor)
 def LCHuv_to_Luv(cobj, *args, **kwargs):
     """
     Convert from LCH(uv) to Luv.
@@ -235,6 +364,7 @@ def LCHuv_to_Luv(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(xyYColor, XYZColor)
 def xyY_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from xyY to XYZ.
@@ -254,6 +384,7 @@ def xyY_to_XYZ(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(XYZColor, xyYColor)
 def XYZ_to_xyY(cobj, *args, **kwargs):
     """
     Convert from XYZ to xyY.
@@ -273,6 +404,7 @@ def XYZ_to_xyY(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(XYZColor, LuvColor)
 def XYZ_to_Luv(cobj, *args, **kwargs):
     """
     Convert from XYZ to Luv
@@ -289,6 +421,7 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     else:
         luv_u = (4.0 * temp_x) / denom
         luv_v = (9.0 * temp_y) / denom
+
 
     illum = cobj.get_illuminant_xyz()
     temp_y = temp_y / illum["Y"]
@@ -309,6 +442,7 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(XYZColor, LabColor)
 def XYZ_to_Lab(cobj, *args, **kwargs):
     """
     Converts XYZ to Lab.
@@ -342,6 +476,7 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(XYZColor, BaseRGBColor)
 def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     XYZ to RGB conversion.
@@ -396,6 +531,7 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(BaseRGBColor, XYZColor)
 def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     """
     RGB to XYZ conversion. Expects 0-255 RGB values.
@@ -458,6 +594,7 @@ def __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(BaseRGBColor, HSVColor)
 def RGB_to_HSV(cobj, *args, **kwargs):
     """
     Converts from RGB to HSV.
@@ -492,6 +629,7 @@ def RGB_to_HSV(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(BaseRGBColor, HSLColor)
 def RGB_to_HSL(cobj, *args, **kwargs):
     """
     Converts from RGB to HSL.
@@ -545,6 +683,7 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(HSVColor, BaseRGBColor)
 def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSV to RGB conversion.
@@ -603,6 +742,7 @@ def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(HSLColor, BaseRGBColor)
 def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSL to RGB conversion.
@@ -641,6 +781,7 @@ def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(BaseRGBColor, CMYColor)
 def RGB_to_CMY(cobj, *args, **kwargs):
     """
     RGB to CMY conversion.
@@ -656,6 +797,7 @@ def RGB_to_CMY(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(CMYColor, BaseRGBColor)
 def CMY_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     Converts CMY to RGB via simple subtraction.
@@ -671,6 +813,7 @@ def CMY_to_RGB(cobj, target_rgb, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(CMYColor, CMYKColor)
 def CMY_to_CMYK(cobj, *args, **kwargs):
     """
     Converts from CMY to CMYK.
@@ -700,6 +843,7 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(CMYKColor, CMYColor)
 def CMYK_to_CMY(cobj, *args, **kwargs):
     """
     Converts CMYK to CMY.
@@ -715,6 +859,7 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(XYZColor, IPTColor)
 def XYZ_to_IPT(cobj, *args, **kwargs):
     """
     Converts XYZ to IPT.
@@ -737,6 +882,7 @@ def XYZ_to_IPT(cobj, *args, **kwargs):
 
 
 # noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(IPTColor, XYZColor)
 def IPT_to_XYZ(cobj, *args, **kwargs):
     """
     Converts XYZ to IPT.
@@ -753,60 +899,60 @@ def IPT_to_XYZ(cobj, *args, **kwargs):
 
 CONVERSION_TABLE = {
     "SpectralColor": {
-   "SpectralColor": [None],
+        "SpectralColor": [None],
         "XYZColor": [Spectral_to_XYZ],
         "xyYColor": [Spectral_to_XYZ, XYZ_to_xyY],
         "LabColor": [Spectral_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [Spectral_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [Spectral_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [Spectral_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [Spectral_to_XYZ, Lab_to_XYZ, XYZ_to_Luv],
-       "sRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
+        "sRGBColor": [Spectral_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [Spectral_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [Spectral_to_XYZ, XYZ_to_IPT]
     },
     "LabColor": {
         "LabColor": [None],
         "XYZColor": [Lab_to_XYZ],
         "xyYColor": [Lab_to_XYZ, XYZ_to_xyY],
-      "LCHabColor": [Lab_to_LCHab],
-      "LCHuvColor": [Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [Lab_to_LCHab],
+        "LCHuvColor": [Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [Lab_to_XYZ, XYZ_to_Luv],
-       "sRGBColor": [Lab_to_XYZ, XYZ_to_RGB],
+        "sRGBColor": [Lab_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [Lab_to_XYZ, XYZ_to_IPT]
     },
     "LCHabColor": {
-      "LCHabColor": [None],
+        "LCHabColor": [None],
         "XYZColor": [LCHab_to_Lab, Lab_to_XYZ],
         "xyYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_xyY],
         "LabColor": [LCHab_to_Lab],
-      "LCHuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_Luv],
-       "sRGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
+        "sRGBColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB],
         "HSLColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [LCHab_to_Lab, Lab_to_XYZ, XYZ_to_IPT]
     },
     "LCHuvColor": {
-      "LCHuvColor": [None],
+        "LCHuvColor": [None],
         "XYZColor": [LCHuv_to_Luv, Luv_to_XYZ],
         "xyYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_xyY],
         "LabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab],
         "LuvColor": [LCHuv_to_Luv],
-      "LCHabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-       "sRGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
+        "LCHabColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "sRGBColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB],
         "HSLColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [LCHuv_to_Luv, Luv_to_XYZ, XYZ_to_IPT]
     },
     "LuvColor": {
@@ -814,113 +960,113 @@ CONVERSION_TABLE = {
         "XYZColor": [Luv_to_XYZ],
         "xyYColor": [Luv_to_XYZ, XYZ_to_xyY],
         "LabColor": [Luv_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [Luv_to_LCHuv],
-       "sRGBColor": [Luv_to_XYZ, XYZ_to_RGB],
+        "LCHabColor": [Luv_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [Luv_to_LCHuv],
+        "sRGBColor": [Luv_to_XYZ, XYZ_to_RGB],
         "HSLColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [Luv_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [Luv_to_XYZ, XYZ_to_IPT]
     },
     "XYZColor": {
         "XYZColor": [None],
         "xyYColor": [XYZ_to_xyY],
         "LabColor": [XYZ_to_Lab],
-      "LCHabColor": [XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [XYZ_to_Lab, Luv_to_LCHuv],
+        "LCHabColor": [XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [XYZ_to_Lab, Luv_to_LCHuv],
         "LuvColor": [XYZ_to_Luv],
-       "sRGBColor": [XYZ_to_RGB],
+        "sRGBColor": [XYZ_to_RGB],
         "HSLColor": [XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [XYZ_to_IPT],
     },
     "xyYColor": {
         "xyYColor": [None],
         "XYZColor": [xyY_to_XYZ],
         "LabColor": [xyY_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [xyY_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [xyY_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [xyY_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [xyY_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [xyY_to_XYZ, XYZ_to_Luv],
-       "sRGBColor": [xyY_to_XYZ, XYZ_to_RGB],
+        "sRGBColor": [xyY_to_XYZ, XYZ_to_RGB],
         "HSLColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [xyY_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "IPTColor": [xyY_to_XYZ, XYZ_to_IPT],
     },
     "HSLColor": {
         "HSLColor": [None],
         "HSVColor": [HSL_to_RGB, RGB_to_HSV],
-       "sRGBColor": [HSL_to_RGB],
+        "sRGBColor": [HSL_to_RGB],
         "CMYColor": [HSL_to_RGB, RGB_to_CMY],
-       "CMYKColor": [HSL_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [HSL_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "XYZColor": [HSL_to_RGB, RGB_to_XYZ],
         "xyYColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
         "IPTColor": [HSL_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "HSVColor": {
         "HSVColor": [None],
         "HSLColor": [HSV_to_RGB, RGB_to_HSL],
-       "sRGBColor": [HSV_to_RGB],
+        "sRGBColor": [HSV_to_RGB],
         "CMYColor": [HSV_to_RGB, RGB_to_CMY],
-       "CMYKColor": [HSV_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [HSV_to_RGB, RGB_to_CMY, CMY_to_CMYK],
         "XYZColor": [HSV_to_RGB, RGB_to_XYZ],
         "xyYColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
         "IPTColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "CMYColor": {
         "CMYColor": [None],
-       "CMYKColor": [CMY_to_CMYK],
+        "CMYKColor": [CMY_to_CMYK],
         "HSLColor": [CMY_to_RGB, RGB_to_HSL],
         "HSVColor": [CMY_to_RGB, RGB_to_HSV],
-       "sRGBColor": [CMY_to_RGB],
+        "sRGBColor": [CMY_to_RGB],
         "XYZColor": [CMY_to_RGB, RGB_to_XYZ],
         "xyYColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
         "IPTColor": [CMY_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "CMYKColor": {
-       "CMYKColor": [None],
+        "CMYKColor": [None],
         "CMYColor": [CMYK_to_CMY],
         "HSLColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSL],
         "HSVColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_HSV],
-       "sRGBColor": [CMYK_to_CMY, CMY_to_RGB],
+        "sRGBColor": [CMYK_to_CMY, CMY_to_RGB],
         "XYZColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ],
         "xyYColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_xyY],
         "LabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+        "LCHabColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
         "IPTColor": [CMYK_to_CMY, CMY_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "IPTColor": {
         "IPTColor": [None],
-       "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
+        "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
         "XYZColor": [IPT_to_XYZ],
         "xyYColor": [IPT_to_XYZ, XYZ_to_xyY],
         "LabColor": [IPT_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [IPT_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [IPT_to_XYZ, XYZ_to_Lab, Luv_to_LCHuv],
+        "LCHabColor": [IPT_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+        "LCHuvColor": [IPT_to_XYZ, XYZ_to_Lab, Luv_to_LCHuv],
         "LuvColor": [IPT_to_XYZ, XYZ_to_Luv],
-       "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
+        "sRGBColor": [IPT_to_XYZ, XYZ_to_RGB],
         "HSLColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_HSL],
         "HSVColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_HSV],
         "CMYColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_CMY],
-       "CMYKColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
+        "CMYKColor": [IPT_to_XYZ, XYZ_to_RGB, RGB_to_CMY, CMY_to_CMYK],
     },
 }
 
@@ -938,6 +1084,7 @@ _RGB_CONVERSION_DICT_TEMPLATE = {
       "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
         "IPTColor": [RGB_to_XYZ, XYZ_to_IPT],
+
 }
 
 # Avoid the repetition, since the conversion tables for the various RGB
@@ -985,16 +1132,7 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor,
     if not issubclass(target_cs, ColorBase):
         raise ValueError("target_cs parameter must be a Color object.")
 
-    # Find the origin color space's conversion table.
-    cs_table = CONVERSION_TABLE[color.__class__.__name__]
-    try:
-        # Look up the conversion path for the specified color space.
-        conversions = cs_table[target_cs.__name__]
-    except KeyError:
-        raise UndefinedConversionError(
-            color.__class__.__name__,
-            target_cs.__name__,
-        )
+    conversions = _conversion_manager.get_conversion_path(color.__class__, target_cs)
 
     logger.debug('Converting %s to %s', color, target_cs)
     logger.debug(' @ Conversion path: %s', conversions)
