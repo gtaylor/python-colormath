@@ -44,6 +44,7 @@ Topics
    conversions
    delta_e
    density
+   color_appearance_models
 
 .. toctree::
    :maxdepth: 1
