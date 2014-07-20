@@ -34,7 +34,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     convtype = convtype.lower()
     # Retrieve the appropriate transformation matrix from the constants.
     rgb_matrix = rgb_type.conversion_matrices[convtype]
-   
+
     logger.debug("  \* Applying RGB conversion matrix: %s->%s",
                  rgb_type.__class__.__name__, convtype)
     # Stuff the RGB/XYZ values into a NumPy matrix for conversion.
@@ -51,7 +51,7 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
     """
-    
+
     # If the user provides an illuminant_override numpy array, use it.
     if illuminant_override:
         reference_illum = illuminant_override
@@ -62,7 +62,7 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
             reference_illum = spectral_constants.REF_ILLUM_TABLE[cobj.illuminant]
         except KeyError:
             raise InvalidIlluminantError(cobj.illuminant)
-        
+
     # Get the spectral distribution of the selected standard observer.
     if cobj.observer == '10':
         std_obs_x = spectral_constants.STDOBSERV_X10
@@ -73,28 +73,28 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
         std_obs_x = spectral_constants.STDOBSERV_X2
         std_obs_y = spectral_constants.STDOBSERV_Y2
         std_obs_z = spectral_constants.STDOBSERV_Z2
-     
+
     # This is a NumPy array containing the spectral distribution of the color.
     sample = cobj.get_numpy_array()
-    
+
     # The denominator is constant throughout the entire calculation for X,
     # Y, and Z coordinates. Calculate it once and re-use.
     denom = std_obs_y * reference_illum
-    
+
     # This is also a common element in the calculation whereby the sample
     # NumPy array is multiplied by the reference illuminant's power distribution
     # (which is also a NumPy array).
     sample_by_ref_illum = sample * reference_illum
-        
+
     # Calculate the numerator of the equation to find X.
     x_numerator = sample_by_ref_illum * std_obs_x
     y_numerator = sample_by_ref_illum * std_obs_y
     z_numerator = sample_by_ref_illum * std_obs_z
-    
+
     xyz_x = x_numerator.sum() / denom.sum()
     xyz_y = y_numerator.sum() / denom.sum()
     xyz_z = z_numerator.sum() / denom.sum()
-    
+
     return XYZColor(
         xyz_x, xyz_y, xyz_z, observer=cobj.observer, illuminant=cobj.illuminant)
 
@@ -104,16 +104,16 @@ def Lab_to_LCHab(cobj, *args, **kwargs):
     """
     Convert from CIE Lab to LCH(ab).
     """
-   
+
     lch_l = cobj.lab_l
     lch_c = math.sqrt(math.pow(float(cobj.lab_a), 2) + math.pow(float(cobj.lab_b), 2))
     lch_h = math.atan2(float(cobj.lab_b), float(cobj.lab_a))
-   
+
     if lch_h > 0:
         lch_h = (lch_h / math.pi) * 180
     else:
         lch_h = 360 - (math.fabs(lch_h) / math.pi) * 180
-      
+
     return LCHabColor(
         lch_l, lch_c, lch_h, observer=cobj.observer, illuminant=cobj.illuminant)
 
@@ -128,7 +128,7 @@ def Lab_to_XYZ(cobj, *args, **kwargs):
     xyz_y = (cobj.lab_l + 16.0) / 116.0
     xyz_x = cobj.lab_a / 500.0 + xyz_y
     xyz_z = xyz_y - cobj.lab_b / 200.0
-   
+
     if math.pow(xyz_y, 3) > color_constants.CIE_E:
         xyz_y = math.pow(xyz_y, 3)
     else:
@@ -138,16 +138,16 @@ def Lab_to_XYZ(cobj, *args, **kwargs):
         xyz_x = math.pow(xyz_x, 3)
     else:
         xyz_x = (xyz_x - 16.0 / 116.0) / 7.787
-      
+
     if math.pow(xyz_z, 3) > color_constants.CIE_E:
         xyz_z = math.pow(xyz_z, 3)
     else:
         xyz_z = (xyz_z - 16.0 / 116.0) / 7.787
-      
+
     xyz_x = (illum["X"] * xyz_x)
     xyz_y = (illum["Y"] * xyz_y)
     xyz_z = (illum["Z"] * xyz_z)
-    
+
     return XYZColor(
         xyz_x, xyz_y, xyz_z, observer=cobj.observer, illuminant=cobj.illuminant)
 
@@ -157,11 +157,11 @@ def Luv_to_LCHuv(cobj, *args, **kwargs):
     """
     Convert from CIE Luv to LCH(uv).
     """
-   
+
     lch_l = cobj.luv_l
     lch_c = math.sqrt(math.pow(cobj.luv_u, 2.0) + math.pow(cobj.luv_v, 2.0))
     lch_h = math.atan2(float(cobj.luv_v), float(cobj.luv_u))
-   
+
     if lch_h > 0:
         lch_h = (lch_h / math.pi) * 180
     else:
@@ -213,7 +213,7 @@ def LCHab_to_Lab(cobj, *args, **kwargs):
     """
     Convert from LCH(ab) to Lab.
     """
-   
+
     lab_l = cobj.lch_l
     lab_a = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
     lab_b = math.sin(math.radians(cobj.lch_h)) * cobj.lch_c
@@ -226,7 +226,7 @@ def LCHuv_to_Luv(cobj, *args, **kwargs):
     """
     Convert from LCH(uv) to Luv.
     """
-   
+
     luv_l = cobj.lch_l
     luv_u = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
     luv_v = math.sin(math.radians(cobj.lch_h)) * cobj.lch_c
@@ -248,7 +248,7 @@ def xyY_to_XYZ(cobj, *args, **kwargs):
         xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
         xyz_y = cobj.xyy_Y
         xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyz_y) / cobj.xyy_y
-    
+
     return XYZColor(
         xyz_x, xyz_y, xyz_z, illuminant=cobj.illuminant, observer=cobj.observer)
 
@@ -277,7 +277,7 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     """
     Convert from XYZ to Luv
     """
-   
+
     temp_x = cobj.xyz_x
     temp_y = cobj.xyz_y
     temp_z = cobj.xyz_z
@@ -296,14 +296,14 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
         temp_y = math.pow(temp_y, (1.0 / 3.0))
     else:
         temp_y = (7.787 * temp_y) + (16.0 / 116.0)
-   
+
     ref_U = (4.0 * illum["X"]) / (illum["X"] + (15.0 * illum["Y"]) + (3.0 * illum["Z"]))
     ref_V = (9.0 * illum["Y"]) / (illum["X"] + (15.0 * illum["Y"]) + (3.0 * illum["Z"]))
-   
+
     luv_l = (116.0 * temp_y) - 16.0
     luv_u = 13.0 * luv_l * (luv_u - ref_U)
     luv_v = 13.0 * luv_l * (luv_v - ref_V)
-   
+
     return LuvColor(
         luv_l, luv_u, luv_v, observer=cobj.observer, illuminant=cobj.illuminant)
 
@@ -318,22 +318,22 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
     temp_x = cobj.xyz_x / illum["X"]
     temp_y = cobj.xyz_y / illum["Y"]
     temp_z = cobj.xyz_z / illum["Z"]
-   
+
     if temp_x > color_constants.CIE_E:
         temp_x = math.pow(temp_x, (1.0 / 3.0))
     else:
-        temp_x = (7.787 * temp_x) + (16.0 / 116.0)     
+        temp_x = (7.787 * temp_x) + (16.0 / 116.0)
 
     if temp_y > color_constants.CIE_E:
         temp_y = math.pow(temp_y, (1.0 / 3.0))
     else:
         temp_y = (7.787 * temp_y) + (16.0 / 116.0)
-   
+
     if temp_z > color_constants.CIE_E:
         temp_z = math.pow(temp_z, (1.0 / 3.0))
     else:
         temp_z = (7.787 * temp_z) + (16.0 / 116.0)
-      
+
     lab_l = (116.0 * temp_y) - 16.0
     lab_a = 500.0 * (temp_x - temp_y)
     lab_b = 200.0 * (temp_y - temp_z)
@@ -355,7 +355,7 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
     target_illum = target_rgb.native_illuminant
     logger.debug("  \- Target native illuminant: %s", target_illum)
     logger.debug("  \- XYZ color's illuminant: %s", cobj.illuminant)
-   
+
     # If the XYZ values were taken with a different reference white than the
     # native reference white of the target RGB space, a transformation matrix
     # must be applied.
@@ -368,7 +368,7 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
             orig_illum=cobj.illuminant, targ_illum=target_illum)
         logger.debug("  \*   New values: %.3f, %.3f, %.3f",
                      temp_X, temp_Y, temp_Z)
-   
+
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
     rgb_r, rgb_g, rgb_b = apply_RGB_matrix(
         temp_X, temp_Y, temp_Z,
@@ -420,7 +420,7 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
         for channel in ['r', 'g', 'b']:
             V = getattr(cobj, 'rgb_' + channel)
             linear_channels[channel] = math.pow(V, gamma)
-        
+
     # Apply an RGB working space matrix to the XYZ values (matrix mul).
     xyz_x, xyz_y, xyz_z = apply_RGB_matrix(
         linear_channels['r'], linear_channels['g'], linear_channels['b'],
@@ -428,7 +428,7 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
 
     if target_illuminant is None:
         target_illuminant = cobj.native_illuminant
-    
+
     # The illuminant of the original RGB object. This will always match
     # the RGB colorspace's native illuminant.
     illuminant = cobj.native_illuminant
@@ -461,7 +461,7 @@ def __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max):
 def RGB_to_HSV(cobj, *args, **kwargs):
     """
     Converts from RGB to HSV.
-    
+
     H values are in degrees and are 0 to 360.
     S values are a percentage, 0.0 to 1.0.
     V values are a percentage, 0.0 to 1.0.
@@ -470,17 +470,17 @@ def RGB_to_HSV(cobj, *args, **kwargs):
     var_R = cobj.rgb_r
     var_G = cobj.rgb_g
     var_B = cobj.rgb_b
-    
+
     var_max = max(var_R, var_G, var_B)
     var_min = min(var_R, var_G, var_B)
-    
+
     var_H = __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max)
-    
+
     if var_max == 0:
         var_S = 0
     else:
         var_S = 1.0 - (var_min / var_max)
-        
+
     var_V = var_max
 
     hsv_h = var_H
@@ -495,29 +495,29 @@ def RGB_to_HSV(cobj, *args, **kwargs):
 def RGB_to_HSL(cobj, *args, **kwargs):
     """
     Converts from RGB to HSL.
-    
+
     H values are in degrees and are 0 to 360.
     S values are a percentage, 0.0 to 1.0.
     L values are a percentage, 0.0 to 1.0.
     """
-    
+
     var_R = cobj.rgb_r
     var_G = cobj.rgb_g
     var_B = cobj.rgb_b
-    
+
     var_max = max(var_R, var_G, var_B)
     var_min = min(var_R, var_G, var_B)
-    
+
     var_H = __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max)
     var_L = 0.5 * (var_max + var_min)
-    
+
     if var_max == var_min:
         var_S = 0
     elif var_L <= 0.5:
         var_S = (var_max - var_min) / (2.0 * var_L)
     else:
         var_S = (var_max - var_min) / (2.0 - (2.0 * var_L))
-    
+
     return HSLColor(
         var_H, var_S, var_L)
 
@@ -548,23 +548,23 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
 def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSV to RGB conversion.
-    
+
     H values are in degrees and are 0 to 360.
     S values are a percentage, 0.0 to 1.0.
     V values are a percentage, 0.0 to 1.0.
     """
-    
+
     H = cobj.hsv_h
     S = cobj.hsv_s
     V = cobj.hsv_v
-    
+
     h_floored = int(math.floor(H))
     h_sub_i = int(h_floored / 60) % 6
     var_f = (H / 60.0) - (h_floored // 60)
     var_p = V * (1.0 - S)
     var_q = V * (1.0 - var_f * S)
     var_t = V * (1.0 - (1.0 - var_f) * S)
-       
+
     if h_sub_i == 0:
         rgb_r = V
         rgb_g = var_t
@@ -592,13 +592,13 @@ def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
     else:
         raise ValueError("Unable to convert HSL->RGB due to value error.")
 
-    # In the event that they define an HSV color and want to convert it to 
+    # In the event that they define an HSV color and want to convert it to
     # a particular RGB space, let them override it here.
     if target_rgb is not None:
         rgb_type = target_rgb
     else:
         rgb_type = cobj.rgb_type
-        
+
     return target_rgb(rgb_r, rgb_g, rgb_b)
 
 
@@ -607,36 +607,36 @@ def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSL to RGB conversion.
     """
-    
+
     H = cobj.hsl_h
     S = cobj.hsl_s
     L = cobj.hsl_l
-    
+
     if L < 0.5:
         var_q = L * (1.0 + S)
     else:
         var_q = L + S - (L * S)
-        
+
     var_p = 2.0 * L - var_q
-    
+
     # H normalized to range [0,1]
     h_sub_k = (H / 360.0)
-    
+
     t_sub_R = h_sub_k + (1.0 / 3.0)
     t_sub_G = h_sub_k
     t_sub_B = h_sub_k - (1.0 / 3.0)
-    
+
     rgb_r = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_R)
     rgb_g = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_G)
     rgb_b = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_B)
 
-    # In the event that they define an HSV color and want to convert it to 
+    # In the event that they define an HSV color and want to convert it to
     # a particular RGB space, let them override it here.
     if target_rgb is not None:
         rgb_type = target_rgb
     else:
         rgb_type = cobj.rgb_type
-    
+
     return target_rgb(rgb_r, rgb_g, rgb_b)
 
 
@@ -644,14 +644,14 @@ def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
 def RGB_to_CMY(cobj, *args, **kwargs):
     """
     RGB to CMY conversion.
-    
+
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
-   
+
     cmy_c = 1.0 - cobj.rgb_r
     cmy_m = 1.0 - cobj.rgb_g
     cmy_y = 1.0 - cobj.rgb_b
-    
+
     return CMYColor(cmy_c, cmy_m, cmy_y)
 
 
@@ -659,14 +659,14 @@ def RGB_to_CMY(cobj, *args, **kwargs):
 def CMY_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     Converts CMY to RGB via simple subtraction.
-    
+
     NOTE: Returned values are in the range of 0-255.
     """
-    
+
     rgb_r = 1.0 - cobj.cmy_c
     rgb_g = 1.0 - cobj.cmy_m
     rgb_b = 1.0 - cobj.cmy_y
-    
+
     return target_rgb(rgb_r, rgb_g, rgb_b)
 
 
@@ -674,7 +674,7 @@ def CMY_to_RGB(cobj, target_rgb, *args, **kwargs):
 def CMY_to_CMYK(cobj, *args, **kwargs):
     """
     Converts from CMY to CMYK.
-    
+
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
@@ -685,7 +685,7 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
         var_k = cobj.cmy_m
     if cobj.cmy_y < var_k:
         var_k = cobj.cmy_y
-      
+
     if var_k == 1:
         cmyk_c = 0.0
         cmyk_m = 0.0
@@ -703,14 +703,14 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
 def CMYK_to_CMY(cobj, *args, **kwargs):
     """
     Converts CMYK to CMY.
-    
+
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
 
     cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     cmy_m = cobj.cmyk_m * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
-    
+
     return CMYColor(cmy_c, cmy_m, cmy_y)
 
 
@@ -877,7 +877,7 @@ CONVERSION_TABLE = {
       "LCHabColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_RGB],
-        "IPTColor": [HSV_to_RGB, RGB_to_HSV, XYZ_to_IPT],
+        "IPTColor": [HSV_to_RGB, RGB_to_XYZ, XYZ_to_IPT],
     },
     "CMYColor": {
         "CMYColor": [None],
@@ -937,6 +937,7 @@ _RGB_CONVERSION_DICT_TEMPLATE = {
       "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
       "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
         "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
+        "IPTColor": [RGB_to_XYZ, XYZ_to_IPT],
 }
 
 # Avoid the repetition, since the conversion tables for the various RGB
