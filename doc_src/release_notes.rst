@@ -5,6 +5,19 @@
 Release Notes
 =============
 
+2.1.0 (Unreleased)
+------------------
+
+Features
+^^^^^^^^
+
+* Added the IPT color space. (MichaelMauderer)
+
+Bug Fixes
+^^^^^^^^^
+
+* xyY conversions now correctly avoid division by zero. (dwbullok)
+
 2.0.2
 -----
 
