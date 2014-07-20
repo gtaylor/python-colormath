@@ -239,10 +239,15 @@ def xyY_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from xyY to XYZ.
     """
-   
-    xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
-    xyz_y = cobj.xyy_Y
-    xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyz_y) / cobj.xyy_y
+    # avoid division by zero
+    if cobj.xyy_y==0.0:
+        xyz_x=0.0
+        xyz_y=0.0
+        xyz_z=0.0
+    else:
+        xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
+        xyz_y = cobj.xyy_Y
+        xyz_z = ((1.0 - cobj.xyy_x - cobj.xyy_y) * xyz_y) / cobj.xyy_y
     
     return XYZColor(
         xyz_x, xyz_y, xyz_z, illuminant=cobj.illuminant, observer=cobj.observer)
@@ -253,9 +258,14 @@ def XYZ_to_xyY(cobj, *args, **kwargs):
     """
     Convert from XYZ to xyY.
     """
-
-    xyy_x = cobj.xyz_x / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
-    xyy_y = cobj.xyz_y / (cobj.xyz_x + cobj.xyz_y + cobj.xyz_z)
+    xyz_sum = cobj.xyz_x + cobj.xyz_y + cobj.xyz_z
+    # avoid division by zero
+    if xyz_sum == 0.0:
+        xyy_x = 0.0
+        xyy_y = 0.0
+    else:
+        xyy_x = cobj.xyz_x / xyz_sum
+        xyy_y = cobj.xyz_y / xyz_sum
     xyy_Y = cobj.xyz_y
 
     return xyYColor(
@@ -271,9 +281,14 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     temp_x = cobj.xyz_x
     temp_y = cobj.xyz_y
     temp_z = cobj.xyz_z
-   
-    luv_u = (4.0 * temp_x) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
-    luv_v = (9.0 * temp_y) / (temp_x + (15.0 * temp_y) + (3.0 * temp_z))
+    denom = temp_x + (15.0 * temp_y) + (3.0 * temp_z)
+    # avoid division by zero
+    if denom == 0.0:
+        luv_u = 0.0
+        luv_v = 0.0
+    else:
+        luv_u = (4.0 * temp_x) / denom
+        luv_v = (9.0 * temp_y) / denom
 
     illum = cobj.get_illuminant_xyz()
     temp_y = temp_y / illum["Y"]
