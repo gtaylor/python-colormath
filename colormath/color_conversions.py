@@ -55,6 +55,9 @@ _RGB_SPACES = [sRGBColor, AdobeRGBColor]
 class ConversionManager():
     __metaclass__ = ABCMeta
 
+    def __init__(self):
+        self.registered_color_spaces = set()
+
     def add_type_conversion(self, start_type, target_type, conversion_function):
         """
         Register a conversion function between two color spaces.
@@ -62,6 +65,8 @@ class ConversionManager():
         :param target_type: Target color space.
         :param conversion_function: Conversion function.
         """
+        self.registered_color_spaces.add(start_type)
+        self.registered_color_spaces.add(target_type)
         logger.debug('Registered conversion from %s to %s', start_type, target_type)
 
 
@@ -92,6 +97,7 @@ class ConversionManager():
 
 class GraphConversionManager(ConversionManager):
     def __init__(self):
+        super(GraphConversionManager, self).__init__()
         self.conversion_graph = networkx.DiGraph()
 
     def get_conversion_path(self, start_type, target_type):
@@ -105,8 +111,8 @@ class GraphConversionManager(ConversionManager):
                     zip(path[:-1], path[1:])]
         except networkx.NetworkXNoPath:
             raise UndefinedConversionError(
-                start_type.__class__.__name__,
-                target_type.__name__,
+                start_type,
+                target_type,
             )
 
     def add_type_conversion(self, start_type, target_type, conversion_function):
@@ -120,8 +126,8 @@ class DummyConversionManager(ConversionManager):
 
     def get_conversion_path(self, start_type, target_type):
         raise UndefinedConversionError(
-            start_type.__class__.__name__,
-            target_type.__name__,
+            start_type,
+            target_type,
         )
 
 
@@ -143,6 +149,8 @@ def color_conversion_function(start_type, target_type):
     """
 
     def decorator(f):
+        f.start_type = start_type
+        f.target_type = target_type
         _conversion_manager.add_type_conversion(start_type, target_type, f)
         return f
 
