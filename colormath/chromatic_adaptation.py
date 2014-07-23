@@ -3,7 +3,7 @@ import logging
 import numpy
 from numpy.linalg import pinv
 
-from colormath import color_constants
+import color_constants
 
 logger = logging.getLogger(__name__)
 
@@ -20,32 +20,25 @@ def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
     Detailed conversion documentation is available at:
     http://brucelindbloom.com/Eqn_ChromAdapt.html
     """
-
     # Get the appropriate transformation matrix, [MsubA].
-    transform_matrix = color_constants.ADAPTATION_MATRICES[adaptation]
-    # Calculate the inverse of the transform matrix, [MsubA]^(-1)
-    transform_matrix_inverse = pinv(transform_matrix)
+    m_sharp = color_constants.ADAPTATION_MATRICES[adaptation]
 
     # Store the XYZ coordinates of the origin illuminant. Becomes XsubWS.
-    illum_from = color_constants.ILLUMINANTS[observer][orig_illum]
+    illum_src = color_constants.ILLUMINANTS[observer][orig_illum]
     # Also store the XYZ coordinates of the target illuminant. Becomes XsubWD.
-    illum_to = color_constants.ILLUMINANTS[observer][targ_illum]
+    illum_dst = color_constants.ILLUMINANTS[observer][targ_illum]
 
-    # Calculate cone response domains.
-    pyb_source = numpy.dot(illum_from, transform_matrix)
-    pyb_dest = numpy.dot(illum_to, transform_matrix)
+    # Sharpened cone responses ~ rho gamma beta ~ sharpened r g b
+    rgb_src = numpy.dot(m_sharp, illum_src)
+    rgb_dst = numpy.dot(m_sharp, illum_dst)
 
-    # Break the cone response domains out into their appropriate variables.
-    P_sub_S, Y_sub_S, B_sub_S = pyb_source[0], pyb_source[1], pyb_source[2]
-    P_sub_D, Y_sub_D, B_sub_D = pyb_dest[0], pyb_dest[1], pyb_dest[2]
+    # Ratio of whitepoint sharpened responses
+    m_rat = numpy.diag(rgb_dst / rgb_src)
 
-    # Assemble the middle matrix used in the final calculation of [M].
-    middle_matrix = numpy.array(((P_sub_D / P_sub_S, 0.0, 0.0),
-                                 (0.0, Y_sub_D / Y_sub_S, 0.0),
-                                 (0.0, 0.0, B_sub_D / B_sub_S)))
+    # Final transformation matrix
+    m_xfm = numpy.dot(numpy.dot(pinv(m_sharp), m_rat), m_sharp)
 
-    return numpy.dot(numpy.dot(transform_matrix, middle_matrix),
-                  transform_matrix_inverse)
+    return m_xfm
 
 
 # noinspection PyPep8Naming
