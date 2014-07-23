@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 # noinspection PyPep8Naming
-def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
+def _get_adaptation_matrix(wp_src, wp_dst, observer, adaptation):
     """
     Calculate the correct transformation matrix based on origin and target
     illuminants. The observer angle must be the same between illuminants.
@@ -23,14 +23,15 @@ def _get_adaptation_matrix(orig_illum, targ_illum, observer, adaptation):
     # Get the appropriate transformation matrix, [MsubA].
     m_sharp = color_constants.ADAPTATION_MATRICES[adaptation]
 
-    # Store the XYZ coordinates of the origin illuminant. Becomes XsubWS.
-    illum_src = color_constants.ILLUMINANTS[observer][orig_illum]
-    # Also store the XYZ coordinates of the target illuminant. Becomes XsubWD.
-    illum_dst = color_constants.ILLUMINANTS[observer][targ_illum]
+    # In case the white-points are still input as strings
+    wp_from_input = lambda illum: color_constants.ILLUMINANTS[observer][illum] \
+        if type(illum) == str else illum
+    wp_src = wp_from_input(wp_src)
+    wp_dst = wp_from_input(wp_dst)
 
     # Sharpened cone responses ~ rho gamma beta ~ sharpened r g b
-    rgb_src = numpy.dot(m_sharp, illum_src)
-    rgb_dst = numpy.dot(m_sharp, illum_dst)
+    rgb_src = numpy.dot(m_sharp, wp_src)
+    rgb_dst = numpy.dot(m_sharp, wp_dst)
 
     # Ratio of whitepoint sharpened responses
     m_rat = numpy.diag(rgb_dst / rgb_src)
@@ -63,9 +64,15 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
     targ_illum = targ_illum.lower()
     adaptation = adaptation.lower()
 
+    # Get white-points for illuminant
+    wp_from_input = lambda illum: color_constants.ILLUMINANTS[observer][illum] \
+        if type(illum) == str else illum
+    wp_src = wp_from_input(orig_illum)
+    wp_dst = wp_from_input(targ_illum)
+
     logger.debug("  \* Applying adaptation matrix: %s", adaptation)
     # Retrieve the appropriate transformation matrix from the constants.
-    transform_matrix = _get_adaptation_matrix(orig_illum, targ_illum,
+    transform_matrix = _get_adaptation_matrix(wp_src, wp_dst,
                                               observer, adaptation)
 
     # Stuff the XYZ values into a NumPy matrix for conversion.
