@@ -60,12 +60,12 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
 
     # It's silly to have to do this, but some people may want to call this
     # function directly, so we'll protect them from messing up upper/lower case.
-    orig_illum = orig_illum.lower()
-    targ_illum = targ_illum.lower()
+    # orig_illum = orig_illum.lower()
+    # targ_illum = targ_illum.lower()
     adaptation = adaptation.lower()
 
     # Get white-points for illuminant
-    wp_from_input = lambda illum: color_constants.ILLUMINANTS[observer][illum] \
+    wp_from_input = lambda illum: color_constants.ILLUMINANTS[observer][illum.lower()] \
         if type(illum) == str else illum
     wp_src = wp_from_input(orig_illum)
     wp_dst = wp_from_input(targ_illum)
@@ -78,7 +78,7 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
     # Stuff the XYZ values into a NumPy matrix for conversion.
     XYZ_matrix = numpy.array((val_x, val_y, val_z))
     # Perform the adaptation via matrix multiplication.
-    result_matrix = numpy.dot(XYZ_matrix, transform_matrix)
+    result_matrix = numpy.dot(transform_matrix, XYZ_matrix)
 
     # Return individual X, Y, and Z coordinates.
     return result_matrix[0], result_matrix[1], result_matrix[2]
