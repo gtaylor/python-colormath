@@ -3,7 +3,7 @@ import logging
 import numpy
 from numpy.linalg import pinv
 
-import color_constants
+from colormath import color_constants
 
 logger = logging.getLogger(__name__)
 
