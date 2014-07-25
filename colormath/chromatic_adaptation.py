@@ -24,10 +24,18 @@ def _get_adaptation_matrix(wp_src, wp_dst, observer, adaptation):
     m_sharp = color_constants.ADAPTATION_MATRICES[adaptation]
 
     # In case the white-points are still input as strings
-    wp_from_input = lambda illum: color_constants.ILLUMINANTS[observer][illum] \
-        if type(illum) == str else illum
-    wp_src = wp_from_input(wp_src)
-    wp_dst = wp_from_input(wp_dst)
+    # Get white-points for illuminant
+    if type(wp_src) == str:
+        orig_illum = wp_src.lower()
+        wp_src = color_constants.ILLUMINANTS[observer][orig_illum]
+    elif hasattr(wp_src, '__iter__'):
+        wp_src = wp_src
+
+    if type(wp_dst) == str:
+        targ_illum = wp_dst.lower()
+        wp_dst = color_constants.ILLUMINANTS[observer][targ_illum]
+    elif hasattr(wp_dst, '__iter__'):
+        wp_dst = wp_dst
 
     # Sharpened cone responses ~ rho gamma beta ~ sharpened r g b
     rgb_src = numpy.dot(m_sharp, wp_src)
@@ -60,15 +68,20 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
 
     # It's silly to have to do this, but some people may want to call this
     # function directly, so we'll protect them from messing up upper/lower case.
-    # orig_illum = orig_illum.lower()
-    # targ_illum = targ_illum.lower()
     adaptation = adaptation.lower()
 
     # Get white-points for illuminant
-    wp_from_input = lambda illum: color_constants.ILLUMINANTS[observer][illum.lower()] \
-        if type(illum) == str else illum
-    wp_src = wp_from_input(orig_illum)
-    wp_dst = wp_from_input(targ_illum)
+    if type(orig_illum) == str:
+        orig_illum = orig_illum.lower()
+        wp_src = color_constants.ILLUMINANTS[observer][orig_illum]
+    elif hasattr(orig_illum, '__iter__'):
+        wp_src = orig_illum
+
+    if type(targ_illum) == str:
+        targ_illum = targ_illum.lower()
+        wp_dst = color_constants.ILLUMINANTS[observer][targ_illum]
+    elif hasattr(targ_illum, '__iter__'):
+        wp_dst = targ_illum
 
     logger.debug("  \* Applying adaptation matrix: %s", adaptation)
     # Retrieve the appropriate transformation matrix from the constants.
