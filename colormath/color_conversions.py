@@ -42,7 +42,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
         var1, var2, var3
     ))
     # Perform the adaptation via matrix multiplication.
-    result_matrix = numpy.dot(var_matrix, rgb_matrix)
+    result_matrix = numpy.dot(rgb_matrix, var_matrix)
     return result_matrix[0], result_matrix[1], result_matrix[2]
 
 
