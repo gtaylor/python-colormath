@@ -12,11 +12,15 @@ Features
 ^^^^^^^^
 
 * Added the IPT color space. (MichaelMauderer)
+* Added Color Appearance Models. Natayani95, Hunt, RLAB, ATD95, 
+  LLAB, CIECAM02, CIECAM02-m1. (MichaelMauderer)
 
 Bug Fixes
 ^^^^^^^^^
 
 * xyY conversions now correctly avoid division by zero. (dwbullok)
+* Un-transposed adaptation matrices. Has no effect on conversions, 
+  but if you use these directly you may see different numbers. (JasonTam)
 
 2.0.2
 -----
