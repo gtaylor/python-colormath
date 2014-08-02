@@ -11,6 +11,9 @@ Release Notes
 Features
 ^^^^^^^^
 
+* Added new NetworkX graph-based resolution of conversions between
+  color spaces. Reduces boilerplate and makes it much easier to add
+  additional color spaces going forward. (MichaelMauderer)
 * Added the IPT color space. (MichaelMauderer)
 * Added Color Appearance Models. Natayani95, Hunt, RLAB, ATD95, 
   LLAB, CIECAM02, CIECAM02-m1. (MichaelMauderer)
@@ -21,6 +24,12 @@ Bug Fixes
 * xyY conversions now correctly avoid division by zero. (dwbullok)
 * Un-transposed adaptation matrices. Has no effect on conversions, 
   but if you use these directly you may see different numbers. (JasonTam)
+  
+Backwards Incompatible changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If any of your code directly referenced the color adaptation matrices
+  that were un-inverted, you'll need to adjust your math.
 
 2.0.2
 -----
