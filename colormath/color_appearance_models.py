@@ -1076,7 +1076,7 @@ class CIECAM02():
         :param z_w: Z value of reference white :math:`Z_W`.
         :param y_b: Background relative luminance :math:`Y_b`.
         :param l_a: Adapting luminance :math:`L_A` in cd/m^2.
-        :param c: Exponential nonlinearity :math:`c`. (Average/Dim/Dark) (0.69/0.59/5.25).
+        :param c: Exponential nonlinearity :math:`c`. (Average/Dim/Dark) (0.69/0.59/0.525).
         :param n_c: Chromatic induction factor :math:`N_c`. (Average/Dim/Dark) (1.0,0.9,0.8).
         :param f: Maximum degree of adaptation :math:`F`. (Average/Dim/Dark) (1.0/0.9/0.8).
         :param d: Discount-the-Illuminant factor :math:`D`.
