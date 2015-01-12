@@ -38,8 +38,9 @@ from numpy.testing import assert_allclose, assert_almost_equal
 from colormath.color_appearance_models import CIECAM02, RLAB, LLAB, ATD95, Nayatani95, Hunt
 
 
-class ColorAppearanceTest():
+class ColorAppearanceTest(object):
     fixture_path = None
+    output_parameter_dict = {}
 
     @staticmethod
     def load_fixture(file_name):
@@ -105,13 +106,15 @@ class ColorAppearanceTest():
 class TestNayataniColorAppearanceModel(ColorAppearanceTest):
     fixture_path = 'nayatani.csv'
 
-    output_parameter_dict = {'L_star_P': '_lightness_achromatic',
-                             'L_star_N': '_lightness_achromatic_normalized',
-                             'theta': 'hue_angle',
-                             'C': 'chroma',
-                             'S': 'saturation',
-                             'B_r': 'brightness',
-                             'M': 'colorfulness'}
+    output_parameter_dict = {
+        'L_star_P': '_lightness_achromatic',
+        'L_star_N': '_lightness_achromatic_normalized',
+        'theta': 'hue_angle',
+        'C': 'chroma',
+        'S': 'saturation',
+        'B_r': 'brightness',
+        'M': 'colorfulness'
+    }
 
     def create_model_from_data(self, data):
         model = Nayatani95(data['X'], data['Y'], data['Z'],
@@ -137,33 +140,36 @@ class TestNayataniColorAppearanceModel(ColorAppearanceTest):
 class TestHuntColorAppearanceModel(ColorAppearanceTest):
     fixture_path = 'hunt.csv'
 
-    output_parameter_dict = {'h_S': 'hue_angle',
-                             's': 'saturation',
-                             'Q': 'brightness',
-                             'J': 'lightness',
-                             'C_94': 'chroma',
-                             'M94': 'colorfulness'}
+    output_parameter_dict = {
+        'h_S': 'hue_angle',
+        's': 'saturation',
+        'Q': 'brightness',
+        'J': 'lightness',
+        'C_94': 'chroma',
+        'M94': 'colorfulness'
+    }
 
     def create_model_from_data(self, data):
-        model = Hunt(data['X'], data['Y'], data['Z'],
-                     data['X_W'], 0.2 * data['Y_W'], data['Z_W'],
-                     data['X_W'], data['Y_W'], data['Z_W'],
-                     l_a=data['L_A'],
-                     n_c=data['N_c'],
-                     n_b=data['N_b'],
-                     cct_w=data['T'])
-
-        return model
+        return Hunt(
+            data['X'], data['Y'], data['Z'],
+            data['X_W'], 0.2 * data['Y_W'], data['Z_W'],
+            data['X_W'], data['Y_W'], data['Z_W'],
+            l_a=data['L_A'],
+            n_c=data['N_c'],
+            n_b=data['N_b'],
+            cct_w=data['T'])
 
 
 class TestRLABColorAppearanceModel(ColorAppearanceTest):
     fixture_path = 'rlab.csv'
-    output_parameter_dict = {'L': 'lightness',
-                             'C': 'chroma',
-                             's': 'saturation',
-                             'a': 'a',
-                             'b': 'b',
-                             'h': 'hue_angle'}
+    output_parameter_dict = {
+        'L': 'lightness',
+        'C': 'chroma',
+        's': 'saturation',
+        'a': 'a',
+        'b': 'b',
+        'h': 'hue_angle'
+    }
 
     def create_model_from_data(self, data):
         model = RLAB(data['X'], data['Y'], data['Z'],
@@ -177,15 +183,17 @@ class TestRLABColorAppearanceModel(ColorAppearanceTest):
 class TestATDColorAppearanceModel(ColorAppearanceTest):
     fixture_path = 'atd.csv'
 
-    output_parameter_dict = {'A_1': '_a_1',
-                             'T_1': '_t_1',
-                             'D_1': '_d_1',
-                             'A_2': '_a_2',
-                             'T_2': '_t_2',
-                             'D_2': '_d_2',
-                             'Br': 'brightness',
-                             'C': 'saturation',
-                             'H': 'hue'}
+    output_parameter_dict = {
+        'A_1': '_a_1',
+        'T_1': '_t_1',
+        'D_1': '_d_1',
+        'A_2': '_a_2',
+        'T_2': '_t_2',
+        'D_2': '_d_2',
+        'Br': 'brightness',
+        'C': 'saturation',
+        'H': 'hue'
+    }
 
     def create_model_from_data(self, data):
         model = ATD95(data['X'], data['Y'], data['Z'],
@@ -213,48 +221,52 @@ class TestATDColorAppearanceModel(ColorAppearanceTest):
 class TestLLABColorAppearanceModel(ColorAppearanceTest):
     fixture_path = 'llab.csv'
 
-    output_parameter_dict = {'L_L': 'lightness',
-                             'Ch_L': 'chroma',
-                             's_L': 'saturation',
-                             'h_L': 'hue_angle',
-                             'A_L': 'a_l',
-                             'B_L': 'b_l'}
+    output_parameter_dict = {
+        'L_L': 'lightness',
+        'Ch_L': 'chroma',
+        's_L': 'saturation',
+        'h_L': 'hue_angle',
+        'A_L': 'a_l',
+        'B_L': 'b_l'
+    }
 
     def create_model_from_data(self, data):
-        model = LLAB(data['X'], data['Y'], data['Z'],
-                     data['X_0'], data['Y_0'], data['Z_0'],
-                     data['Y_b'],
-                     data['F_S'],
-                     data['F_L'],
-                     data['F_C'],
-                     data['L'])
-        return model
+        return LLAB(
+            data['X'], data['Y'], data['Z'],
+            data['X_0'], data['Y_0'], data['Z_0'],
+            data['Y_b'],
+            data['F_S'],
+            data['F_L'],
+            data['F_C'],
+            data['L'])
 
 
 class TestCIECAM02ColorAppearanceModel(ColorAppearanceTest):
     fixture_path = 'ciecam02.csv'
-    output_parameter_dict = {'J': 'lightness',
-                             'Q': 'brightness',
-                             'C': 'chroma',
-                             'M': 'colorfulness',
-                             'S': 'saturation',
-                             'N_bb': 'n_bb',
-                             'a_c': 'a_c',
-                             'b_c': 'b_c',
-                             'a_M': 'a_m',
-                             'b_M': 'b_m',
-                             'a_s': 'a_s',
-                             'b_s': 'b_s'}
+    output_parameter_dict = {
+        'J': 'lightness',
+        'Q': 'brightness',
+        'C': 'chroma',
+        'M': 'colorfulness',
+        'S': 'saturation',
+        'N_bb': 'n_bb',
+        'a_c': 'a_c',
+        'b_c': 'b_c',
+        'a_M': 'a_m',
+        'b_M': 'b_m',
+        'a_s': 'a_s',
+        'b_s': 'b_s'
+    }
 
     input_parameter_dict = {}
 
     def create_model_from_data(self, data):
-        model = CIECAM02(data['X'], data['Y'], data['Z'],
-                         data['X_W'], data['Y_W'], data['Z_W'],
-                         data['Y_b'],
-                         data['L_A'],
-                         data['c'], data['N_c'], data['F'])
-        return model
+        return CIECAM02(
+            data['X'], data['Y'], data['Z'],
+            data['X_W'], data['Y_W'], data['Z_W'],
+            data['Y_b'],
+            data['L_A'],
+            data['c'], data['N_c'], data['F'])
 
     @staticmethod
     def test_degree_of_adaptation():
