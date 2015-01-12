@@ -45,7 +45,12 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     ))
     # Perform the adaptation via matrix multiplication.
     result_matrix = numpy.dot(rgb_matrix, var_matrix)
-    return result_matrix[0], result_matrix[1], result_matrix[2]
+    rgb_r, rgb_g, rgb_b = result_matrix
+    # Clamp these values to a valid range.
+    rgb_r = max(rgb_r, 0.0)
+    rgb_g = max(rgb_g, 0.0)
+    rgb_b = max(rgb_b, 0.0)
+    return rgb_r, rgb_g, rgb_b
 
 # Avoid the repetition, since the conversion tables for the various RGB
 # spaces are the same.

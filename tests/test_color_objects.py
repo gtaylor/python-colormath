@@ -95,6 +95,12 @@ class XYZConversionTestCase(BaseColorConversionTest):
         rgb = convert_color(self.color, sRGBColor)
         self.assertColorMatch(rgb, sRGBColor(0.715, 0.349, 0.663))
 
+    def test_conversion_to_adobe_rgb(self):
+        self.color = XYZColor(0.2553, 0.1125, 0.0011)
+        rgb = convert_color(self.color, AdobeRGBColor)
+        # This ends up getting clamped.
+        self.assertColorMatch(rgb, AdobeRGBColor(0.6828, 0.0, 0.0))
+
     def test_conversion_to_luv(self):
         luv = convert_color(self.color, LuvColor)
         self.assertColorMatch(luv, LuvColor(51.837, -73.561, -25.657))
@@ -157,7 +163,9 @@ class LuvConversionTestCase(BaseColorConversionTest):
         self.assertEqual(self.color, same_color)
 
 
+# noinspection PyAttributeOutsideInit,PyPep8Naming
 class LCHabConversionTestCase(BaseColorConversionTest):
+
     def setUp(self):
         self.color = LCHabColor(1.807, 4.532, 214.191)
 
@@ -169,13 +177,21 @@ class LCHabConversionTestCase(BaseColorConversionTest):
         """
         The formula I grabbed for LCHuv to XYZ had a zero division error in it
         if the L coord was 0. Also check against LCHab in case.
-
-        Issue #13 in the Google Code tracker.
         """
 
         lchab = LCHabColor(0.0, 0.0, 0.0)
         rgb = convert_color(lchab, sRGBColor)
         self.assertColorMatch(rgb, sRGBColor(0.0, 0.0, 0.0))
+
+    def test_to_rgb_domain_error(self):
+        """
+        Tests for a bug resulting in a domain error with LCH->Adobe RGB.
+
+        See: https://github.com/gtaylor/python-colormath/issues/49
+        """
+
+        lchab = LCHabColor(40.0, 104.0, 40.0)
+        rgb = convert_color(lchab, AdobeRGBColor)
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, LCHabColor)
