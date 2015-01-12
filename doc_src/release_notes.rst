@@ -24,6 +24,8 @@ Bug Fixes
 * xyY conversions now correctly avoid division by zero. (dwbullok)
 * Un-transposed adaptation matrices. Has no effect on conversions, 
   but if you use these directly you may see different numbers. (JasonTam)
+* During XYZ->RGB, linear channel values are now clamped in order to avoid
+  domain errors. Output should now always be between 0 and 1.
   
 Backwards Incompatible changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
