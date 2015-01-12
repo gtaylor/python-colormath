@@ -25,6 +25,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
 from abc import abstractmethod
 from collections import defaultdict
 import csv
@@ -42,7 +43,6 @@ class ColorAppearanceTest():
 
     @staticmethod
     def load_fixture(file_name):
-        print(file_name)
         path = os.path.dirname(__file__)
         with open(os.path.join(path, 'fixtures', file_name)) as in_file:
             result = []
