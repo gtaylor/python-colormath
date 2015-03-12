@@ -36,5 +36,5 @@ setup(
     license='BSD',
     classifiers=CLASSIFIERS,
     keywords=KEYWORDS,
-    requires=['numpy']
+    install_requires=['numpy', 'networkx'],
 )
