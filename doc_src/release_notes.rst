@@ -5,6 +5,14 @@
 Release Notes
 =============
 
+2.1.1
+-----
+
+Bug Fixes
+^^^^^^^^^
+
+* Add ``network`` to install_requires. (Ed-von-Schleck)
+
 2.1.0
 -----
 
