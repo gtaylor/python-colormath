@@ -5,6 +5,7 @@
 .. _Python: http://python.org
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose/
 .. _NumPy: http://www.numpy.org/
+.. _networkx: https://networkx.github.io/
 
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _virtualenvwrapper: http://www.doughellmann.com/projects/virtualenvwrapper/
