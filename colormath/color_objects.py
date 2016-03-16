@@ -689,6 +689,39 @@ class AdobeRGBColor(BaseRGBColor):
     }
 
 
+class AppleRGBColor(BaseRGBColor):
+    """
+    Represents an AppleRGB color.
+
+    .. note:: If you pass in upscaled values, we automatically scale them
+        down to 0.0-1.0. If you need the old upscaled values, you can
+        retrieve them with :py:meth:`get_upscaled_value_tuple`.
+
+    :ivar float rgb_r: R coordinate
+    :ivar float rgb_g: G coordinate
+    :ivar float rgb_b: B coordinate
+    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+        0.0-1.0.
+    """
+
+    #: RGB space's gamma constant.
+    rgb_gamma = 1.8
+    #: The RGB space's native illuminant. Important when converting to XYZ.
+    native_illuminant = "d65"
+    conversion_matrices = {
+        "xyz_to_rgb":
+            numpy.array((
+                (2.9515373, -1.2894116, -0.4738445),
+                (-1.0851093, 1.9908566, 0.0372026),
+                (0.0854934, -0.2694964, 1.0912975))),
+        "rgb_to_xyz":
+            numpy.array((
+                (0.4497288, 0.3162486, 0.1844926),
+                (0.2446525, 0.6720283, 0.0833192),
+                (0.0251848, 0.1411824, 0.9224628))),
+    }
+
+
 class HSLColor(ColorBase):
     """
     Represents an HSL color.

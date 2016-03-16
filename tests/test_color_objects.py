@@ -7,7 +7,7 @@ import unittest
 from colormath.color_conversions import convert_color
 from colormath.color_objects import SpectralColor, XYZColor, xyYColor, \
     LabColor, LuvColor, LCHabColor, LCHuvColor, sRGBColor, HSLColor, HSVColor, \
-    CMYColor, CMYKColor, AdobeRGBColor, IPTColor
+    CMYColor, CMYKColor, AdobeRGBColor, AppleRGBColor, IPTColor
 
 
 class BaseColorConversionTest(unittest.TestCase):
@@ -94,6 +94,11 @@ class XYZConversionTestCase(BaseColorConversionTest):
         self.color = XYZColor(0.300, 0.200, 0.300)
         rgb = convert_color(self.color, sRGBColor)
         self.assertColorMatch(rgb, sRGBColor(0.715, 0.349, 0.663))
+
+    def test_conversion_to_apple_rgb(self):
+        self.color = XYZColor(0.0157, 0.0191, 0.0331)
+        rgb = convert_color(self.color, AppleRGBColor)
+        self.assertColorMatch(rgb, AppleRGBColor(0.0411, 0.1214, 0.1763))
 
     def test_conversion_to_adobe_rgb(self):
         self.color = XYZColor(0.2553, 0.1125, 0.0011)
