@@ -70,17 +70,27 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     return numpy.asscalar(delta_e)
 
 # noinspection PyPep8Naming
-def delta_e_cie2000(color1, color2):
+def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     """
     Calculates the Delta E (CIE2000) of two colors.
     """
-
+    from warnings import warn
+    warn("The current form of this class being depreciated in favor of not passing in arguments for Kl, Kc, and Kh when unity 1 is used. For applications wishing to retain the ability to change Kl, Kc, and/or Kh from default value of 1 see delta_e_cie_2000_nonunity. In a future release, the updated format as seen in delta_e_cie2000_update will be used")
+    color1_vector = _get_lab_color1_vector(color1)
+    color2_matrix = _get_lab_color2_matrix(color2)
+    delta_e = color_diff_matrix.delta_e_cie2000(
+        color1_vector, color2_matrix, Kl=Kl, Kc=Kc, Kh=Kh)[0]
+    return numpy.asscalar(delta_e)
+    
+def delta_e_cie2000_update (color1, color2):
+    """
+    Calculates the Delta E (CIE2000) of two colors.
+    """
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cie2000(
         color1_vector, color2_matrix, Kl=1, Kc=1, Kh=1)[0]
-    return numpy.asscalar(delta_e)
-    
+    return numpy.asscalar(delta_e)    
 # noinspection PyPep8Naming
 def delta_e_cie2000_nonunity(color1, color2, Kl, Kc, Kh):
     """
