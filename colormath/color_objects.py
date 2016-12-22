@@ -524,11 +524,11 @@ class BaseRGBColor(ColorBase):
 
     def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=False):
         """
-        :param float rgb_r: R coordinate. 0...1. 1-255 if is_upscaled=True.
-        :param float rgb_g: G coordinate. 0...1. 1-255 if is_upscaled=True.
-        :param float rgb_b: B coordinate. 0...1. 1-255 if is_upscaled=True.
+        :param float rgb_r: R coordinate. 0...1. 0-255 if is_upscaled=True.
+        :param float rgb_g: G coordinate. 0...1. 0-255 if is_upscaled=True.
+        :param float rgb_b: B coordinate. 0...1. 0-255 if is_upscaled=True.
         :keyword bool is_upscaled: If False, RGB coordinate values are
-            beteween 0.0 and 1.0. If True, RGB values are between 1 and 255.
+            beteween 0.0 and 1.0. If True, RGB values are between 0 and 255.
         """
 
         super(BaseRGBColor, self).__init__()
@@ -548,19 +548,20 @@ class BaseRGBColor(ColorBase):
         color is upscaled or not.
 
         :param float coord: The coordinate value.
-        :rtype: float
+        :rtype:  Union[float, int]
         :returns: The clamped value.
         """
 
         if not self.is_upscaled:
             return min(max(coord, 0.0), 1.0)
         else:
-            return min(max(coord, 1), 255)
+            coord = int(math.floor(0.5 + coord * 255))
+            return min(max(coord, 0), 255)
 
     @property
     def clamped_rgb_r(self):
         """
-        The clamped (0.0-1.0) R value.
+        The R value clamped to (0.0-1.0) or (0-255) when color is upscaled
         """
 
         return self._clamp_rgb_coordinate(self.rgb_r)
@@ -568,7 +569,7 @@ class BaseRGBColor(ColorBase):
     @property
     def clamped_rgb_g(self):
         """
-        The clamped (0.0-1.0) G value.
+        The G value clamped to (0.0-1.0) or (0-255) when color is upscaled
         """
 
         return self._clamp_rgb_coordinate(self.rgb_g)
@@ -576,7 +577,7 @@ class BaseRGBColor(ColorBase):
     @property
     def clamped_rgb_b(self):
         """
-        The clamped (0.0-1.0) B value.
+        The B value clamped to (0.0-1.0) or (0-255) when color is upscaled
         """
 
         return self._clamp_rgb_coordinate(self.rgb_b)
