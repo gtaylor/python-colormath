@@ -879,7 +879,7 @@ def XYZ_to_IPT(cobj, *args, **kwargs):
 @color_conversion_function(IPTColor, XYZColor)
 def IPT_to_XYZ(cobj, *args, **kwargs):
     """
-    Converts XYZ to IPT.
+    Converts IPT to XYZ.
     """
 
     ipt_values = numpy.array(cobj.get_value_tuple())
