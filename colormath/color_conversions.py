@@ -122,7 +122,10 @@ class GraphConversionManager(ConversionManager):
 
     def add_type_conversion(self, start_type, target_type, conversion_function):
         super(GraphConversionManager, self).add_type_conversion(start_type, target_type, conversion_function)
-        self.conversion_graph.add_edge(start_type, target_type, {'conversion_function': conversion_function})
+        if networkx.__version__.startswith('2'):
+            self.conversion_graph.add_edge(start_type, target_type, conversion_function=conversion_function)
+        else:
+            self.conversion_graph.add_edge(start_type, target_type, {'conversion_function': conversion_function})
 
 
 class DummyConversionManager(ConversionManager):
