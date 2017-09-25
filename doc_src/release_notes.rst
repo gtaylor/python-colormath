@@ -5,6 +5,20 @@
 Release Notes
 =============
 
+2.2.0
+-----
+
+Features
+^^^^^^^^
+
+* AppleRGBColor added. (jan-warchol)
+* Added compatibility with NetworkX 2.0. (Erotemic)
+
+Bug Fixes
+^^^^^^^^^
+
+* `IPT_to_XYZ` docstring corrected. (mumbleskates)
+
 2.1.1
 -----
 
