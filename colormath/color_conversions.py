@@ -114,18 +114,17 @@ class GraphConversionManager(ConversionManager):
             # Look up edges between nodes and retrieve the conversion function for each edge.
             return [self.conversion_graph.get_edge_data(node_a, node_b)['conversion_function'] for node_a, node_b in
                     zip(path[:-1], path[1:])]
-        except networkx.NetworkXNoPath:
+        except (networkx.NetworkXNoPath, networkx.NodeNotFound):
             raise UndefinedConversionError(
                 start_type,
                 target_type,
             )
 
     def add_type_conversion(self, start_type, target_type, conversion_function):
-        super(GraphConversionManager, self).add_type_conversion(start_type, target_type, conversion_function)
-        if networkx.__version__.startswith('2'):
-            self.conversion_graph.add_edge(start_type, target_type, conversion_function=conversion_function)
-        else:
-            self.conversion_graph.add_edge(start_type, target_type, {'conversion_function': conversion_function})
+        super(GraphConversionManager, self).add_type_conversion(
+            start_type, target_type, conversion_function)
+        self.conversion_graph.add_edge(
+            start_type, target_type, conversion_function=conversion_function)
 
 
 class DummyConversionManager(ConversionManager):
