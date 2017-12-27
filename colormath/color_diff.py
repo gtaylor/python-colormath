@@ -15,7 +15,6 @@ def _get_lab_color1_vector(color):
     :param LabColor color:
     :rtype: numpy.ndarray
     """
-
     if not color.__class__.__name__ == 'LabColor':
         raise ValueError(
             "Delta E functions can only be used with two LabColor objects.")
@@ -40,7 +39,6 @@ def delta_e_cie1976(color1, color2):
     """
     Calculates the Delta E (CIE1976) of two colors.
     """
-
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cie1976(color1_vector, color2_matrix)[0]
@@ -62,7 +60,6 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
       1 default
       2 textiles
     """
-
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cie1994(
@@ -75,7 +72,6 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     """
     Calculates the Delta E (CIE2000) of two colors.
     """
-
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cie2000(
@@ -92,7 +88,6 @@ def delta_e_cmc(color1, color2, pl=2, pc=1):
       Acceptability: pl=2, pc=1
       Perceptability: pl=1, pc=1
     """
-
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cmc(

@@ -13,13 +13,13 @@ def ansi_density(color, density_standard):
     function provided. For example, ANSI_STATUS_T_RED. These may be found in
     :py:mod:`colormath.density_standards`.
     
-    :param SpectralColor color: The SpectralColor object to calculate density for.
+    :param SpectralColor color: The SpectralColor object to calculate
+        density for.
     :param numpy.ndarray std_array: NumPy array of filter of choice
         from :py:mod:`colormath.density_standards`.
     :rtype: float
     :returns: The density value for the given color and density standard.
     """
-
     # Load the spec_XXXnm attributes into a Numpy array.
     sample = color.get_numpy_array()
     # Matrix multiplication
@@ -36,14 +36,15 @@ def ansi_density(color, density_standard):
 
 def auto_density(color):
     """
-    Given a SpectralColor, automatically choose the correct ANSI T filter. Returns
-    a tuple with a string representation of the filter the calculated density.
+    Given a SpectralColor, automatically choose the correct ANSI T filter.
+    Returns a tuple with a string representation of the filter the
+    calculated density.
 
-    :param SpectralColor color: The SpectralColor object to calculate density for.
+    :param SpectralColor color: The SpectralColor object to calculate
+        density for.
     :rtype: float
     :returns: The density value, with the filter selected automatically.
     """
-
     blue_density = ansi_density(color, ANSI_STATUS_T_BLUE)
     green_density = ansi_density(color, ANSI_STATUS_T_GREEN)
     red_density = ansi_density(color, ANSI_STATUS_T_RED)

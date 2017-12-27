@@ -12,8 +12,8 @@ def delta_e_cie1976(lab_color_vector, lab_color_matrix):
     Calculates the Delta E (CIE1976) between `lab_color_vector` and all
     colors in `lab_color_matrix`.
     """
-
-    return numpy.sqrt(numpy.sum(numpy.power(lab_color_vector - lab_color_matrix, 2), axis=1))
+    return numpy.sqrt(
+        numpy.sum(numpy.power(lab_color_vector - lab_color_matrix, 2), axis=1))
 
 
 # noinspection PyPep8Naming
@@ -32,7 +32,6 @@ def delta_e_cie1994(lab_color_vector, lab_color_matrix,
       1 default
       2 textiles
     """
-
     C_1 = numpy.sqrt(numpy.sum(numpy.power(lab_color_vector[1:], 2)))
     C_2 = numpy.sqrt(numpy.sum(numpy.power(lab_color_matrix[:, 1:], 2), axis=1))
 
@@ -65,7 +64,6 @@ def delta_e_cmc(lab_color_vector, lab_color_matrix, pl=2, pc=1):
       Acceptability: pl=2, pc=1
       Perceptability: pl=1, pc=1
     """
-
     L, a, b = lab_color_vector
 
     C_1 = numpy.sqrt(numpy.sum(numpy.power(lab_color_vector[1:], 2)))
@@ -115,7 +113,6 @@ def delta_e_cie2000(lab_color_vector, lab_color_matrix, Kl=1, Kc=1, Kh=1):
     """
     Calculates the Delta E (CIE2000) of two colors.
     """
-
     L, a, b = lab_color_vector
 
     avg_Lp = (L + lab_color_matrix[:, 0]) / 2.0

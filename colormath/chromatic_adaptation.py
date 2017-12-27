@@ -65,7 +65,6 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
 
     http://brucelindbloom.com/ChromAdaptEval.html
     """
-
     # It's silly to have to do this, but some people may want to call this
     # function directly, so we'll protect them from messing up upper/lower case.
     adaptation = adaptation.lower()
@@ -102,7 +101,6 @@ def apply_chromatic_adaptation_on_color(color, targ_illum, adaptation='bradford'
     """
     Convenience function to apply an adaptation directly to a Color object.
     """
-
     xyz_x = color.xyz_x
     xyz_y = color.xyz_y
     xyz_z = color.xyz_z

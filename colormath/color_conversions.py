@@ -14,11 +14,12 @@ import networkx
 
 from colormath import color_constants
 from colormath import spectral_constants
-from colormath.color_objects import ColorBase, XYZColor, sRGBColor, LCHabColor, \
-    LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, CMYColor, \
-    CMYKColor, BaseRGBColor, IPTColor, SpectralColor, AdobeRGBColor
+from colormath.color_objects import ColorBase, XYZColor, sRGBColor, \
+    LCHabColor, LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, \
+    CMYColor, CMYKColor, BaseRGBColor, IPTColor, SpectralColor, AdobeRGBColor
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
-from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
+from colormath.color_exceptions import InvalidIlluminantError, \
+    UndefinedConversionError
 
 
 logger = logging.getLogger(__name__)
@@ -28,11 +29,10 @@ logger = logging.getLogger(__name__)
 def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     """
     Applies an RGB working matrix to convert from XYZ to RGB.
-    The arguments are tersely named var1, var2, and var3 to allow for the passing
-    of XYZ _or_ RGB values. var1 is X for XYZ, and R for RGB. var2 and var3
-    follow suite.
+    The arguments are tersely named var1, var2, and var3 to allow for the
+    passing of XYZ _or_ RGB values. var1 is X for XYZ, and R for RGB. var2 and
+    var3 follow suite.
     """
-
     convtype = convtype.lower()
     # Retrieve the appropriate transformation matrix from the constants.
     rgb_matrix = rgb_type.conversion_matrices[convtype]
@@ -52,12 +52,13 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     rgb_b = max(rgb_b, 0.0)
     return rgb_r, rgb_g, rgb_b
 
+
 # Avoid the repetition, since the conversion tables for the various RGB
 # spaces are the same.
 _RGB_SPACES = [sRGBColor, AdobeRGBColor]
 
 
-class ConversionManager():
+class ConversionManager(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
@@ -72,16 +73,18 @@ class ConversionManager():
         """
         self.registered_color_spaces.add(start_type)
         self.registered_color_spaces.add(target_type)
-        logger.debug('Registered conversion from %s to %s', start_type, target_type)
-
+        logger.debug(
+            'Registered conversion from %s to %s', start_type, target_type)
 
     @abstractmethod
     def get_conversion_path(self, start_type, target_type):
         """
-        Return a list of conversion functions that if applied iteratively on a color of the start_type color space result
-        in a color in the result_type color space.
+        Return a list of conversion functions that if applied iteratively on a
+        color of the start_type color space result in a color in the result_type
+        color space.
 
-        Raises an UndefinedConversionError if no valid conversion path can be found.
+        Raises an UndefinedConversionError if no valid conversion path
+        can be found.
 
         :param start_type: Starting color space type.
         :param target_type: Target color space type.
@@ -92,7 +95,8 @@ class ConversionManager():
     @staticmethod
     def _normalise_type(color_type):
         """
-        Return the highest superclass that is valid for color space conversions (e.g., AdobeRGB -> BaseRGBColor)
+        Return the highest superclass that is valid for color space
+        conversions (e.g., AdobeRGB -> BaseRGBColor).
         """
         if issubclass(color_type, BaseRGBColor):
             return BaseRGBColor
@@ -110,15 +114,22 @@ class GraphConversionManager(ConversionManager):
         target_type = self._normalise_type(target_type)
         try:
             # Retrieve node sequence that leads from start_type to target_type.
-            path = networkx.shortest_path(self.conversion_graph, start_type, target_type)
-            # Look up edges between nodes and retrieve the conversion function for each edge.
-            return [self.conversion_graph.get_edge_data(node_a, node_b)['conversion_function'] for node_a, node_b in
-                    zip(path[:-1], path[1:])]
+            return self._find_shortest_path(start_type, target_type)
         except (networkx.NetworkXNoPath, networkx.NodeNotFound):
             raise UndefinedConversionError(
                 start_type,
                 target_type,
             )
+
+    def _find_shortest_path(self, start_type, target_type):
+        path = networkx.shortest_path(
+            self.conversion_graph, start_type, target_type)
+        # Look up edges between nodes and retrieve the conversion function
+        # for each edge.
+        return [
+            self.conversion_graph.get_edge_data(node_a, node_b)['conversion_function']
+            for node_a, node_b in zip(path[:-1], path[1:])
+        ]
 
     def add_type_conversion(self, start_type, target_type, conversion_function):
         super(GraphConversionManager, self).add_type_conversion(
@@ -143,18 +154,19 @@ _conversion_manager = GraphConversionManager()
 
 def color_conversion_function(start_type, target_type):
     """
-    Decorator to indicate a function that performs a conversion from one color space to another.
+    Decorator to indicate a function that performs a conversion from one color
+    space to another.
 
-    This decorator will return the original function unmodified, however it will be registered in the _conversion_manager
-    so it can be used to perform color space transformations between color spaces that do not have direct conversion functions
-    (e.g., Luv to CMYK).
+    This decorator will return the original function unmodified, however it will
+    be registered in the _conversion_manager so it can be used to perform color
+    space transformations between color spaces that do not have direct
+    conversion functions (e.g., Luv to CMYK).
 
     Note: For a conversion to/from RGB supply the BaseRGBColor class.
 
     :param start_type: Starting color space type
     :param target_type: Target color space type
     """
-
     def decorator(f):
         f.start_type = start_type
         f.target_type = target_type
@@ -170,7 +182,6 @@ def Spectral_to_XYZ(cobj, illuminant_override=None, *args, **kwargs):
     """
     Converts spectral readings to XYZ.
     """
-
     # If the user provides an illuminant_override numpy array, use it.
     if illuminant_override:
         reference_illum = illuminant_override
@@ -224,9 +235,9 @@ def Lab_to_LCHab(cobj, *args, **kwargs):
     """
     Convert from CIE Lab to LCH(ab).
     """
-
     lch_l = cobj.lab_l
-    lch_c = math.sqrt(math.pow(float(cobj.lab_a), 2) + math.pow(float(cobj.lab_b), 2))
+    lch_c = math.sqrt(
+        math.pow(float(cobj.lab_a), 2) + math.pow(float(cobj.lab_b), 2))
     lch_h = math.atan2(float(cobj.lab_b), float(cobj.lab_a))
 
     if lch_h > 0:
@@ -244,7 +255,6 @@ def Lab_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Lab to XYZ
     """
-
     illum = cobj.get_illuminant_xyz()
     xyz_y = (cobj.lab_l + 16.0) / 116.0
     xyz_x = cobj.lab_a / 500.0 + xyz_y
@@ -279,7 +289,6 @@ def Luv_to_LCHuv(cobj, *args, **kwargs):
     """
     Convert from CIE Luv to LCH(uv).
     """
-
     lch_l = cobj.luv_l
     lch_c = math.sqrt(math.pow(cobj.luv_u, 2.0) + math.pow(cobj.luv_v, 2.0))
     lch_h = math.atan2(float(cobj.luv_v), float(cobj.luv_u))
@@ -298,7 +307,6 @@ def Luv_to_XYZ(cobj, *args, **kwargs):
     """
     Convert from Luv to XYZ.
     """
-
     illum = cobj.get_illuminant_xyz()
     # Without Light, there is no color. Short-circuit this and avoid some
     # zero division errors in the var_a_frac calculation.
@@ -307,7 +315,8 @@ def Luv_to_XYZ(cobj, *args, **kwargs):
         xyz_y = 0.0
         xyz_z = 0.0
         return XYZColor(
-            xyz_x, xyz_y, xyz_z, observer=cobj.observer, illuminant=cobj.illuminant)
+            xyz_x, xyz_y, xyz_z,
+            observer=cobj.observer, illuminant=cobj.illuminant)
 
     # Various variables used throughout the conversion.
     cie_k_times_e = color_constants.CIE_K * color_constants.CIE_E
@@ -337,7 +346,6 @@ def LCHab_to_Lab(cobj, *args, **kwargs):
     """
     Convert from LCH(ab) to Lab.
     """
-
     lab_l = cobj.lch_l
     lab_a = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
     lab_b = math.sin(math.radians(cobj.lch_h)) * cobj.lch_c
@@ -351,7 +359,6 @@ def LCHuv_to_Luv(cobj, *args, **kwargs):
     """
     Convert from LCH(uv) to Luv.
     """
-
     luv_l = cobj.lch_l
     luv_u = math.cos(math.radians(cobj.lch_h)) * cobj.lch_c
     luv_v = math.sin(math.radians(cobj.lch_h)) * cobj.lch_c
@@ -366,10 +373,10 @@ def xyY_to_XYZ(cobj, *args, **kwargs):
     Convert from xyY to XYZ.
     """
     # avoid division by zero
-    if cobj.xyy_y==0.0:
-        xyz_x=0.0
-        xyz_y=0.0
-        xyz_z=0.0
+    if cobj.xyy_y == 0.0:
+        xyz_x = 0.0
+        xyz_y = 0.0
+        xyz_z = 0.0
     else:
         xyz_x = (cobj.xyy_x * cobj.xyy_Y) / cobj.xyy_y
         xyz_y = cobj.xyy_Y
@@ -405,7 +412,6 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     """
     Convert from XYZ to Luv
     """
-
     temp_x = cobj.xyz_x
     temp_y = cobj.xyz_y
     temp_z = cobj.xyz_z
@@ -417,7 +423,6 @@ def XYZ_to_Luv(cobj, *args, **kwargs):
     else:
         luv_u = (4.0 * temp_x) / denom
         luv_v = (9.0 * temp_y) / denom
-
 
     illum = cobj.get_illuminant_xyz()
     temp_y = temp_y / illum["Y"]
@@ -443,7 +448,6 @@ def XYZ_to_Lab(cobj, *args, **kwargs):
     """
     Converts XYZ to Lab.
     """
-
     illum = cobj.get_illuminant_xyz()
     temp_x = cobj.xyz_x / illum["X"]
     temp_y = cobj.xyz_y / illum["Y"]
@@ -477,7 +481,6 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     XYZ to RGB conversion.
     """
-
     temp_X = cobj.xyz_x
     temp_Y = cobj.xyz_y
     temp_Z = cobj.xyz_z
@@ -534,7 +537,6 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
 
     Based off of: http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
     """
-
     # Will contain linearized RGB channels (removed the gamma func).
     linear_channels = {}
 
@@ -578,7 +580,6 @@ def __RGB_to_Hue(var_R, var_G, var_B, var_min, var_max):
     For RGB_to_HSL and RGB_to_HSV, the Hue (H) component is calculated in
     the same way.
     """
-
     if var_max == var_min:
         return 0.0
     elif var_max == var_R:
@@ -599,7 +600,6 @@ def RGB_to_HSV(cobj, *args, **kwargs):
     S values are a percentage, 0.0 to 1.0.
     V values are a percentage, 0.0 to 1.0.
     """
-
     var_R = cobj.rgb_r
     var_G = cobj.rgb_g
     var_B = cobj.rgb_b
@@ -634,7 +634,6 @@ def RGB_to_HSL(cobj, *args, **kwargs):
     S values are a percentage, 0.0 to 1.0.
     L values are a percentage, 0.0 to 1.0.
     """
-
     var_R = cobj.rgb_r
     var_G = cobj.rgb_g
     var_B = cobj.rgb_b
@@ -661,7 +660,6 @@ def __Calc_HSL_to_RGB_Components(var_q, var_p, C):
     """
     This is used in HSL_to_RGB conversions on R, G, and B.
     """
-
     if C < 0:
         C += 1.0
     if C > 1:
@@ -688,7 +686,6 @@ def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
     S values are a percentage, 0.0 to 1.0.
     V values are a percentage, 0.0 to 1.0.
     """
-
     H = cobj.hsv_h
     S = cobj.hsv_s
     V = cobj.hsv_v
@@ -743,7 +740,6 @@ def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
     """
     HSL to RGB conversion.
     """
-
     H = cobj.hsl_h
     S = cobj.hsl_s
     L = cobj.hsl_l
@@ -784,7 +780,6 @@ def RGB_to_CMY(cobj, *args, **kwargs):
 
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
-
     cmy_c = 1.0 - cobj.rgb_r
     cmy_m = 1.0 - cobj.rgb_g
     cmy_y = 1.0 - cobj.rgb_b
@@ -800,7 +795,6 @@ def CMY_to_RGB(cobj, target_rgb, *args, **kwargs):
 
     NOTE: Returned values are in the range of 0-255.
     """
-
     rgb_r = 1.0 - cobj.cmy_c
     rgb_g = 1.0 - cobj.cmy_m
     rgb_b = 1.0 - cobj.cmy_y
@@ -816,7 +810,6 @@ def CMY_to_CMYK(cobj, *args, **kwargs):
 
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
-
     var_k = 1.0
     if cobj.cmy_c < var_k:
         var_k = cobj.cmy_c
@@ -846,7 +839,6 @@ def CMYK_to_CMY(cobj, *args, **kwargs):
 
     NOTE: CMYK and CMY values range from 0.0 to 1.0
     """
-
     cmy_c = cobj.cmyk_c * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     cmy_m = cobj.cmyk_m * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
     cmy_y = cobj.cmyk_y * (1.0 - cobj.cmyk_k) + cobj.cmyk_k
@@ -865,15 +857,18 @@ def XYZ_to_IPT(cobj, *args, **kwargs):
     Reference:
     Fairchild, M. D. (2013). Color appearance models, 3rd Ed. (pp. 271-272). John Wiley & Sons.
     """
-
     if cobj.illuminant != 'd65' or cobj.observer != '2':
         raise ValueError('XYZColor for XYZ->IPT conversion needs to be D65 adapted.')
     xyz_values = numpy.array(cobj.get_value_tuple())
-    lms_values = numpy.dot(IPTColor.conversion_matrices['xyz_to_lms'], xyz_values)
+    lms_values = numpy.dot(
+        IPTColor.conversion_matrices['xyz_to_lms'],
+        xyz_values)
 
     lms_prime = numpy.sign(lms_values) * numpy.abs(lms_values) ** 0.43
 
-    ipt_values = numpy.dot(IPTColor.conversion_matrices['lms_to_ipt'], lms_prime)
+    ipt_values = numpy.dot(
+        IPTColor.conversion_matrices['lms_to_ipt'],
+        lms_prime)
     return IPTColor(*ipt_values)
 
 
@@ -883,30 +878,33 @@ def IPT_to_XYZ(cobj, *args, **kwargs):
     """
     Converts IPT to XYZ.
     """
-
     ipt_values = numpy.array(cobj.get_value_tuple())
-    lms_values = numpy.dot(numpy.linalg.inv(IPTColor.conversion_matrices['lms_to_ipt']), ipt_values)
+    lms_values = numpy.dot(
+        numpy.linalg.inv(IPTColor.conversion_matrices['lms_to_ipt']),
+        ipt_values)
 
     lms_prime = numpy.sign(lms_values) * numpy.abs(lms_values) ** (1 / 0.43)
 
-    xyz_values = numpy.dot(numpy.linalg.inv(IPTColor.conversion_matrices['xyz_to_lms']), lms_prime)
+    xyz_values = numpy.dot(
+        numpy.linalg.inv(IPTColor.conversion_matrices['xyz_to_lms']),
+        lms_prime)
     return XYZColor(*xyz_values, observer='2', illuminant='d65')
 
 
 # We use this as a template conversion dict for each RGB color space. They
 # are all identical.
 _RGB_CONVERSION_DICT_TEMPLATE = {
-        "HSLColor": [RGB_to_HSL],
-        "HSVColor": [RGB_to_HSV],
-        "CMYColor": [RGB_to_CMY],
-       "CMYKColor": [RGB_to_CMY, CMY_to_CMYK],
-        "XYZColor": [RGB_to_XYZ],
-        "xyYColor": [RGB_to_XYZ, XYZ_to_xyY],
-        "LabColor": [RGB_to_XYZ, XYZ_to_Lab],
-      "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
-      "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
-        "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
-        "IPTColor": [RGB_to_XYZ, XYZ_to_IPT],
+    "HSLColor": [RGB_to_HSL],
+    "HSVColor": [RGB_to_HSV],
+    "CMYColor": [RGB_to_CMY],
+    "CMYKColor": [RGB_to_CMY, CMY_to_CMYK],
+    "XYZColor": [RGB_to_XYZ],
+    "xyYColor": [RGB_to_XYZ, XYZ_to_xyY],
+    "LabColor": [RGB_to_XYZ, XYZ_to_Lab],
+    "LCHabColor": [RGB_to_XYZ, XYZ_to_Lab, Lab_to_LCHab],
+    "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
+    "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
+    "IPTColor": [RGB_to_XYZ, XYZ_to_IPT],
 
 }
 
@@ -927,12 +925,12 @@ def convert_color(color, target_cs, through_rgb_type=sRGBColor,
     :type target_illuminant: None or str
     :keyword target_illuminant: If during conversion from RGB to a reflective
         color space you want to explicitly end up with a certain illuminant,
-        pass this here. Otherwise the RGB space's native illuminant will be used.
+        pass this here. Otherwise the RGB space's native illuminant
+        will be used.
     :returns: An instance of the type passed in as ``target_cs``.
     :raises: :py:exc:`colormath.color_exceptions.UndefinedConversionError`
         if conversion between the two color spaces isn't possible.
     """
-
     if isinstance(target_cs, str):
         raise ValueError("target_cs parameter must be a Color object.")
     if not issubclass(target_cs, ColorBase):

@@ -34,7 +34,7 @@ import numpy
 logger = logging.getLogger(__name__)
 
 
-class Nayatani95():
+class Nayatani95(object):
     """
     **References**
 
@@ -226,7 +226,7 @@ class Nayatani95():
         return cls.xyz_to_rgb_m.dot(xyz)
 
 
-class Hunt():
+class Hunt(object):
     """
     **References**
 
@@ -625,7 +625,7 @@ class Hunt():
         return out
 
 
-class RLAB():
+class RLAB(object):
     """
     **References**
 
@@ -717,9 +717,10 @@ class RLAB():
             logger.debug('A: {}'.format(a))
             xyz_ref = self.R.dot(a).dot(Hunt.xyz_to_rgb_m).dot(xyz)
         else:
-            # So we have an array. Since constructing huge multidimensional arrays might not bee the best idea,
-            # we will handle each input dimension separately.
-            # First figure out how many values we have to deal with.
+            # So we have an array. Since constructing huge multidimensional
+            # arrays might not bee the best idea, we will handle each input
+            # dimension separately. First figure out how many values we have to
+            # deal with.
             input_dim = len(x)
             # No create the ouput array that we will fill layer by layer
             xyz_ref = numpy.zeros((3, input_dim))
@@ -751,7 +752,7 @@ class RLAB():
         self._saturation = self.chroma / self.lightness
 
 
-class ATD95():
+class ATD95(object):
     """
     **References**
 
@@ -850,7 +851,7 @@ class ATD95():
         return numpy.array([l, m, s])
 
 
-class LLAB():
+class LLAB(object):
     """
     **References**
 
@@ -992,7 +993,7 @@ class LLAB():
         return cls.xyz_to_rgb_m.dot(xyz / xyz[1])
 
 
-class CIECAM02():
+class CIECAM02(object):
     """
     **References**
 
@@ -1216,7 +1217,6 @@ class CIECAM02m1(CIECAM02):
     * Wu, R. C., & Wardman, R. H. (2007). Proposed modification to the CIECAM02 colour appearance model to include the
       simultaneous contrast effects. *Color Research & Application*, 32(2), 121-129.
     """
-
     def __init__(self, x, y, z, x_w, y_w, z_w, x_b, y_b, z_b, l_a, c, n_c, f, p, d=False):
         """
         :param x: X value of test sample :math:`X`.

@@ -34,7 +34,6 @@ class ColorBase(object):
         an LabColor object will return (lab_l, lab_a, lab_b), where each
         member of the tuple is the float value for said variable.
         """
-
         retval = tuple()
         for val in self.VALUES:
             retval += (getattr(self, val),)
@@ -44,7 +43,6 @@ class ColorBase(object):
         """
         String representation of the color.
         """
-
         retval = self.__class__.__name__ + ' ('
         for val in self.VALUES:
             value = getattr(self, val, None)
@@ -56,7 +54,6 @@ class ColorBase(object):
         """
         String representation of the object.
         """
-
         retval = self.__class__.__name__ + '('
         attributes = [(attr, getattr(self, attr)) for attr in self.VALUES]
         values = [x + "=" + repr(y) for x, y in attributes]
@@ -79,7 +76,6 @@ class IlluminantMixin(object):
 
         :param str observer: One of '2' or '10'.
         """
-
         observer = str(observer)
         if observer not in color_constants.OBSERVERS:
             raise InvalidObserverError(self)
@@ -98,7 +94,6 @@ class IlluminantMixin(object):
 
         :param str illuminant: One of the various illuminants.
         """
-
         illuminant = illuminant.lower()
         if illuminant not in color_constants.ILLUMINANTS[self.observer]:
             raise InvalidIlluminantError(illuminant)
@@ -111,7 +106,6 @@ class IlluminantMixin(object):
         :param str illuminant: Get the XYZ values for another illuminant.
         :returns: the color's illuminant's XYZ values.
         """
-
         try:
             if observer is None:
                 observer = self.observer
@@ -251,7 +245,6 @@ class SpectralColor(IlluminantMixin, ColorBase):
         """
         Dump this color into NumPy array.
         """
-
         # This holds the obect's spectral data, and will be passed to
         # numpy.array() to create a numpy array (matrix) for the matrix math
         # that will be done during the conversion to XYZ.
@@ -274,7 +267,6 @@ class SpectralColor(IlluminantMixin, ColorBase):
         or Blue) is chosen by comparing the Red, Green, and Blue components of
         the spectral sample (the values being red in via "filters").
         """
-
         if density_standard is not None:
             return density.ansi_density(self, density_standard)
         else:
@@ -298,7 +290,6 @@ class LabColor(IlluminantMixin, ColorBase):
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
-
         super(LabColor, self).__init__()
         #: L coordinate
         self.lab_l = float(lab_l)
@@ -336,7 +327,6 @@ class LCHabColor(IlluminantMixin, ColorBase):
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
-
         super(LCHabColor, self).__init__()
         #: L coordinate
         self.lch_l = float(lch_l)
@@ -374,7 +364,6 @@ class LCHuvColor(IlluminantMixin, ColorBase):
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
-
         super(LCHuvColor, self).__init__()
         #: L coordinate
         self.lch_l = float(lch_l)
@@ -407,7 +396,6 @@ class LuvColor(IlluminantMixin, ColorBase):
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
-
         super(LuvColor, self).__init__()
         #: L coordinate
         self.luv_l = float(luv_l)
@@ -440,7 +428,6 @@ class XYZColor(IlluminantMixin, ColorBase):
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
-
         super(XYZColor, self).__init__()
         #: X coordinate
         self.xyz_x = float(xyz_x)
@@ -462,7 +449,6 @@ class XYZColor(IlluminantMixin, ColorBase):
         This applies an adaptation matrix to change the XYZ color's illuminant.
         You'll most likely only need this during RGB conversions.
         """
-
         logger.debug("  \- Original illuminant: %s", self.illuminant)
         logger.debug("  \- Target illuminant: %s", target_illuminant)
 
@@ -495,7 +481,6 @@ class xyYColor(IlluminantMixin, ColorBase):
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
         """
-
         super(xyYColor, self).__init__()
         #: x coordinate
         self.xyy_x = float(xyy_x)
@@ -530,7 +515,6 @@ class BaseRGBColor(ColorBase):
         :keyword bool is_upscaled: If False, RGB coordinate values are
             beteween 0.0 and 1.0. If True, RGB values are between 1 and 255.
         """
-
         super(BaseRGBColor, self).__init__()
         if is_upscaled:
             self.rgb_r = rgb_r / 255.0
@@ -551,7 +535,6 @@ class BaseRGBColor(ColorBase):
         :rtype: float
         :returns: The clamped value.
         """
-
         if not self.is_upscaled:
             return min(max(coord, 0.0), 1.0)
         else:
@@ -562,7 +545,6 @@ class BaseRGBColor(ColorBase):
         """
         The clamped (0.0-1.0) R value.
         """
-
         return self._clamp_rgb_coordinate(self.rgb_r)
 
     @property
@@ -570,7 +552,6 @@ class BaseRGBColor(ColorBase):
         """
         The clamped (0.0-1.0) G value.
         """
-
         return self._clamp_rgb_coordinate(self.rgb_g)
 
     @property
@@ -578,14 +559,12 @@ class BaseRGBColor(ColorBase):
         """
         The clamped (0.0-1.0) B value.
         """
-
         return self._clamp_rgb_coordinate(self.rgb_b)
 
     def get_upscaled_value_tuple(self):
         """
         Scales an RGB color object from decimal 0.0-1.0 to int 0-255.
         """
-
         # Scale up to 0-255 values.
         rgb_r = int(math.floor(0.5 + self.rgb_r * 255))
         rgb_g = int(math.floor(0.5 + self.rgb_g * 255))
@@ -599,7 +578,6 @@ class BaseRGBColor(ColorBase):
 
         :rtype: str
         """
-
         rgb_r, rgb_g, rgb_b = self.get_upscaled_value_tuple()
         return '#%02x%02x%02x' % (rgb_r, rgb_g, rgb_b)
 
@@ -611,7 +589,6 @@ class BaseRGBColor(ColorBase):
 
         :rtype: sRGBColor
         """
-
         colorstring = hex_str.strip()
         if colorstring[0] == '#':
             colorstring = colorstring[1:]
@@ -735,7 +712,6 @@ class HSLColor(ColorBase):
         :param float hsl_s: S coordinate.
         :param float hsl_l: L coordinate.
         """
-
         super(HSLColor, self).__init__()
         #: H coordinate
         self.hsl_h = float(hsl_h)
@@ -758,7 +734,6 @@ class HSVColor(ColorBase):
         :param float hsv_s: S coordinate.
         :param float hsv_v: V coordinate.
         """
-
         super(HSVColor, self).__init__()
         #: H coordinate
         self.hsv_h = float(hsv_h)
@@ -781,7 +756,6 @@ class CMYColor(ColorBase):
         :param float cmy_m: M coordinate.
         :param float cmy_y: Y coordinate.
         """
-
         super(CMYColor, self).__init__()
         #: C coordinate
         self.cmy_c = float(cmy_c)
@@ -805,7 +779,6 @@ class CMYKColor(ColorBase):
         :param float cmyk_y: Y coordinate.
         :param float cmyk_k: K coordinate.
         """
-
         super(CMYKColor, self).__init__()
         #: C coordinate
         self.cmyk_c = float(cmyk_c)
@@ -846,7 +819,6 @@ class IPTColor(ColorBase):
         :param ipt_p: P coordinate.
         :param ipt_t: T coordinate.
         """
-
         super(IPTColor, self).__init__()
         #: I coordinate
         self.ipt_i = ipt_i
