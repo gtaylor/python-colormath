@@ -5,6 +5,25 @@
 Release Notes
 =============
 
+3.0.0
+-----
+
+Features
+^^^^^^^^
+
+* Python 3.5 and 3.6 are now supported.
+
+Backwards-Incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Python 3.3 and 3.4 are no longer supported.
+* networkx>=2.0 is now required.
+
+Bug Fixes
+^^^^^^^^^
+
+* Add NodeNotFound to GraphConversionManager.get_conversion_path().
+
 2.2.0
 -----
 

@@ -13,8 +13,8 @@ Requirements
 ------------
 
 * numpy
-* NetworkX
-* Python 2.7 or Python 3.3+
+* NetworkX 2.0+
+* Python 2.7 or Python 3.5+
 
 Installation
 ------------
@@ -42,7 +42,7 @@ and submit an issue if you have any problems or questions.
 Legal Mumbo Jumbo
 -----------------
 
-Copyright (C) 2014 `Gregory Taylor`_
+Copyright (C) 2018 `Gregory Taylor`_
 
 This software is licensed under the BSD License.
 
