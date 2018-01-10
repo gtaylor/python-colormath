@@ -1,10 +1,7 @@
 Python Color Math Module (colormath)
 ====================================
 
-.. image:: https://travis-ci.org/gtaylor/python-colormath.png?branch=master
-        :target: https://travis-ci.org/gtaylor/python-colormath
-.. image:: https://pypip.in/d/colormath/badge.png
-        :target: https://crate.io/packages/colormath/
+**Note: This module is no longer actively maintained. Please get in touch at greg (at) gctaylor (dot) com if you'd like to discuss maintainership.**
 
 This module implements a large number of different color operations such as
 color space conversions, Delta E, and density to spectral.
@@ -42,7 +39,7 @@ and submit an issue if you have any problems or questions.
 Legal Mumbo Jumbo
 -----------------
 
-Copyright (C) 2018 `Gregory Taylor`_
+Copyright (C) 2008-2018 `Gregory Taylor`_
 
 This software is licensed under the BSD License.
 
