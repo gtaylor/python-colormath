@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Copyright (c) 2014, Michael Mauderer, University of St Andrews
 All rights reserved.
@@ -911,7 +912,7 @@ class LLAB(object):
         :param z: Z value of test sample :math:`Z`.
         :param x_0: X value of reference white :math:`X_0`.
         :param y_0: Y value of reference white :math:`Y_0`.
-        :param z_0: Z value of reference white :math:`Z_0`. 
+        :param z_0: Z value of reference white :math:`Z_0`.
         :param y_b: Luminance factor of the background :math:`Y_b` in cd/m^2.
         :param f_s: Surround induction factor :math:`F_S`.
         :param f_l: Lightness induction factor :math:`F_L`.
@@ -1104,7 +1105,7 @@ class CIECAM02(object):
         logger.debug("n: {}".format(n))
         self.n_bb = self.n_cb = 0.725 * n ** -0.2
         z = 1.48 + numpy.sqrt(n)
-        logger.debug("z".format(z))
+        logger.debug("z: {}".format(z))
 
         rgb_a, rgb_aw = self._compute_adaptation(xyz, xyz_w, f_l, d)
         logger.debug("RGB'a: {}".format(rgb_a))

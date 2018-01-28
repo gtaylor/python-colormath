@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This file holds various configuration options used for all of the examples.
 """

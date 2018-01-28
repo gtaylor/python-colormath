@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module shows you how to perform color space conversions. Please see the
 chart on www.brucelindbloom.com/Math.html for an illustration of the conversions
@@ -32,7 +33,7 @@ def example_lab_to_xyz():
 def example_lchab_to_lchuv():
     """
     This function shows very complex chain of conversions in action.
-    
+
     LCHab to LCHuv involves four different calculations, making this the
     conversion requiring the most steps.
     """
@@ -126,7 +127,7 @@ def example_lab_to_ipt():
     ipt = convert_color(xyz, IPTColor)
     print(ipt)
     print("=== End Example ===\n")
-    
+
 # Feel free to comment/un-comment examples as you please.
 example_lab_to_xyz()
 example_lchab_to_lchuv()

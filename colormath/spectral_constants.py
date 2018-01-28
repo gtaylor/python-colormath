@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains lookup tables, constants, and things that are generally static
 and useful throughout the library.

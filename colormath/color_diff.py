@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The functions in this module are used for comparing two LabColor objects
 using various Delta E formulas.
@@ -49,7 +50,7 @@ def delta_e_cie1976(color1, color2):
 def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     """
     Calculates the Delta E (CIE1994) of two colors.
-    
+
     K_l:
       0.045 graphic arts
       0.048 textiles
@@ -83,7 +84,7 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
 def delta_e_cmc(color1, color2, pl=2, pc=1):
     """
     Calculates the Delta E (CMC) of two colors.
-    
+
     CMC values
       Acceptability: pl=2, pc=1
       Perceptability: pl=1, pc=1

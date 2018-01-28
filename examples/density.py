@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module shows you how to perform various kinds of density calculations.
 """
@@ -48,7 +49,7 @@ def example_visual_density():
     print("Density: %f" % EXAMPLE_COLOR.calc_density(
         density_standard=ISO_VISUAL))
     print("=== End Example ===\n")
-    
+
 # Feel free to comment/un-comment examples as you please.
 example_auto_status_t_density()
 example_manual_status_t_density()

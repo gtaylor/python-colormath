@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 import numpy
@@ -25,13 +26,13 @@ def _get_adaptation_matrix(wp_src, wp_dst, observer, adaptation):
 
     # In case the white-points are still input as strings
     # Get white-points for illuminant
-    if type(wp_src) == str:
+    if isinstance(wp_src, str):
         orig_illum = wp_src.lower()
         wp_src = color_constants.ILLUMINANTS[observer][orig_illum]
     elif hasattr(wp_src, '__iter__'):
         wp_src = wp_src
 
-    if type(wp_dst) == str:
+    if isinstance(wp_dst, str):
         targ_illum = wp_dst.lower()
         wp_dst = color_constants.ILLUMINANTS[observer][targ_illum]
     elif hasattr(wp_dst, '__iter__'):
@@ -70,13 +71,13 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
     adaptation = adaptation.lower()
 
     # Get white-points for illuminant
-    if type(orig_illum) == str:
+    if isinstance(orig_illum, str):
         orig_illum = orig_illum.lower()
         wp_src = color_constants.ILLUMINANTS[observer][orig_illum]
     elif hasattr(orig_illum, '__iter__'):
         wp_src = orig_illum
 
-    if type(targ_illum) == str:
+    if isinstance(targ_illum, str):
         targ_illum = targ_illum.lower()
         wp_dst = color_constants.ILLUMINANTS[observer][targ_illum]
     elif hasattr(targ_illum, '__iter__'):

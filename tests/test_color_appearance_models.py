@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Copyright (c) 2014, Michael Mauderer, University of St Andrews
 All rights reserved.
