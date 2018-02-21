@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tests for color difference (Delta E) equations.
 """
@@ -11,7 +12,7 @@ from colormath.color_objects import XYZColor
 class chromaticAdaptationTestCase(unittest.TestCase):
     def setUp(self):
         self.color = XYZColor(0.5, 0.4, 0.1, illuminant='C')
-        
+
     def test_adaptation_c_to_d65(self):
         self.color.apply_adaptation(target_illuminant='D65')
         self.assertAlmostEqual(

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains exceptions for use throughout the L11 Colorlib.
 """

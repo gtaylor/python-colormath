@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 For a massive matrix of colors and color labels you can download
 the follow two files

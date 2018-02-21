@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import itertools
 import unittest
 from colormath import color_conversions
-from colormath.color_conversions import GraphConversionManager, XYZ_to_RGB, RGB_to_HSV, HSV_to_RGB
+from colormath.color_conversions import GraphConversionManager, XYZ_to_RGB, HSV_to_RGB
 from colormath.color_exceptions import UndefinedConversionError
 from colormath.color_objects import XYZColor, BaseRGBColor, HSVColor, HSLColor
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Conversion between color spaces.
 
@@ -616,10 +617,6 @@ def RGB_to_HSV(cobj, *args, **kwargs):
 
     var_V = var_max
 
-    hsv_h = var_H
-    hsv_s = var_S
-    hsv_v = var_V
-
     return HSVColor(
         var_H, var_S, var_V)
 
@@ -724,12 +721,13 @@ def HSV_to_RGB(cobj, target_rgb, *args, **kwargs):
     else:
         raise ValueError("Unable to convert HSL->RGB due to value error.")
 
+    # TODO: Investigate intent of following code block.
     # In the event that they define an HSV color and want to convert it to
     # a particular RGB space, let them override it here.
-    if target_rgb is not None:
-        rgb_type = target_rgb
-    else:
-        rgb_type = cobj.rgb_type
+    # if target_rgb is not None:
+    #     rgb_type = target_rgb
+    # else:
+    #     rgb_type = cobj.rgb_type
 
     return target_rgb(rgb_r, rgb_g, rgb_b)
 
@@ -762,12 +760,13 @@ def HSL_to_RGB(cobj, target_rgb, *args, **kwargs):
     rgb_g = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_G)
     rgb_b = __Calc_HSL_to_RGB_Components(var_q, var_p, t_sub_B)
 
+    # TODO: Investigate intent of following code block.
     # In the event that they define an HSV color and want to convert it to
     # a particular RGB space, let them override it here.
-    if target_rgb is not None:
-        rgb_type = target_rgb
-    else:
-        rgb_type = cobj.rgb_type
+    # if target_rgb is not None:
+    #     rgb_type = target_rgb
+    # else:
+    #     rgb_type = cobj.rgb_type
 
     return target_rgb(rgb_r, rgb_g, rgb_b)
 

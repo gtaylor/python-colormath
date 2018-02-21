@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module shows some examples of Delta E calculations of varying types.
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from colormath.color_appearance_models import CIECAM02
 from colormath.color_objects import XYZColor
 

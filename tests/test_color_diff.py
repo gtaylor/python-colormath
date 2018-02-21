@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tests for color difference (Delta E) equations.
 """
@@ -13,14 +14,14 @@ class DeltaETestCase(unittest.TestCase):
     def setUp(self):
         self.color1 = LabColor(lab_l=0.9, lab_a=16.3, lab_b=-2.22)
         self.color2 = LabColor(lab_l=0.7, lab_a=14.2, lab_b=-1.80)
-        
+
     def test_cie2000_accuracy(self):
         result = delta_e_cie2000(self.color1, self.color2)
         expected = 1.523
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CIE2000 formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
     def test_cie2000_accuracy_2(self):
         """
         Follow a different execution path based on variable values.
@@ -31,15 +32,15 @@ class DeltaETestCase(unittest.TestCase):
         c2 = LabColor(lab_l=77.1797, lab_a=25.5928, lab_b=17.9412)
         result = delta_e_cie2000(c1, c2)
         expected = 78.772
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CIE2000 formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
     def test_cie2000_accuracy_3(self):
         """
         Reference:
-        "The CIEDE2000 Color-Difference Formula: Implementation Notes, 
-        Supplementary Test Data, and Mathematical Observations,", G. Sharma, 
+        "The CIEDE2000 Color-Difference Formula: Implementation Notes,
+        Supplementary Test Data, and Mathematical Observations,", G. Sharma,
         W. Wu, E. N. Dalal, submitted to Color Research and Application,
         January 2004. http://www.ece.rochester.edu/~gsharma/ciede2000/
         """
@@ -117,12 +118,12 @@ class DeltaETestCase(unittest.TestCase):
             LabColor(lab_l=0.9033, lab_a=-0.0636, lab_b=-0.5514)
         )
         diff = (
-            2.0425, 2.8615, 3.4412, 1.0000, 1.0000, 
-            1.0000, 2.3669, 2.3669, 7.1792, 7.1792, 
-            7.2195, 7.2195, 4.8045, 4.8045, 4.7461, 
-            4.3065, 27.1492, 22.8977, 31.9030, 19.4535, 
-            1.0000, 1.0000, 1.0000, 1.0000, 1.2644, 
-            1.2630, 1.8731, 1.8645, 2.0373, 1.4146, 
+            2.0425, 2.8615, 3.4412, 1.0000, 1.0000,
+            1.0000, 2.3669, 2.3669, 7.1792, 7.1792,
+            7.2195, 7.2195, 4.8045, 4.8045, 4.7461,
+            4.3065, 27.1492, 22.8977, 31.9030, 19.4535,
+            1.0000, 1.0000, 1.0000, 1.0000, 1.2644,
+            1.2630, 1.8731, 1.8645, 2.0373, 1.4146,
             1.4441, 1.5381, 0.6377, 0.9082
         )
         for l_set in zip(color1, color2, diff):
@@ -131,7 +132,7 @@ class DeltaETestCase(unittest.TestCase):
             self.assertAlmostEqual(result, expected, 4,
                 "DeltaE CIE2000 formula error. Got %.4f, expected %.4f (diff: %.4f)." % (
                     result, expected, result - expected))
-        
+
     def test_cie1994_negative_square_root(self):
         """
         Tests against a case where a negative square root in the delta_H
@@ -157,45 +158,45 @@ class DeltaETestCase(unittest.TestCase):
         # Test 2:1
         result = delta_e_cmc(self.color1, self.color2, pl=2, pc=1)
         expected = 1.443
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CMC (2:1) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
         # Test against 1:1 as well
         result = delta_e_cmc(self.color1, self.color2, pl=1, pc=1)
         expected = 1.482
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CMC (1:1) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
         # Testing atan H behavior.
         atan_color1 = LabColor(lab_l=69.417, lab_a=-12.612, lab_b=-11.271)
         atan_color2 = LabColor(lab_l=83.386, lab_a=39.426, lab_b=-17.525)
         result = delta_e_cmc(atan_color1, atan_color2)
         expected = 44.346
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CMC Atan test formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
     def test_cie1976_accuracy(self):
         result = delta_e_cie1976(self.color1, self.color2)
         expected = 2.151
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CIE1976 formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
     def test_cie1994_accuracy_graphic_arts(self):
         result = delta_e_cie1994(self.color1, self.color2)
         expected = 1.249
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CIE1994 (graphic arts) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
-        
+
     def test_cie1994_accuracy_textiles(self):
         result = delta_e_cie1994(
             self.color1, self.color2, K_1=0.048, K_2=0.014, K_L=2)
         expected = 1.204
-        self.assertAlmostEqual(result, expected, 3, 
+        self.assertAlmostEqual(result, expected, 3,
             "DeltaE CIE1994 (textiles) formula error. Got %.3f, expected %.3f (diff: %.3f)." % (
                 result, expected, result - expected))
 

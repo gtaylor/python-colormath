@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Various tests for color objects.
 """
@@ -57,7 +58,7 @@ class SpectralConversionTestCase(BaseColorConversionTest):
             spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
             spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
         self.color = color
-                
+
     def test_conversion_to_xyz(self):
         xyz = convert_color(self.color, XYZColor)
         self.assertColorMatch(xyz, XYZColor(0.115, 0.099, 0.047))
@@ -196,7 +197,7 @@ class LCHabConversionTestCase(BaseColorConversionTest):
         """
 
         lchab = LCHabColor(40.0, 104.0, 40.0)
-        rgb = convert_color(lchab, AdobeRGBColor)
+        _rgb = convert_color(lchab, AdobeRGBColor)
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, LCHabColor)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains the formulas for comparing Lab values with matrices
 and vectors. The benefit of using NumPy's matrix capabilities is speed. These
