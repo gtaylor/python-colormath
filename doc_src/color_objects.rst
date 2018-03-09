@@ -48,6 +48,11 @@ sRGBColor
 
 .. autoclass:: colormath.color_objects.sRGBColor
 
+BT2020Color
+-----------
+
+.. autoclass:: colormath.color_objects.BT2020Color
+
 AdobeRGBColor
 -------------
 

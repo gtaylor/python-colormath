@@ -634,6 +634,39 @@ class sRGBColor(BaseRGBColor):
     }
 
 
+class BT2020Color(BaseRGBColor):
+    """
+    Represents a ITU-R BT.2020 color.
+
+    .. note:: If you pass in upscaled values, we automatically scale them
+        down to 0.0-1.0. If you need the old upscaled values, you can
+        retrieve them with :py:meth:`get_upscaled_value_tuple`.
+
+    :ivar float rgb_r: R coordinate
+    :ivar float rgb_g: G coordinate
+    :ivar float rgb_b: B coordinate
+    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+        0.0-1.0.
+    """
+
+    #: RGB space's gamma constant.
+    rgb_gamma = 2.4
+    #: The RGB space's native illuminant. Important when converting to XYZ.
+    native_illuminant = "d65"
+    conversion_matrices = {
+        "xyz_to_rgb":
+            numpy.array((
+                (1.716651187971269, -0.355670783776393, -0.253366281373660),
+                (-0.666684351832489, 1.616481236634939, 0.015768545813911),
+                (0.017639857445311, -0.042770613257809, 0.942103121235474))),
+        "rgb_to_xyz":
+            numpy.array((
+                (0.636958048301291, 0.144616903586208, 0.168880975164172),
+                (0.262700212011267, 0.677998071518871, 0.059301716469862),
+                (0.000000000000000, 0.028072693049087, 1.060985057710791))),
+    }
+
+
 class AdobeRGBColor(BaseRGBColor):
     """
     Represents an Adobe RGB color.
