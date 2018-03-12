@@ -55,11 +55,6 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     return rgb_r, rgb_g, rgb_b
 
 
-# Avoid the repetition, since the conversion tables for the various RGB
-# spaces are the same.
-_RGB_SPACES = [sRGBColor, AdobeRGBColor]
-
-
 class ConversionManager(object):
     __metaclass__ = ABCMeta
 
