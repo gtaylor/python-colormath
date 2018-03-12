@@ -17,7 +17,8 @@ from colormath import color_constants
 from colormath import spectral_constants
 from colormath.color_objects import ColorBase, XYZColor, sRGBColor, \
     LCHabColor, LCHuvColor, LabColor, xyYColor, LuvColor, HSVColor, HSLColor, \
-    CMYColor, CMYKColor, BaseRGBColor, IPTColor, SpectralColor, AdobeRGBColor
+    CMYColor, CMYKColor, BaseRGBColor, IPTColor, SpectralColor, AdobeRGBColor, \
+    BT2020Color
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
 from colormath.color_exceptions import InvalidIlluminantError, \
     UndefinedConversionError
@@ -520,6 +521,17 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
                 nonlinear_channels[channel] = v * 12.92
             else:
                 nonlinear_channels[channel] = 1.055 * math.pow(v, 1 / 2.4) - 0.055
+    elif target_rgb == BT2020Color:
+        if kwargs.get('is_12_bits_system'):
+            a, b = 1.0993, 0.0181
+        else:
+            a, b = 1.099, 0.018
+        for channel in ['r', 'g', 'b']:
+            v = linear_channels[channel]
+            if v < b:
+                nonlinear_channels[channel] = v * 4.5
+            else:
+                nonlinear_channels[channel] = a * math.pow(v, 0.45) - (a - 1)
     else:
         # If it's not sRGB...
         for channel in ['r', 'g', 'b']:
@@ -548,6 +560,17 @@ def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
                 linear_channels[channel] = V / 12.92
             else:
                 linear_channels[channel] = math.pow((V + 0.055) / 1.055, 2.4)
+    elif isinstance(cobj, BT2020Color):
+        if kwargs.get('is_12_bits_system'):
+            a, b, c = 1.0993, 0.0181, 0.081697877417347
+        else:
+            a, b, c = 1.099, 0.018, 0.08124794403514049
+        for channel in ['r', 'g', 'b']:
+            V = getattr(cobj, 'rgb_' + channel)
+            if V <= c:
+                linear_channels[channel] = V / 4.5
+            else:
+                linear_channels[channel] = math.pow((V + (a - 1)) / a, 1 / 0.45)
     else:
         # If it's not sRGB...
         gamma = cobj.rgb_gamma

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import itertools
+import numpy as np
 import unittest
 from colormath import color_conversions
-from colormath.color_conversions import GraphConversionManager, XYZ_to_RGB, HSV_to_RGB
+from colormath.color_conversions import GraphConversionManager, XYZ_to_RGB, HSV_to_RGB, \
+                                        RGB_to_XYZ
 from colormath.color_exceptions import UndefinedConversionError
-from colormath.color_objects import XYZColor, BaseRGBColor, HSVColor, HSLColor
+from colormath.color_objects import XYZColor, BaseRGBColor, HSVColor, HSLColor, \
+                                    AdobeRGBColor, BT2020Color, sRGBColor
 
 
 class GraphConversionManagerTestCase(unittest.TestCase):
@@ -52,3 +55,17 @@ class ColorConversionTestCase(unittest.TestCase):
                 # Otherwise check that all the conversion functions math up
                 for a, b in zip(path[:-1], path[1:]):
                     self.assertEqual(a.target_type, b.start_type)
+
+    def test_transfer_functions(self):
+        """
+        Tests the transfer functions of the various RGB colorspaces.
+        """
+
+        for colorspace in (AdobeRGBColor, BT2020Color, sRGBColor):
+            for a in (0.0, 0.01, 0.18, 1.0):
+                RGB = [a] * 3
+            np.testing.assert_allclose(
+                XYZ_to_RGB(RGB_to_XYZ(colorspace(*RGB)), colorspace).get_value_tuple(),
+                RGB,
+                rtol=1e-5,
+                atol=1e-5)
