@@ -469,7 +469,7 @@ class XYZColor(IlluminantMixin, ColorBase):
 # noinspection PyPep8Naming
 class xyYColor(IlluminantMixin, ColorBase):
     """
-    Represents an xYy color.
+    Represents an xyY color.
     """
 
     VALUES = ['xyy_x', 'xyy_y', 'xyy_Y']
