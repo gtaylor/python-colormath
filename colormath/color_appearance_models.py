@@ -690,8 +690,8 @@ class RLAB(object):
         :param y_n: Y value of reference white :math:`Y_n`.
         :param z_n: Z value of reference white :math:`Z_n`.
         :param y_n_abs: Absolute luminance :math:`Y_n` of a white object in cd/m^2.
-        :param sigma: Relative luminance parameter :math:`\sigma`. For average surround set :math:`\sigma=1/2.3`,
-                      for dim surround :math:`\sigma=1/2.9` and for dark surround :math:`\sigma=1/3.5`.
+        :param sigma: Relative luminance parameter :math:`\\sigma`. For average surround set :math:`\\sigma=1/2.3`,
+                      for dim surround :math:`\\sigma=1/2.9` and for dark surround :math:`\\sigma=1/3.5`.
         :param d: Degree of adaptation :math:`D`.
         """
         xyz = numpy.array([x, y, z])
@@ -796,7 +796,7 @@ class ATD95(object):
         :param y_0_abs: Absolute adapting luminance :math:`Y_0` in cd/m^2.
         :param k_1: :math:`k_1`
         :param k_2: :math:`k_2`
-        :param sigma: :math:`\sigma`
+        :param sigma: :math:`\\sigma`
         """
         xyz = self._scale_to_luminance(numpy.array([x, y, z]), y_0_abs)
         xyz_0 = self._scale_to_luminance(numpy.array([x_0, y_0, z_0]), y_0_abs)

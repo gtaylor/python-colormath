@@ -39,7 +39,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     # Retrieve the appropriate transformation matrix from the constants.
     rgb_matrix = rgb_type.conversion_matrices[convtype]
 
-    logger.debug("  \* Applying RGB conversion matrix: %s->%s",
+    logger.debug("  \\* Applying RGB conversion matrix: %s->%s",
                  rgb_type.__class__.__name__, convtype)
     # Stuff the RGB/XYZ values into a NumPy matrix for conversion.
     var_matrix = numpy.array((
@@ -482,22 +482,22 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
     temp_Y = cobj.xyz_y
     temp_Z = cobj.xyz_z
 
-    logger.debug("  \- Target RGB space: %s", target_rgb)
+    logger.debug("  \\- Target RGB space: %s", target_rgb)
     target_illum = target_rgb.native_illuminant
-    logger.debug("  \- Target native illuminant: %s", target_illum)
-    logger.debug("  \- XYZ color's illuminant: %s", cobj.illuminant)
+    logger.debug("  \\- Target native illuminant: %s", target_illum)
+    logger.debug("  \\- XYZ color's illuminant: %s", cobj.illuminant)
 
     # If the XYZ values were taken with a different reference white than the
     # native reference white of the target RGB space, a transformation matrix
     # must be applied.
     if cobj.illuminant != target_illum:
-        logger.debug("  \* Applying transformation from %s to %s ",
+        logger.debug("  \\* Applying transformation from %s to %s ",
                      cobj.illuminant, target_illum)
         # Get the adjusted XYZ values, adapted for the target illuminant.
         temp_X, temp_Y, temp_Z = apply_chromatic_adaptation(
             temp_X, temp_Y, temp_Z,
             orig_illum=cobj.illuminant, targ_illum=target_illum)
-        logger.debug("  \*   New values: %.3f, %.3f, %.3f",
+        logger.debug("  \\*   New values: %.3f, %.3f, %.3f",
                      temp_X, temp_Y, temp_Z)
 
     # Apply an RGB working space matrix to the XYZ values (matrix mul).

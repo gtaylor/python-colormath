@@ -458,14 +458,14 @@ class XYZColor(IlluminantMixin, ColorBase):
         This applies an adaptation matrix to change the XYZ color's illuminant.
         You'll most likely only need this during RGB conversions.
         """
-        logger.debug("  \- Original illuminant: %s", self.illuminant)
-        logger.debug("  \- Target illuminant: %s", target_illuminant)
+        logger.debug("  \\- Original illuminant: %s", self.illuminant)
+        logger.debug("  \\- Target illuminant: %s", target_illuminant)
 
         # If the XYZ values were taken with a different reference white than the
         # native reference white of the target RGB space, a transformation matrix
         # must be applied.
         if self.illuminant != target_illuminant:
-            logger.debug("  \* Applying transformation from %s to %s ",
+            logger.debug("  \\* Applying transformation from %s to %s ",
                          self.illuminant, target_illuminant)
             # Sets the adjusted XYZ values, and the new illuminant.
             apply_chromatic_adaptation_on_color(
