@@ -510,11 +510,11 @@ class BaseRGBColor(ColorBase):
 
     def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=False):
         """
-        :param float rgb_r: R coordinate. 0...1. 1-255 if is_upscaled=True.
-        :param float rgb_g: G coordinate. 0...1. 1-255 if is_upscaled=True.
-        :param float rgb_b: B coordinate. 0...1. 1-255 if is_upscaled=True.
+        :param float rgb_r: R coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
+        :param float rgb_g: G coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
+        :param float rgb_b: B coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
         :keyword bool is_upscaled: If False, RGB coordinate values are
-            beteween 0.0 and 1.0. If True, RGB values are between 1 and 255.
+            beteween 0.0 and 1.0. If True, RGB values are between 0 and 255.
         """
         super(BaseRGBColor, self).__init__()
         if is_upscaled:
@@ -539,7 +539,7 @@ class BaseRGBColor(ColorBase):
         if not self.is_upscaled:
             return min(max(coord, 0.0), 1.0)
         else:
-            return min(max(coord, 1), 255)
+            return min(max(coord, 0.0), 255.0)
 
     @property
     def clamped_rgb_r(self):
@@ -612,7 +612,7 @@ class sRGBColor(BaseRGBColor):
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
         0.0-1.0.
     """
 
@@ -645,7 +645,7 @@ class BT2020Color(BaseRGBColor):
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
         0.0-1.0.
     """
 
@@ -678,7 +678,7 @@ class AdobeRGBColor(BaseRGBColor):
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
         0.0-1.0.
     """
 
@@ -711,7 +711,7 @@ class AppleRGBColor(BaseRGBColor):
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 1-255. If False,
+    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
         0.0-1.0.
     """
 

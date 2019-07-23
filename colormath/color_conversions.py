@@ -33,7 +33,7 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     Applies an RGB working matrix to convert from XYZ to RGB.
     The arguments are tersely named var1, var2, and var3 to allow for the
     passing of XYZ _or_ RGB values. var1 is X for XYZ, and R for RGB. var2 and
-    var3 follow suite.
+    var3 follow suit.
     """
     convtype = convtype.lower()
     # Retrieve the appropriate transformation matrix from the constants.
@@ -541,7 +541,7 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
 @color_conversion_function(BaseRGBColor, XYZColor)
 def RGB_to_XYZ(cobj, target_illuminant=None, *args, **kwargs):
     """
-    RGB to XYZ conversion. Expects 0-255 RGB values.
+    RGB to XYZ conversion. Expects RGB values between 0 and 255.
 
     Based off of: http://www.brucelindbloom.com/index.html?Eqn_RGB_to_XYZ.html
     """
