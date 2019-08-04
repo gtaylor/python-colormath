@@ -635,37 +635,53 @@ class BaseRGBColor(ColorBase):
         self.rgb_g = float(rgb_g)
         self.rgb_b = float(rgb_b)
 
-    def _clamp_rgb_coordinate(self, coord):
-        """
-        Clamps an RGB coordinate, taking into account whether or not the
-        color is upscaled or not.
-
-        :param float coord: The coordinate value.
-        :rtype: float
-        :returns: The clamped value.
-        """
-        return min(max(coord, 0.0), 1.0)
-
     @property
     def clamped_rgb_r(self):
         """
         The clamped (0.0-1.0) R value.
         """
-        return self._clamp_rgb_coordinate(self.rgb_r)
+        warnings.warn(
+            "color.clamped_rgb_r is deprecated, use color.clamped().rgb_r instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.clamped().rgb_r
 
     @property
     def clamped_rgb_g(self):
         """
         The clamped (0.0-1.0) G value.
         """
-        return self._clamp_rgb_coordinate(self.rgb_g)
+        warnings.warn(
+            "color.clamped_rgb_g is deprecated, use color.clamped().rgb_g instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.clamped().rgb_g
 
     @property
     def clamped_rgb_b(self):
         """
         The clamped (0.0-1.0) B value.
         """
-        return self._clamp_rgb_coordinate(self.rgb_b)
+        warnings.warn(
+            "color.clamped_rgb_b is deprecated, use color.clamped().rgb_b instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.clamped().rgb_b
+
+    def clamped(self):
+        """
+        Return copy of this color with coordinates clipped to fit in 0.0-1.0 range.
+
+        :rtype: sRGBColor
+        """
+        return type(self)(
+            min(max(0.0, self.rgb_r), 1.0),
+            min(max(0.0, self.rgb_g), 1.0),
+            min(max(0.0, self.rgb_b), 1.0),
+        )
 
     def get_upscaled_value_tuple(self):
         """
@@ -684,7 +700,7 @@ class BaseRGBColor(ColorBase):
 
         :rtype: str
         """
-        rgb_r, rgb_g, rgb_b = self.get_upscaled_value_tuple()
+        rgb_r, rgb_g, rgb_b = self.clamped().get_upscaled_value_tuple()
         return "#%02x%02x%02x" % (rgb_r, rgb_g, rgb_b)
 
     @classmethod

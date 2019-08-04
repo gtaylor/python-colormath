@@ -305,6 +305,23 @@ class RGBConversionTestCase(BaseColorConversionTest):
         self.assertEqual(low_b.clamped_rgb_g, low_b.rgb_g)
         self.assertEqual(low_b.clamped_rgb_b, 0.0)
 
+    def test_clamped(self):
+        for (r, g, b), expected in [
+            ((-.482, -.784, -.196), (0., 0., 0.)),
+            ((1.482, -.784, -.196), (1., 0., 0.)),
+            ((-.482, 1.784, -.196), (0., 1., 0.)),
+            ((1.482, 1.784, -.196), (1., 1., 0.)),
+            ((-.482, -.784, 1.196), (0., 0., 1.)),
+            ((1.482, -.784, 1.196), (1., 0., 1.)),
+            ((-.482, 1.784, 1.196), (0., 1., 1.)),
+            ((1.482, 1.784, 1.196), (1., 1., 1.)),
+            ((0.482, 0.784, 0.196), (0.482, 0.784, 0.196)),
+        ]:
+            self.assertEqual(
+                sRGBColor(r, g, b).clamped().get_value_tuple(),
+                expected,
+            )
+
     def test_to_xyz_and_back(self):
         xyz = convert_color(self.color, XYZColor)
         rgb = convert_color(xyz, sRGBColor)

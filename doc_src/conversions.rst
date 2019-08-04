@@ -85,13 +85,9 @@ RGB conversions and out-of-gamut coordinates
 
 RGB spaces tend to have a smaller gamut than some of the CIE color spaces.
 When converting to RGB, this can cause some of the coordinates to end up
-being out of the acceptable range (0.0-1.0 or 0-255, depending on whether
-your RGB color is upscaled).
+being out of the acceptable range (0.0-1.0).
 
 Rather than clamp these for you, we leave them as-is. This allows for more
 accurate conversions back to the CIE color spaces. If you require the clamped
-(0.0-1.0 or 0-255) values, use the following properties on any RGB color:
-
-* ``clamped_rgb_r``
-* ``clamped_rgb_g``
-* ``clamped_rgb_b``
+values, call ``clamped()`` from any RGB color to get copy of this color with
+coordinates clipped to fit in 0.0-1.0 range.
