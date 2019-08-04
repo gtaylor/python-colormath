@@ -311,12 +311,12 @@ class RGBConversionTestCase(BaseColorConversionTest):
         self.assertColorMatch(rgb, self.color)
 
     def test_conversion_to_hsl_max_r(self):
-        color = sRGBColor(255, 123, 50, is_upscaled=True)
+        color = sRGBColor.new_from_upscaled(255, 123, 50)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(21.366, 1.000, 0.598))
 
     def test_conversion_to_hsl_max_g(self):
-        color = sRGBColor(123, 255, 50, is_upscaled=True)
+        color = sRGBColor.new_from_upscaled(123, 255, 50)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(98.634, 1.000, 0.598))
 
