@@ -404,6 +404,20 @@ class RGBConversionTestCase(BaseColorConversionTest):
         rgb = sRGBColor.new_from_rgb_hex("#7bc832")
         self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
 
+    def test_set_from_rgb_hex_no_sharp(self):
+        rgb = sRGBColor.new_from_rgb_hex('7bc832')
+        self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
+
+    def test_set_from_rgb_hex_invalid_length(self):
+        with self.assertRaises(ValueError):
+            sRGBColor.new_from_rgb_hex('#ccc')
+
+    def test_get_upscaled_value_tuple(self):
+        self.assertEqual(
+            self.color.get_upscaled_value_tuple(),
+            (123, 200, 50),
+        )
+
 
 class HSLConversionTestCase(BaseColorConversionTest):
     def setUp(self):
