@@ -49,16 +49,24 @@ class ColorBase(object):
             value = getattr(self, val, None)
             if value is not None:
                 retval += '%s:%.4f ' % (val, getattr(self, val))
+        if hasattr(self, 'observer'):
+            retval += 'observer:' + self.observer
+        if hasattr(self, 'illuminant'):
+            retval += ' illuminant:' + self.illuminant
         return retval.strip() + ')'
 
     def __repr__(self):
         """
-        String representation of the object.
+        Evaluable string representation of the object.
         """
         retval = self.__class__.__name__ + '('
         attributes = [(attr, getattr(self, attr)) for attr in self.VALUES]
         values = [x + "=" + repr(y) for x, y in attributes]
-        retval += ','.join(values)
+        retval += ', '.join(values)
+        if hasattr(self, 'observer'):
+            retval += ', observer=\'' + self.observer + '\''
+        if hasattr(self, 'illuminant'):
+            retval += ', illuminant=\'' + self.illuminant + '\''
         return retval + ')'
 
 
