@@ -39,4 +39,5 @@ setup(
     classifiers=CLASSIFIERS,
     keywords=KEYWORDS,
     install_requires=["numpy", "networkx>=2.0"],
+    extras_require={"development": ["black", "flake8", "nose", "pre-commit", "sphinx"]},
 )
