@@ -6,9 +6,23 @@ Various tests for color objects.
 import unittest
 
 from colormath.color_conversions import convert_color
-from colormath.color_objects import SpectralColor, XYZColor, xyYColor, \
-    LabColor, LuvColor, LCHabColor, LCHuvColor, sRGBColor, HSLColor, HSVColor, \
-    CMYColor, CMYKColor, AdobeRGBColor, AppleRGBColor, IPTColor
+from colormath.color_objects import (
+    SpectralColor,
+    XYZColor,
+    xyYColor,
+    LabColor,
+    LuvColor,
+    LCHabColor,
+    LCHuvColor,
+    sRGBColor,
+    HSLColor,
+    HSVColor,
+    CMYColor,
+    CMYKColor,
+    AdobeRGBColor,
+    AppleRGBColor,
+    IPTColor,
+)
 
 
 class BaseColorConversionTest(unittest.TestCase):
@@ -32,8 +46,11 @@ class BaseColorConversionTest(unittest.TestCase):
             conv_value = getattr(conv, attrib)
             std_value = getattr(std, attrib)
             self.assertAlmostEqual(
-                conv_value, std_value, 3,
-                "%s is %s, expected %s" % (attrib, conv_value, std_value))
+                conv_value,
+                std_value,
+                3,
+                "%s is %s, expected %s" % (attrib, conv_value, std_value),
+            )
 
 
 class SpectralConversionTestCase(BaseColorConversionTest):
@@ -45,18 +62,43 @@ class SpectralConversionTestCase(BaseColorConversionTest):
         """
 
         color = SpectralColor(
-            spec_380nm=0.0600, spec_390nm=0.0600, spec_400nm=0.0641,
-            spec_410nm=0.0654, spec_420nm=0.0645, spec_430nm=0.0605,
-            spec_440nm=0.0562, spec_450nm=0.0543, spec_460nm=0.0537,
-            spec_470nm=0.0541, spec_480nm=0.0559, spec_490nm=0.0603,
-            spec_500nm=0.0651, spec_510nm=0.0680, spec_520nm=0.0705,
-            spec_530nm=0.0736, spec_540nm=0.0772, spec_550nm=0.0809,
-            spec_560nm=0.0870, spec_570nm=0.0990, spec_580nm=0.1128,
-            spec_590nm=0.1251, spec_600nm=0.1360, spec_610nm=0.1439,
-            spec_620nm=0.1511, spec_630nm=0.1590, spec_640nm=0.1688,
-            spec_650nm=0.1828, spec_660nm=0.1996, spec_670nm=0.2187,
-            spec_680nm=0.2397, spec_690nm=0.2618, spec_700nm=0.2852,
-            spec_710nm=0.2500, spec_720nm=0.2400, spec_730nm=0.2300)
+            spec_380nm=0.0600,
+            spec_390nm=0.0600,
+            spec_400nm=0.0641,
+            spec_410nm=0.0654,
+            spec_420nm=0.0645,
+            spec_430nm=0.0605,
+            spec_440nm=0.0562,
+            spec_450nm=0.0543,
+            spec_460nm=0.0537,
+            spec_470nm=0.0541,
+            spec_480nm=0.0559,
+            spec_490nm=0.0603,
+            spec_500nm=0.0651,
+            spec_510nm=0.0680,
+            spec_520nm=0.0705,
+            spec_530nm=0.0736,
+            spec_540nm=0.0772,
+            spec_550nm=0.0809,
+            spec_560nm=0.0870,
+            spec_570nm=0.0990,
+            spec_580nm=0.1128,
+            spec_590nm=0.1251,
+            spec_600nm=0.1360,
+            spec_610nm=0.1439,
+            spec_620nm=0.1511,
+            spec_630nm=0.1590,
+            spec_640nm=0.1688,
+            spec_650nm=0.1828,
+            spec_660nm=0.1996,
+            spec_670nm=0.2187,
+            spec_680nm=0.2397,
+            spec_690nm=0.2618,
+            spec_700nm=0.2852,
+            spec_710nm=0.2500,
+            spec_720nm=0.2400,
+            spec_730nm=0.2300,
+        )
         self.color = color
 
     def test_conversion_to_xyz(self):
@@ -112,7 +154,7 @@ class XYZConversionTestCase(BaseColorConversionTest):
         self.assertColorMatch(luv, LuvColor(51.837, -73.561, -25.657))
 
     def test_conversion_to_ipt(self):
-        self.color.set_illuminant('D65')
+        self.color.set_illuminant("D65")
         ipt = convert_color(self.color, IPTColor)
         self.assertColorMatch(ipt, IPTColor(0.5063, -0.3183, -0.1160))
 
@@ -171,7 +213,6 @@ class LuvConversionTestCase(BaseColorConversionTest):
 
 # noinspection PyAttributeOutsideInit,PyPep8Naming
 class LCHabConversionTestCase(BaseColorConversionTest):
-
     def setUp(self):
         self.color = LCHabColor(1.807, 4.532, 214.191)
 
@@ -197,7 +238,7 @@ class LCHabConversionTestCase(BaseColorConversionTest):
         """
 
         lchab = LCHabColor(40.0, 104.0, 40.0)
-        _rgb = convert_color(lchab, AdobeRGBColor)
+        _rgb = convert_color(lchab, AdobeRGBColor)  # noqa
 
     def test_convert_to_self(self):
         same_color = convert_color(self.color, LCHabColor)
@@ -303,7 +344,7 @@ class RGBConversionTestCase(BaseColorConversionTest):
         a target illuminant to something other than D65.
         """
 
-        xyz = convert_color(self.color, XYZColor, target_illuminant='D50')
+        xyz = convert_color(self.color, XYZColor, target_illuminant="D50")
         self.assertColorMatch(xyz, XYZColor(0.313, 0.460, 0.082))
 
     def test_srgb_conversion_to_xyz_d65(self):
@@ -348,7 +389,7 @@ class RGBConversionTestCase(BaseColorConversionTest):
         """
 
         adobe = AdobeRGBColor(0.482, 0.784, 0.196)
-        xyz = convert_color(adobe, XYZColor, target_illuminant='D50')
+        xyz = convert_color(adobe, XYZColor, target_illuminant="D50")
         self.assertColorMatch(xyz, XYZColor(0.247, 0.431, 0.060))
 
     def test_convert_to_self(self):
@@ -360,7 +401,7 @@ class RGBConversionTestCase(BaseColorConversionTest):
         self.assertEqual(hex_str, "#7bc832", "sRGB to hex conversion failed")
 
     def test_set_from_rgb_hex(self):
-        rgb = sRGBColor.new_from_rgb_hex('#7bc832')
+        rgb = sRGBColor.new_from_rgb_hex("#7bc832")
         self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
 
 
@@ -433,7 +474,9 @@ class IPTConversionTestCase(BaseColorConversionTest):
 
     def test_convert_to_XYZ(self):
         xyz = convert_color(self.color, XYZColor)
-        self.assertColorMatch(xyz, XYZColor(0.4497, 0.2694, 0.0196, illuminant='d65', observer='2'))
+        self.assertColorMatch(
+            xyz, XYZColor(0.4497, 0.2694, 0.0196, illuminant="d65", observer="2")
+        )
 
     def test_consistency(self):
         xyz = convert_color(self.color, XYZColor)
@@ -441,12 +484,17 @@ class IPTConversionTestCase(BaseColorConversionTest):
         self.assertColorMatch(self.color, same_color)
 
     def test_illuminant_guard(self):
-        xyz = XYZColor(1, 1, 1, illuminant='d50', observer='2')
-        ipt_conversion = lambda: convert_color(xyz, IPTColor)
-        self.assertRaises(ValueError, ipt_conversion)
+        xyz = XYZColor(1, 1, 1, illuminant="d50", observer="2")
+
+        def _ipt_conversion():
+            return convert_color(xyz, IPTColor)
+
+        self.assertRaises(ValueError, _ipt_conversion)
 
     def test_observer_guard(self):
-        xyz = XYZColor(1, 1, 1, illuminant='d65', observer='10')
-        ipt_conversion = lambda: convert_color(xyz, IPTColor)
-        self.assertRaises(ValueError, ipt_conversion)
+        xyz = XYZColor(1, 1, 1, illuminant="d65", observer="10")
 
+        def _ipt_conversion():
+            return convert_color(xyz, IPTColor)
+
+        self.assertRaises(ValueError, _ipt_conversion)

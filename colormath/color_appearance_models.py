@@ -39,10 +39,10 @@ class Nayatani95(object):
     """
     **References**
 
-    * Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
-    * Nayatani, Y., Sobagaki, H., & Yano, K. H. T. (1995). Lightness dependency of chroma scales of a nonlinear
-      color-appearance model and its latest formulation. *Color Research & Application*, 20(3), 156-167.
-
+    *   Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
+    *   Nayatani, Y., Sobagaki, H., & Yano, K. H. T. (1995). Lightness dependency of
+        chroma scales of a nonlinear color-appearance model and its latest formulation.
+        *Color Research & Application*, 20(3), 156-167.
     """
 
     @property
@@ -96,97 +96,131 @@ class Nayatani95(object):
         """
 
         if numpy.any(y_ob <= 0.18):
-            raise ValueError('y_ob hast be greater than 0.18.')
+            raise ValueError("y_ob hast be greater than 0.18.")
 
         l_o = y_ob * e_o / (100 * numpy.pi)
         l_or = y_ob * e_or / (100 * numpy.pi)
-        logger.debug('L_o: {}'.format(l_o))
-        logger.debug('L_or: {}'.format(l_or))
+        logger.debug("L_o: {}".format(l_o))
+        logger.debug("L_or: {}".format(l_or))
 
         x_o = x_n / (x_n + y_n + z_n)
         y_o = y_n / (x_n + y_n + z_n)
-        logger.debug('x_o: {}'.format(x_o))
-        logger.debug('y_o: {}'.format(y_o))
+        logger.debug("x_o: {}".format(x_o))
+        logger.debug("y_o: {}".format(y_o))
 
         xi = (0.48105 * x_o + 0.78841 * y_o - 0.08081) / y_o
         eta = (-0.27200 * x_o + 1.11962 * y_o + 0.04570) / y_o
         zeta = (0.91822 * (1 - x_o - y_o)) / y_o
-        logger.debug('xi: {}'.format(xi))
-        logger.debug('eta: {}'.format(eta))
-        logger.debug('zeta: {}'.format(zeta))
+        logger.debug("xi: {}".format(xi))
+        logger.debug("eta: {}".format(eta))
+        logger.debug("zeta: {}".format(zeta))
 
-        r_0, g_0, b_0 = rgb_0 = ((y_ob * e_o) / (100 * numpy.pi)) * numpy.array([xi, eta, zeta])
-        logger.debug('rgb_0: {}'.format(rgb_0))
+        r_0, g_0, b_0 = rgb_0 = ((y_ob * e_o) / (100 * numpy.pi)) * numpy.array(
+            [xi, eta, zeta]
+        )
+        logger.debug("rgb_0: {}".format(rgb_0))
 
         r, g, b, = rgb = self.xyz_to_rgb(numpy.array([x, y, z]))
-        logger.debug('rgb: {}'.format(rgb))
+        logger.debug("rgb: {}".format(rgb))
 
         e_r = self._compute_scaling_coefficient(r, xi)
-        logger.debug('e(R): {}'.format(e_r))
+        logger.debug("e(R): {}".format(e_r))
         e_g = self._compute_scaling_coefficient(g, eta)
-        logger.debug('e(G): {}'.format(e_g))
+        logger.debug("e(G): {}".format(e_g))
 
         beta_r = self._beta_1(r_0)
-        logger.debug('beta1(rho): {}'.format(beta_r))
+        logger.debug("beta1(rho): {}".format(beta_r))
         beta_g = self._beta_1(g_0)
-        logger.debug('beta1(eta): {}'.format(beta_g))
+        logger.debug("beta1(eta): {}".format(beta_g))
         beta_b = self._beta_2(b_0)
-        logger.debug('beta2(zeta): {}'.format(beta_b))
+        logger.debug("beta2(zeta): {}".format(beta_b))
 
         beta_l = self._beta_1(l_or)
-        logger.debug('beta1(L_or): {}'.format(beta_l))
+        logger.debug("beta1(L_or): {}".format(beta_l))
 
         # Opponent Color Dimension
-        self._achromatic_response = (2 / 3) * beta_r * e_r * numpy.log10((r + n) / (20 * xi + n))
-        self._achromatic_response += (1 / 3) * beta_g * e_g * numpy.log10((g + n) / (20 * eta + n))
+        self._achromatic_response = (
+            (2 / 3) * beta_r * e_r * numpy.log10((r + n) / (20 * xi + n))
+        )
+        self._achromatic_response += (
+            (1 / 3) * beta_g * e_g * numpy.log10((g + n) / (20 * eta + n))
+        )
         self._achromatic_response *= 41.69 / beta_l
-        logger.debug('Q: {}'.format(self._achromatic_response))
+        logger.debug("Q: {}".format(self._achromatic_response))
 
-        self._tritanopic_response = (1 / 1) * beta_r * numpy.log10((r + n) / (20 * xi + n))
-        self._tritanopic_response += - (12 / 11) * beta_g * numpy.log10((g + n) / (20 * eta + n))
-        self._tritanopic_response += (1 / 11) * beta_b * numpy.log10((b + n) / (20 * zeta + n))
-        logger.debug('t: {}'.format(self._tritanopic_response))
+        self._tritanopic_response = (
+            (1 / 1) * beta_r * numpy.log10((r + n) / (20 * xi + n))
+        )
+        self._tritanopic_response += (
+            -(12 / 11) * beta_g * numpy.log10((g + n) / (20 * eta + n))
+        )
+        self._tritanopic_response += (
+            (1 / 11) * beta_b * numpy.log10((b + n) / (20 * zeta + n))
+        )
+        logger.debug("t: {}".format(self._tritanopic_response))
 
-        self._protanopic_response = (1 / 9) * beta_r * numpy.log10((r + n) / (20 * xi + n))
-        self._protanopic_response += (1 / 9) * beta_g * numpy.log10((g + n) / (20 * eta + n))
-        self._protanopic_response += - (2 / 9) * beta_b * numpy.log10((b + n) / (20 * zeta + n))
-        logger.debug('p: {}'.format(self._protanopic_response))
+        self._protanopic_response = (
+            (1 / 9) * beta_r * numpy.log10((r + n) / (20 * xi + n))
+        )
+        self._protanopic_response += (
+            (1 / 9) * beta_g * numpy.log10((g + n) / (20 * eta + n))
+        )
+        self._protanopic_response += (
+            -(2 / 9) * beta_b * numpy.log10((b + n) / (20 * zeta + n))
+        )
+        logger.debug("p: {}".format(self._protanopic_response))
 
         # Brightness
-        self._brightness = (50 / beta_l) * ((2 / 3) * beta_r + (1 / 3) * beta_g) + self._achromatic_response
+        self._brightness = (50 / beta_l) * (
+            (2 / 3) * beta_r + (1 / 3) * beta_g
+        ) + self._achromatic_response
 
-        self._brightness_ideal_white = (2 / 3) * beta_r * 1.758 * numpy.log10((100 * xi + n) / (20 * xi + n))
-        self._brightness_ideal_white += (1 / 3) * beta_g * 1.758 * numpy.log10((100 * eta + n) / (20 * eta + n))
+        self._brightness_ideal_white = (
+            (2 / 3) * beta_r * 1.758 * numpy.log10((100 * xi + n) / (20 * xi + n))
+        )
+        self._brightness_ideal_white += (
+            (1 / 3) * beta_g * 1.758 * numpy.log10((100 * eta + n) / (20 * eta + n))
+        )
         self._brightness_ideal_white *= 41.69 / beta_l
         self._brightness_ideal_white += (50 / beta_l) * (2 / 3) * beta_r
         self._brightness_ideal_white += (50 / beta_l) * (1 / 3) * beta_g
 
         # Lightness
         self._lightness_achromatic = self._achromatic_response + 50
-        self._lightness_achromatic_normalized = 100 * (self._brightness / self._brightness_ideal_white)
+        self._lightness_achromatic_normalized = 100 * (
+            self._brightness / self._brightness_ideal_white
+        )
 
         # Hue
-        hue_angle_rad = numpy.arctan2(self._protanopic_response, self._tritanopic_response)
+        hue_angle_rad = numpy.arctan2(
+            self._protanopic_response, self._tritanopic_response
+        )
         self._hue_angle = ((360 * hue_angle_rad / (2 * numpy.pi)) + 360) % 360
-        logger.debug('theta: {}'.format(self._hue_angle))
+        logger.debug("theta: {}".format(self._hue_angle))
 
         e_s_theta = self.chromatic_strength(hue_angle_rad)
-        logger.debug('E_s(theta): {}'.format(e_s_theta))
+        logger.debug("E_s(theta): {}".format(e_s_theta))
 
         # Saturation
         self._saturation_rg = (488.93 / beta_l) * e_s_theta * self._tritanopic_response
         self._saturation_yb = (488.93 / beta_l) * e_s_theta * self._protanopic_response
-        logger.debug('S_RG: {}'.format(self._saturation_rg))
-        logger.debug('S_YB: {}'.format(self._saturation_yb))
+        logger.debug("S_RG: {}".format(self._saturation_rg))
+        logger.debug("S_YB: {}".format(self._saturation_yb))
 
-        self._saturation = numpy.sqrt((self._saturation_rg ** 2) + (self._saturation_yb ** 2))
-        logger.debug('S: {}'.format(self._saturation))
+        self._saturation = numpy.sqrt(
+            (self._saturation_rg ** 2) + (self._saturation_yb ** 2)
+        )
+        logger.debug("S: {}".format(self._saturation))
 
         # Chroma
-        self._chroma_rg = ((self._lightness_achromatic / 50) ** 0.7) * self._saturation_rg
-        self._chroma_yb = ((self._lightness_achromatic / 50) ** 0.7) * self._saturation_yb
+        self._chroma_rg = (
+            (self._lightness_achromatic / 50) ** 0.7
+        ) * self._saturation_rg
+        self._chroma_yb = (
+            (self._lightness_achromatic / 50) ** 0.7
+        ) * self._saturation_yb
         self._chroma = ((self._lightness_achromatic / 50) ** 0.7) * self._saturation
-        logger.debug('C: {}'.format(self._chroma))
+        logger.debug("C: {}".format(self._chroma))
 
         # Colorfulness
         self._colorfulness_rg = self._chroma_rg * self._brightness_ideal_white / 100
@@ -196,14 +230,14 @@ class Nayatani95(object):
     @staticmethod
     def chromatic_strength(angle):
         result = 0.9394
-        result += - 0.2478 * numpy.sin(1 * angle)
-        result += - 0.0743 * numpy.sin(2 * angle)
-        result += + 0.0666 * numpy.sin(3 * angle)
-        result += - 0.0186 * numpy.sin(4 * angle)
-        result += - 0.0055 * numpy.cos(1 * angle)
-        result += - 0.0521 * numpy.cos(2 * angle)
-        result += - 0.0573 * numpy.cos(3 * angle)
-        result += - 0.0061 * numpy.cos(4 * angle)
+        result += -0.2478 * numpy.sin(1 * angle)
+        result += -0.0743 * numpy.sin(2 * angle)
+        result += +0.0666 * numpy.sin(3 * angle)
+        result += -0.0186 * numpy.sin(4 * angle)
+        result += -0.0055 * numpy.cos(1 * angle)
+        result += -0.0521 * numpy.cos(2 * angle)
+        result += -0.0573 * numpy.cos(3 * angle)
+        result += -0.0061 * numpy.cos(4 * angle)
         return result
 
     @staticmethod
@@ -218,9 +252,9 @@ class Nayatani95(object):
     def _beta_2(x):
         return 0.7844 * (8.414 + 8.091 * (x ** 0.5128)) / (8.414 + (x ** 0.5128))
 
-    xyz_to_rgb_m = numpy.array([[0.40024, 0.70760, -0.08081],
-                                [-0.22630, 1.16532, 0.04570],
-                                [0, 0, 0.91822]])
+    xyz_to_rgb_m = numpy.array(
+        [[0.40024, 0.70760, -0.08081], [-0.22630, 1.16532, 0.04570], [0, 0, 0.91822]]
+    )
 
     @classmethod
     def xyz_to_rgb(cls, xyz):
@@ -231,9 +265,8 @@ class Hunt(object):
     """
     **References**
 
-    * Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
-    * Hunt, R. W. G. (2005). *The reproduction of colour*. 5th Ed., John Wiley & Sons.
-
+    *   Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
+    *   Hunt, R. W. G. (2005). *The reproduction of colour*. 5th Ed., John Wiley & Sons.
     """
 
     @property
@@ -278,24 +311,33 @@ class Hunt(object):
         """
         return self._lightness
 
-    def __init__(self, x, y, z,
-                 x_b, y_b, z_b,
-                 x_w, y_w, z_w,
-                 l_a,
-                 n_c,
-                 n_b,
-                 l_as=None,
-                 cct_w=None,
-                 n_cb=None,
-                 n_bb=None,
-                 x_p=None,
-                 y_p=None,
-                 z_p=None,
-                 p=None,
-                 helson_judd=False,
-                 discount_illuminant=True,
-                 s=None,
-                 s_w=None):
+    def __init__(
+        self,
+        x,
+        y,
+        z,
+        x_b,
+        y_b,
+        z_b,
+        x_w,
+        y_w,
+        z_w,
+        l_a,
+        n_c,
+        n_b,
+        l_as=None,
+        cct_w=None,
+        n_cb=None,
+        n_bb=None,
+        x_p=None,
+        y_p=None,
+        z_p=None,
+        p=None,
+        helson_judd=False,
+        discount_illuminant=True,
+        s=None,
+        s_w=None,
+    ):
         """
         :param x: X value of test sample :math:`X`.
         :param y: Y value of test sample :math:`Y`.
@@ -324,74 +366,89 @@ class Hunt(object):
         :param z_p: Z value of proxima field :math:`Z_p`.
                     If not supplied, will be assumed to equal background.
         :param p: Simultaneous contrast/assimilation parameter.
-        :param helson_judd: Truth value indicating whether the Heslon-Judd effect should be accounted for.
+        :param helson_judd: Truth value indicating whether the Heslon-Judd effect
+                            should be accounted for.
                             Default False.
-        :param discount_illuminant: Truth value whether discount-the-illuminant should be applied. Default True.
+        :param discount_illuminant: Truth value whether discount-the-illuminant
+                                    should be applied. Default True.
         :param s: Scotopic response to the stimulus.
         :param s_w: Scotopic response for th reference white.
         :raises ValueError: if illegal parameter combination is supplied.
         """
         if x_p is None:
             x_p = x_b
-            logger.warn('Approximated x_p with x_b.')
+            logger.warn("Approximated x_p with x_b.")
         if y_p is None:
             y_p = y_b
-            logger.warn('Approximated y_p with y_b.')
+            logger.warn("Approximated y_p with y_b.")
         if z_p is None:
             z_p = y_b
-            logger.warn('Approximated z_p with z_b.')
+            logger.warn("Approximated z_p with z_b.")
 
         if n_cb is None:
             n_cb = 0.725 * (y_w / y_b) ** 0.2
-            logger.warn('Approximated n_cb.')
-        logger.debug('N_cb: {}'.format(n_cb))
+            logger.warn("Approximated n_cb.")
+        logger.debug("N_cb: {}".format(n_cb))
         if n_bb is None:
             n_bb = 0.725 * (y_w / y_b) ** 0.2
-            logger.warn('Approximated n_bb.')
-        logger.debug('N_bb: {}'.format(n_cb))
+            logger.warn("Approximated n_bb.")
+        logger.debug("N_bb: {}".format(n_cb))
 
         if l_as is None:
-            logger.warn('Approximated scotopic luminance.')
+            logger.warn("Approximated scotopic luminance.")
             if cct_w is None:
                 cct_w = self._get_cct(x_w, y_w, z_w)
-                logger.warn('Approximated cct_w: {}'.format(cct_w))
+                logger.warn("Approximated cct_w: {}".format(cct_w))
             l_as = 2.26 * l_a
             l_as *= ((cct_w / 4000) - 0.4) ** (1 / 3)
-        logger.debug('LA_S: {}'.format(l_as))
+        logger.debug("LA_S: {}".format(l_as))
 
-        if s is None != s_w is None:
-            raise ValueError("Either both scotopic responses (s, s_w) need to be supplied or none.")
+        if (s is None) is not (s_w is None):
+            raise ValueError(
+                "Either both scotopic responses (s, s_w) need to be supplied or none."
+            )
         elif s is None and s_w is None:
             s = y
             s_w = y_w
-            logger.warn('Approximated scotopic response to stimulus and reference white.')
+            logger.warn(
+                "Approximated scotopic response to stimulus and reference white."
+            )
 
         if p is None:
-            logger.warn('p not supplied. Model will not account for simultaneous chromatic contrast .')
+            logger.warn(
+                "p not supplied. Model will not account for simultaneous "
+                "chromatic contrast ."
+            )
 
         xyz = numpy.array([x, y, z])
-        logger.debug('XYZ: {}'.format(xyz))
+        logger.debug("XYZ: {}".format(xyz))
         xyz_w = numpy.array([x_w, y_w, z_w])
-        logger.debug('XYZ_W: {}'.format(xyz_w))
+        logger.debug("XYZ_W: {}".format(xyz_w))
         xyz_b = numpy.array([x_b, y_b, z_b])
         xyz_p = numpy.array([x_p, y_p, z_p])
 
         k = 1 / (5 * l_a + 1)
-        logger.debug('k: {}'.format(k))
+        logger.debug("k: {}".format(k))
         # luminance adaptation factor
-        f_l = 0.2 * (k ** 4) * (5 * l_a) + 0.1 * ((1 - (k ** 4)) ** 2) * ((5 * l_a) ** (1 / 3))
-        logger.debug('F_L: {}'.format(f_l))
+        f_l = 0.2 * (k ** 4) * (5 * l_a) + 0.1 * ((1 - (k ** 4)) ** 2) * (
+            (5 * l_a) ** (1 / 3)
+        )
+        logger.debug("F_L: {}".format(f_l))
 
-        logger.debug('--- Stimulus RGB adaptation start ----')
-        rgb_a = self._adaptation(f_l, l_a, xyz, xyz_w, xyz_b, xyz_p, p, helson_judd, discount_illuminant)
-        logger.debug('--- Stimulus RGB adaptation end ----')
+        logger.debug("--- Stimulus RGB adaptation start ----")
+        rgb_a = self._adaptation(
+            f_l, l_a, xyz, xyz_w, xyz_b, xyz_p, p, helson_judd, discount_illuminant
+        )
+        logger.debug("--- Stimulus RGB adaptation end ----")
         r_a, g_a, b_a = rgb_a
-        logger.debug('RGB_A: {}'.format(rgb_a))
-        logger.debug('--- White RGB adaptation start ----')
-        rgb_aw = self._adaptation(f_l, l_a, xyz_w, xyz_w, xyz_b, xyz_p, p, helson_judd, discount_illuminant)
-        logger.debug('--- White RGB adaptation end ----')
+        logger.debug("RGB_A: {}".format(rgb_a))
+        logger.debug("--- White RGB adaptation start ----")
+        rgb_aw = self._adaptation(
+            f_l, l_a, xyz_w, xyz_w, xyz_b, xyz_p, p, helson_judd, discount_illuminant
+        )
+        logger.debug("--- White RGB adaptation end ----")
         r_aw, g_aw, b_aw = rgb_aw
-        logger.debug('RGB_AW: {}'.format(rgb_aw))
+        logger.debug("RGB_AW: {}".format(rgb_aw))
 
         # ---------------------------
         # Opponent Color Dimensions
@@ -399,102 +456,125 @@ class Hunt(object):
 
         # achromatic_cone_signal
         a_a = 2 * r_a + g_a + (1 / 20) * b_a - 3.05 + 1
-        logger.debug('A_A: {}'.format(a_a))
+        logger.debug("A_A: {}".format(a_a))
         a_aw = 2 * r_aw + g_aw + (1 / 20) * b_aw - 3.05 + 1
-        logger.debug('A_AW: {}'.format(a_aw))
+        logger.debug("A_AW: {}".format(a_aw))
 
         c1 = r_a - g_a
-        logger.debug('C1: {}'.format(c1))
+        logger.debug("C1: {}".format(c1))
         c2 = g_a - b_a
-        logger.debug('C2: {}'.format(c2))
+        logger.debug("C2: {}".format(c2))
         c3 = b_a - r_a
-        logger.debug('C3: {}'.format(c3))
+        logger.debug("C3: {}".format(c3))
 
         c1_w = r_aw - g_aw
-        logger.debug('C1_W: {}'.format(c1_w))
+        logger.debug("C1_W: {}".format(c1_w))
         c2_w = g_aw - b_aw
-        logger.debug('C2_W: {}'.format(c2_w))
+        logger.debug("C2_W: {}".format(c2_w))
         c3_w = b_aw - r_aw
-        logger.debug('C3_W: {}'.format(c3_w))
+        logger.debug("C3_W: {}".format(c3_w))
 
         # -----
         # Hue
         # -----
-        self._hue_angle = (180 * numpy.arctan2(0.5 * (c2 - c3) / 4.5, c1 - (c2 / 11)) / numpy.pi) % 360
-        hue_angle_w = (180 * numpy.arctan2(0.5 * (c2_w - c3_w) / 4.5, c1_w - (c2_w / 11)) / numpy.pi) % 360
+        self._hue_angle = (
+            180 * numpy.arctan2(0.5 * (c2 - c3) / 4.5, c1 - (c2 / 11)) / numpy.pi
+        ) % 360
+        hue_angle_w = (
+            180
+            * numpy.arctan2(0.5 * (c2_w - c3_w) / 4.5, c1_w - (c2_w / 11))
+            / numpy.pi
+        ) % 360
 
         # -------------
         # Saturation
         # -------------
         e_s = self._calculate_eccentricity_factor(self.hue_angle)
-        logger.debug('es: {}'.format(e_s))
+        logger.debug("es: {}".format(e_s))
         e_s_w = self._calculate_eccentricity_factor(hue_angle_w)
 
         f_t = l_a / (l_a + 0.1)
-        logger.debug('F_t: {}'.format(f_t))
+        logger.debug("F_t: {}".format(f_t))
         m_yb = 100 * (0.5 * (c2 - c3) / 4.5) * (e_s * (10 / 13) * n_c * n_cb * f_t)
-        logger.debug('m_yb: {}'.format(m_yb))
+        logger.debug("m_yb: {}".format(m_yb))
         m_rg = 100 * (c1 - (c2 / 11)) * (e_s * (10 / 13) * n_c * n_cb)
-        logger.debug('m_rg: {}'.format(m_rg))
+        logger.debug("m_rg: {}".format(m_rg))
         m = ((m_rg ** 2) + (m_yb ** 2)) ** 0.5
-        logger.debug('m: {}'.format(m))
+        logger.debug("m: {}".format(m))
 
         self._saturation = 50 * m / rgb_a.sum(axis=0)
 
-        m_yb_w = 100 * (0.5 * (c2_w - c3_w) / 4.5) * (e_s_w * (10 / 13) * n_c * n_cb * f_t)
+        m_yb_w = (
+            100 * (0.5 * (c2_w - c3_w) / 4.5) * (e_s_w * (10 / 13) * n_c * n_cb * f_t)
+        )
         m_rg_w = 100 * (c1_w - (c2_w / 11)) * (e_s_w * (10 / 13) * n_c * n_cb)
         m_w = ((m_rg_w ** 2) + (m_yb_w ** 2)) ** 0.5
 
         # ------------
         # Brightness
         # ------------
-        logger.debug('--- Stimulus achromatic signal START ----')
+        logger.debug("--- Stimulus achromatic signal START ----")
         a = self._calculate_achromatic_signal(l_as, s, s_w, n_bb, a_a)
-        logger.debug('--- Stimulus achromatic signal END ----')
-        logger.debug('A: {}'.format(a))
+        logger.debug("--- Stimulus achromatic signal END ----")
+        logger.debug("A: {}".format(a))
 
-        logger.debug('--- White achromatic signal START ----')
+        logger.debug("--- White achromatic signal START ----")
         a_w = self._calculate_achromatic_signal(l_as, s_w, s_w, n_bb, a_aw)
-        logger.debug('--- White achromatic signal END ----')
-        logger.debug('A_w: {}'.format(a_w))
+        logger.debug("--- White achromatic signal END ----")
+        logger.debug("A_w: {}".format(a_w))
 
         n1 = ((7 * a_w) ** 0.5) / (5.33 * n_b ** 0.13)
         n2 = (7 * a_w * n_b ** 0.362) / 200
-        logger.debug('N1: {}'.format(n1))
-        logger.debug('N2: {}'.format(n2))
+        logger.debug("N1: {}".format(n1))
+        logger.debug("N2: {}".format(n2))
 
         self._brightness = ((7 * (a + (m / 100))) ** 0.6) * n1 - n2
         brightness_w = ((7 * (a_w + (m_w / 100))) ** 0.6) * n1 - n2
-        logger.debug('Q: {}'.format(self.brightness))
-        logger.debug('Q_W: {}'.format(brightness_w))
+        logger.debug("Q: {}".format(self.brightness))
+        logger.debug("Q_W: {}".format(brightness_w))
 
         # ----------
         # Lightness
         # ----------
         z = 1 + (y_b / y_w) ** 0.5
-        logger.debug('z: {}'.format(z))
+        logger.debug("z: {}".format(z))
         self._lightness = 100 * (self.brightness / brightness_w) ** z
 
         # -------
         # Chroma
         # -------
-        self._chroma = 2.44 * (self.saturation ** 0.69) * ((self.brightness / brightness_w) ** (y_b / y_w)) * (
-            1.64 - 0.29 ** (y_b / y_w))
+        self._chroma = (
+            2.44
+            * (self.saturation ** 0.69)
+            * ((self.brightness / brightness_w) ** (y_b / y_w))
+            * (1.64 - 0.29 ** (y_b / y_w))
+        )
 
         # -------------
         # Colorfulness
         # -------------
         self._colorfulness = (f_l ** 0.15) * self.chroma
 
-    xyz_to_rgb_m = numpy.array([[0.38971, 0.68898, -0.07868],
-                                [-0.22981, 1.18340, 0.04641],
-                                [0, 0, 1]])
+    xyz_to_rgb_m = numpy.array(
+        [[0.38971, 0.68898, -0.07868], [-0.22981, 1.18340, 0.04641], [0, 0, 1]]
+    )
 
     @classmethod
     def xyz_to_rgb(cls, xyz):
         return cls.xyz_to_rgb_m.dot(xyz)
 
-    def _adaptation(self, f_l, l_a, xyz, xyz_w, xyz_b, xyz_p=None, p=None, helson_judd=False, discount_illuminant=True):
+    def _adaptation(
+        self,
+        f_l,
+        l_a,
+        xyz,
+        xyz_w,
+        xyz_b,
+        xyz_p=None,
+        p=None,
+        helson_judd=False,
+        discount_illuminant=True,
+    ):
         """
         :param f_l: Luminance adaptation factor
         :param l_a: Adapting luminance
@@ -505,42 +585,46 @@ class Hunt(object):
         :param p: Simultaneous contrast/assimilation parameter.
         """
         rgb = self.xyz_to_rgb(xyz)
-        logger.debug('RGB: {}'.format(rgb))
+        logger.debug("RGB: {}".format(rgb))
         rgb_w = self.xyz_to_rgb(xyz_w)
-        logger.debug('RGB_W: {}'.format(rgb_w))
+        logger.debug("RGB_W: {}".format(rgb_w))
         y_w = xyz_w[1]
         y_b = xyz_b[1]
 
         h_rgb = 3 * rgb_w / (rgb_w.sum())
-        logger.debug('H_RGB: {}'.format(h_rgb))
+        logger.debug("H_RGB: {}".format(h_rgb))
 
         # Chromatic adaptation factors
         if not discount_illuminant:
-            f_rgb = (1 + (l_a ** (1 / 3)) + h_rgb) / (1 + (l_a ** (1 / 3)) + (1 / h_rgb))
+            f_rgb = (1 + (l_a ** (1 / 3)) + h_rgb) / (
+                1 + (l_a ** (1 / 3)) + (1 / h_rgb)
+            )
         else:
             f_rgb = numpy.ones(numpy.shape(h_rgb))
-        logger.debug('F_RGB: {}'.format(f_rgb))
+        logger.debug("F_RGB: {}".format(f_rgb))
 
         # Adaptation factor
         if helson_judd:
-            d_rgb = self._f_n((y_b / y_w) * f_l * f_rgb[1]) - self._f_n((y_b / y_w) * f_l * f_rgb)
+            d_rgb = self._f_n((y_b / y_w) * f_l * f_rgb[1]) - self._f_n(
+                (y_b / y_w) * f_l * f_rgb
+            )
             assert d_rgb[1] == 0
         else:
             d_rgb = numpy.zeros(numpy.shape(f_rgb))
-        logger.debug('D_RGB: {}'.format(d_rgb))
+        logger.debug("D_RGB: {}".format(d_rgb))
 
         # Cone bleaching factors
         rgb_b = (10 ** 7) / ((10 ** 7) + 5 * l_a * (rgb_w / 100))
-        logger.debug('B_RGB: {}'.format(rgb_b))
+        logger.debug("B_RGB: {}".format(rgb_b))
 
         if xyz_p is not None and p is not None:
-            logger.debug('Account for simultaneous chromatic contrast')
+            logger.debug("Account for simultaneous chromatic contrast")
             rgb_p = self.xyz_to_rgb(xyz_p)
             rgb_w = self.adjust_white_for_scc(rgb_p, rgb_b, rgb_w, p)
 
         # Adapt rgb using modified
         rgb_a = 1 + rgb_b * (self._f_n(f_l * f_rgb * rgb / rgb_w) + d_rgb)
-        logger.debug('RGB_A: {}'.format(rgb_a))
+        logger.debug("RGB_A: {}".format(rgb_a))
 
         return rgb_a
 
@@ -556,7 +640,11 @@ class Hunt(object):
         :return: Adjusted cone signals for reference white.
         """
         p_rgb = rgb_p / rgb_b
-        rgb_w = rgb_w * (((1 - p) * p_rgb + (1 + p) / p_rgb) ** 0.5) / (((1 + p) * p_rgb + (1 - p) / p_rgb) ** 0.5)
+        rgb_w = (
+            rgb_w
+            * (((1 - p) * p_rgb + (1 + p) / p_rgb) ** 0.5)
+            / (((1 + p) * p_rgb + (1 - p) / p_rgb) ** 0.5)
+        )
         return rgb_w
 
     @staticmethod
@@ -564,7 +652,8 @@ class Hunt(object):
         """
         Reference
         Hernandez-Andres, J., Lee, R. L., & Romero, J. (1999).
-        Calculating correlated color temperatures across the entire gamut of daylight and skylight chromaticities.
+        Calculating correlated color temperatures across the entire gamut of daylight
+        and skylight chromaticities.
         Applied Optics, 38(27), 5703-5709.
         """
         x_e = 0.3320
@@ -581,7 +670,12 @@ class Hunt(object):
         t_2 = 0.20039
         t_3 = 0.07125
 
-        cct = a_0 + a_1 * numpy.exp(-n / t_1) + a_2 * numpy.exp(-n / t_2) + a_3 * numpy.exp(-n / t_3)
+        cct = (
+            a_0
+            + a_1 * numpy.exp(-n / t_1)
+            + a_2 * numpy.exp(-n / t_2)
+            + a_3 * numpy.exp(-n / t_3)
+        )
         return cct
 
     @staticmethod
@@ -592,18 +686,18 @@ class Hunt(object):
     def _calculate_achromatic_signal(cls, l_as, s, s_w, n_bb, a_a):
 
         j = 0.00001 / ((5 * l_as / 2.26) + 0.00001)
-        logger.debug('j: {}'.format(j))
+        logger.debug("j: {}".format(j))
 
         f_ls = 3800 * (j ** 2) * (5 * l_as / 2.26)
         f_ls += 0.2 * ((1 - (j ** 2)) ** 0.4) * ((5 * l_as / 2.26) ** (1 / 6))
-        logger.debug('F_LS: {}'.format(f_ls))
+        logger.debug("F_LS: {}".format(f_ls))
 
         b_s = 0.5 / (1 + 0.3 * ((5 * l_as / 2.26) * (s / s_w)) ** 0.3)
         b_s += 0.5 / (1 + 5 * (5 * l_as / 2.26))
-        logger.debug('B_S: {}'.format(b_s))
+        logger.debug("B_S: {}".format(b_s))
 
         a_s = (cls._f_n(f_ls * s / s_w) * 3.05 * b_s) + 0.3
-        logger.debug('A_S: {}'.format(a_s))
+        logger.debug("A_S: {}".format(a_s))
 
         return n_bb * (a_a - 1 + a_s - 0.3 + numpy.sqrt((1 + (0.3 ** 2))))
 
@@ -621,7 +715,9 @@ class Hunt(object):
 
         out = numpy.interp(hue_angle, h, e)
         out = numpy.where(hue_angle < 20.14, 0.856 - (hue_angle / 20.14) * 0.056, out)
-        out = numpy.where(hue_angle > 237.53, 0.856 + 0.344 * (360 - hue_angle) / (360 - 237.53), out)
+        out = numpy.where(
+            hue_angle > 237.53, 0.856 + 0.344 * (360 - hue_angle) / (360 - 237.53), out
+        )
 
         return out
 
@@ -630,8 +726,9 @@ class RLAB(object):
     """
     **References**
 
-    * Fairchild, M. D. (1996). Refinement of the RLAB color space. *Color Research & Application*, 21(5), 338-346.
-    * Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
+    *   Fairchild, M. D. (1996). Refinement of the RLAB color space.
+        *Color Research & Application*, 21(5), 338-346.
+    *   Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
 
     """
 
@@ -677,9 +774,7 @@ class RLAB(object):
         """
         return self._b
 
-    R = numpy.array([[1.9569, -1.1882, 0.2313],
-                     [0.3612, 0.6388, 0],
-                     [0, 0, 1]])
+    R = numpy.array([[1.9569, -1.1882, 0.2313], [0.3612, 0.6388, 0], [0, 0, 1]])
 
     def __init__(self, x, y, z, x_n, y_n, z_n, y_n_abs, sigma, d):
         """
@@ -690,8 +785,10 @@ class RLAB(object):
         :param y_n: Y value of reference white :math:`Y_n`.
         :param z_n: Z value of reference white :math:`Z_n`.
         :param y_n_abs: Absolute luminance :math:`Y_n` of a white object in cd/m^2.
-        :param sigma: Relative luminance parameter :math:`\\sigma`. For average surround set :math:`\\sigma=1/2.3`,
-                      for dim surround :math:`\\sigma=1/2.9` and for dark surround :math:`\\sigma=1/3.5`.
+        :param sigma: Relative luminance parameter :math:`\\sigma`. For average
+                      surround set :math:`\\sigma=1/2.3`, for dim surround
+                      :math:`\\sigma=1/2.9` and for dark surround
+                      :math:`\\sigma=1/3.5`.
         :param d: Degree of adaptation :math:`D`.
         """
         xyz = numpy.array([x, y, z])
@@ -699,23 +796,24 @@ class RLAB(object):
 
         lms = Hunt.xyz_to_rgb(xyz)
         lms_n = Hunt.xyz_to_rgb(xyz_n)
-        logger.debug('LMS: {}'.format(lms))
-        logger.debug('LMS_n: {}'.format(lms_n))
+        logger.debug("LMS: {}".format(lms))
+        logger.debug("LMS_n: {}".format(lms_n))
 
         lms_e = (3 * lms_n) / (lms_n[0] + lms_n[1] + lms_n[2])
         lms_p = (1 + (y_n_abs ** (1 / 3)) + lms_e) / (
-            1 + (y_n_abs ** (1 / 3)) + (1 / lms_e))
-        logger.debug('LMS_e: {}'.format(lms_e))
-        logger.debug('LMS_p: {}'.format(lms_p))
+            1 + (y_n_abs ** (1 / 3)) + (1 / lms_e)
+        )
+        logger.debug("LMS_e: {}".format(lms_e))
+        logger.debug("LMS_p: {}".format(lms_p))
 
         lms_a = (lms_p + d * (1 - lms_p)) / lms_n
-        logger.debug('LMS_a: {}'.format(lms_a))
+        logger.debug("LMS_a: {}".format(lms_a))
 
         # If we want to allow arrays as input we need special handling here.
         if len(numpy.shape(x)) == 0:
             # Okay so just a number, we can do things by the book.
             a = numpy.diag(lms_a)
-            logger.debug('A: {}'.format(a))
+            logger.debug("A: {}".format(a))
             xyz_ref = self.R.dot(a).dot(Hunt.xyz_to_rgb_m).dot(xyz)
         else:
             # So we have an array. Since constructing huge multidimensional
@@ -727,24 +825,28 @@ class RLAB(object):
             xyz_ref = numpy.zeros((3, input_dim))
             for layer in range(input_dim):
                 a = numpy.diag(lms_a[..., layer])
-                logger.debug('A layer {}: {}'.format(layer, a))
-                xyz_ref[..., layer] = self.R.dot(a).dot(Hunt.xyz_to_rgb_m).dot(xyz[..., layer])
+                logger.debug("A layer {}: {}".format(layer, a))
+                xyz_ref[..., layer] = (
+                    self.R.dot(a).dot(Hunt.xyz_to_rgb_m).dot(xyz[..., layer])
+                )
 
-        logger.debug('XYZ_ref: {}'.format(xyz_ref))
+        logger.debug("XYZ_ref: {}".format(xyz_ref))
         x_ref, y_ref, z_ref = xyz_ref
 
         # Lightness
         self._lightness = 100 * (y_ref ** sigma)
-        logger.debug('lightness: {}'.format(self.lightness))
+        logger.debug("lightness: {}".format(self.lightness))
 
         # Opponent Color Dimensions
         self._a = 430 * ((x_ref ** sigma) - (y_ref ** sigma))
         self._b = 170 * ((y_ref ** sigma) - (z_ref ** sigma))
-        logger.debug('a: {}'.format(self._a))
-        logger.debug('b: {}'.format(self._b))
+        logger.debug("a: {}".format(self._a))
+        logger.debug("b: {}".format(self._b))
 
         # Hue
-        self._hue_angle = (360 * numpy.arctan2(self._b, self._a) / (2 * numpy.pi) + 360) % 360
+        self._hue_angle = (
+            360 * numpy.arctan2(self._b, self._a) / (2 * numpy.pi) + 360
+        ) % 360
 
         # Chroma
         self._chroma = numpy.sqrt((self._a ** 2) + (self._b ** 2))
@@ -758,9 +860,10 @@ class ATD95(object):
     **References**
 
 
-    * Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
-    * Guth, S. L. (1995, April). Further applications of the ATD model for color vision. In *IS&T/SPIE's Symposium
-      on Electronic Imaging: Science & Technology* (pp. 12-26). International Society for Optics and Photonics.
+    *   Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
+    *   Guth, S. L. (1995, April). Further applications of the ATD model for color
+        vision. In *IS&T/SPIE's Symposium on Electronic Imaging: Science &
+        Technology* (pp. 12-26). International Society for Optics and Photonics.
 
     """
 
@@ -800,18 +903,18 @@ class ATD95(object):
         """
         xyz = self._scale_to_luminance(numpy.array([x, y, z]), y_0_abs)
         xyz_0 = self._scale_to_luminance(numpy.array([x_0, y_0, z_0]), y_0_abs)
-        logger.debug('Scaled XYZ: {}'.format(xyz))
-        logger.debug('Scaled XYZ_0: {}'.format(xyz))
+        logger.debug("Scaled XYZ: {}".format(xyz))
+        logger.debug("Scaled XYZ_0: {}".format(xyz))
 
         # Adaptation Model
         lms = self._xyz_to_lms(xyz)
-        logger.debug('LMS: {}'.format(lms))
+        logger.debug("LMS: {}".format(lms))
 
         xyz_a = k_1 * xyz + k_2 * xyz_0
-        logger.debug('XYZ_a: {}'.format(xyz_a))
+        logger.debug("XYZ_a: {}".format(xyz_a))
 
         lms_a = self._xyz_to_lms(xyz_a)
-        logger.debug('LMS_a: {}'.format(lms_a))
+        logger.debug("LMS_a: {}".format(lms_a))
 
         l_g, m_g, s_g = lms * (sigma / (sigma + lms_a))
 
@@ -846,21 +949,22 @@ class ATD95(object):
     @staticmethod
     def _xyz_to_lms(xyz):
         x, y, z = xyz
-        l = ((0.66 * (0.2435 * x + 0.8524 * y - 0.0516 * z)) ** 0.7) + 0.024
-        m = ((-0.3954 * x + 1.1642 * y + 0.0837 * z) ** 0.7) + 0.036
-        s = ((0.43 * (0.04 * y + 0.6225 * z)) ** 0.7) + 0.31
-        return numpy.array([l, m, s])
+        L = ((0.66 * (0.2435 * x + 0.8524 * y - 0.0516 * z)) ** 0.7) + 0.024
+        M = ((-0.3954 * x + 1.1642 * y + 0.0837 * z) ** 0.7) + 0.036
+        S = ((0.43 * (0.04 * y + 0.6225 * z)) ** 0.7) + 0.31
+        return numpy.array([L, M, S])
 
 
 class LLAB(object):
     """
     **References**
 
-    * Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
-    * Luo, M. R., & Morovic, J. (1996, September). Two unsolved issues in colour management-colour appearance and
-      gamut mapping. In *5th International Conference on High Technology* (pp. 136-147).
-    * Luo, M. R., Lo, M. C., & Kuo, W. G. (1996). The LLAB (l: c) colour model.
-      *Color Research & Application*, 21(6), 412-429.
+    *   Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
+    *   Luo, M. R., & Morovic, J. (1996, September). Two unsolved issues in colour
+        management-colour appearance and gamut mapping. In *5th International
+        Conference on High Technology* (pp. 136-147).
+    *   Luo, M. R., Lo, M. C., & Kuo, W. G. (1996). The LLAB (l: c) colour model.
+        *Color Research & Application*, 21(6), 412-429.
     """
 
     @property
@@ -921,53 +1025,55 @@ class LLAB(object):
         :param d: Discounting-the-Illuminant factor :math:`D`.
         """
         xyz = numpy.array([x, y, z])
-        logger.debug('XYZ: {}'.format([x, y, z]))
+        logger.debug("XYZ: {}".format([x, y, z]))
         xyz_0 = numpy.array([x_0, y_0, z_0])
 
         r, g, b = self.xyz_to_rgb(xyz)
-        logger.debug('RGB: {}'.format([r, g, b]))
+        logger.debug("RGB: {}".format([r, g, b]))
         r_0, g_0, b_0 = self.xyz_to_rgb(xyz_0)
-        logger.debug('RGB_0: {}'.format([r_0, g_0, b_0]))
+        logger.debug("RGB_0: {}".format([r_0, g_0, b_0]))
 
         xyz_0r = numpy.array([95.05, 100, 108.88])
         r_0r, g_0r, b_0r = self.xyz_to_rgb(xyz_0r)
-        logger.debug('RGB_0r: {}'.format([r_0r, g_0r, b_0r]))
+        logger.debug("RGB_0r: {}".format([r_0r, g_0r, b_0r]))
 
         beta = (b_0 / b_0r) ** 0.0834
-        logger.debug('beta: {}'.format(beta))
+        logger.debug("beta: {}".format(beta))
         r_r = (d * (r_0r / r_0) + 1 - d) * r
         g_r = (d * (g_0r / g_0) + 1 - d) * g
         b_r = (d * (b_0r / (b_0 ** beta)) + 1 - d) * (abs(b) ** beta)
-        logger.debug('RGB_r: {}'.format([r_r, g_r, b_r]))
+        logger.debug("RGB_r: {}".format([r_r, g_r, b_r]))
 
         rgb_r = numpy.array([r_r, g_r, b_r])
 
         # m_inv = numpy.linalg.inv(self.xyz_to_rgb_m)
-        m_inv = numpy.array([[0.987, -0.1471, 0.16],
-                             [0.4323, 0.5184, 0.0493],
-                             [-0.0085, 0.04, 0.9685]])
+        m_inv = numpy.array(
+            [[0.987, -0.1471, 0.16], [0.4323, 0.5184, 0.0493], [-0.0085, 0.04, 0.9685]]
+        )
         x_r, y_r, z_r = m_inv.dot(rgb_r * y)
-        logger.debug('XYZ_r: {}'.format([x_r, y_r, z_r]))
+        logger.debug("XYZ_r: {}".format([x_r, y_r, z_r]))
 
         # Opponent Color Dimension
         def f(w):
-            return numpy.where(w > 0.008856,
-                               w ** (1 / f_s),
-                               (((0.008856 ** (1 / f_s)) - (16 / 116)) / 0.008856) * w + (16 / 116))
+            return numpy.where(
+                w > 0.008856,
+                w ** (1 / f_s),
+                (((0.008856 ** (1 / f_s)) - (16 / 116)) / 0.008856) * w + (16 / 116),
+            )
 
         # lightness_contrast_exponent
         z = 1 + f_l * ((y_b / 100) ** 0.5)
-        logger.debug('z: {}'.format(z))
+        logger.debug("z: {}".format(z))
 
         self._lightness = 116 * (f(y_r / 100) ** z) - 16
         a = 500 * (f(x_r / 95.05) - f(y_r / 100))
         b = 200 * (f(y_r / 100) - f(z_r / 108.88))
-        logger.debug('A: {}'.format(a))
-        logger.debug('B: {}'.format(b))
+        logger.debug("A: {}".format(a))
+        logger.debug("B: {}".format(b))
 
-        logger.debug('f(Xr): {}'.format(f(x_r / 95.05)))
-        logger.debug('f(Yr): {}'.format(f(y_r / 100)))
-        logger.debug('f(Zr): {}'.format(f(z_r / 108.88)))
+        logger.debug("f(Xr): {}".format(f(x_r / 95.05)))
+        logger.debug("f(Yr): {}".format(f(y_r / 100)))
+        logger.debug("f(Zr): {}".format(f(z_r / 108.88)))
 
         # Perceptual Correlates
         c = (a ** 2 + b ** 2) ** 0.5
@@ -985,9 +1091,13 @@ class LLAB(object):
         self._a_l = c_l * numpy.cos(hue_angle_rad)
         self._b_l = c_l * numpy.sin(hue_angle_rad)
 
-    xyz_to_rgb_m = numpy.array([[0.8951, 0.2664, -0.1614],
-                                [-0.7502, 1.7135, 0.0367],
-                                [0.0389, -0.0685, 1.0296]])
+    xyz_to_rgb_m = numpy.array(
+        [
+            [0.8951, 0.2664, -0.1614],
+            [-0.7502, 1.7135, 0.0367],
+            [0.0389, -0.0685, 1.0296],
+        ]
+    )
 
     @classmethod
     def xyz_to_rgb(cls, xyz):
@@ -998,9 +1108,9 @@ class CIECAM02(object):
     """
     **References**
 
-    * CIE TC 8-01 (2004). A Color appearance model for color management systems.
-      Publication 159. Vienna: CIE Central Bureau. ISBN 3-901906-29-0.
-    * Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
+    *   CIE TC 8-01 (2004). A Color appearance model for color management systems.
+        Publication 159. Vienna: CIE Central Bureau. ISBN 3-901906-29-0.
+    *   Fairchild, M. D. (2013). *Color appearance models*, 3rd Ed. John Wiley & Sons.
     """
 
     @property
@@ -1059,15 +1169,15 @@ class CIECAM02(object):
         """
         return self._b
 
-    M_CAT02 = numpy.array([[0.7328, 0.4296, -0.1624],
-                           [-0.7036, 1.6975, 0.0061],
-                           [0.0030, 0.0136, 0.9834]])
+    M_CAT02 = numpy.array(
+        [[0.7328, 0.4296, -0.1624], [-0.7036, 1.6975, 0.0061], [0.0030, 0.0136, 0.9834]]
+    )
 
     M_CAT02_inv = numpy.linalg.inv(M_CAT02)
 
-    M_HPE = numpy.array([[0.38971, 0.68898, -0.07868],
-                         [-0.22981, 1.18340, 0.04641],
-                         [0, 0, 1]])
+    M_HPE = numpy.array(
+        [[0.38971, 0.68898, -0.07868], [-0.22981, 1.18340, 0.04641], [0, 0, 1]]
+    )
 
     def __init__(self, x, y, z, x_w, y_w, z_w, y_b, l_a, c, n_c, f, d=False):
         """
@@ -1079,9 +1189,12 @@ class CIECAM02(object):
         :param z_w: Z value of reference white :math:`Z_W`.
         :param y_b: Background relative luminance :math:`Y_b`.
         :param l_a: Adapting luminance :math:`L_A` in cd/m^2.
-        :param c: Exponential nonlinearity :math:`c`. (Average/Dim/Dark) (0.69/0.59/0.525).
-        :param n_c: Chromatic induction factor :math:`N_c`. (Average/Dim/Dark) (1.0,0.9,0.8).
-        :param f: Maximum degree of adaptation :math:`F`. (Average/Dim/Dark) (1.0/0.9/0.8).
+        :param c: Exponential nonlinearity :math:`c`. (Average/Dim/Dark)
+                  (0.69/0.59/0.525).
+        :param n_c: Chromatic induction factor :math:`N_c`. (Average/Dim/Dark)
+                    (1.0,0.9,0.8).
+        :param f: Maximum degree of adaptation :math:`F`. (Average/Dim/Dark)
+                  (1.0/0.9/0.8).
         :param d: Discount-the-Illuminant factor :math:`D`.
         """
 
@@ -1124,20 +1237,32 @@ class CIECAM02(object):
 
         # Lightness
         a = self._compute_achromatic_response(r_a, g_a, b_a, self.n_bb)
-        logger.debug('A: {}'.format(a))
+        logger.debug("A: {}".format(a))
         a_w = self._compute_achromatic_response(r_aw, g_aw, b_aw, self.n_bb)
-        logger.debug('A_W: {}'.format(a_w))
+        logger.debug("A_W: {}".format(a_w))
         self._lightness = 100 * (a / a_w) ** (c * z)  # 16.24
 
         # Brightness
         # self._brightness = self.compute_brightness(self.lightness, surround, a_w, f_l)
-        self._brightness = (4 / c) * numpy.sqrt(self._lightness / 100) * (a_w + 4) * f_l ** 0.25
+        self._brightness = (
+            (4 / c) * numpy.sqrt(self._lightness / 100) * (a_w + 4) * f_l ** 0.25
+        )
 
         # Chroma
-        # self.chroma = self.compute_chroma(rgb_a, self.lightness, surround, self.N_cb, e_t, self.a, self.b, n)
-        t = ((50000 / 13) * n_c * self.n_cb * e_t * numpy.sqrt((self._a ** 2) + (self._b ** 2))) / (
-            rgb_a[0] + rgb_a[1] + (21 / 20) * rgb_a[2])
-        self._chroma = (t ** 0.9) * numpy.sqrt(self._lightness / 100) * ((1.64 - 0.29 ** n) ** 0.73)
+        # self.chroma = self.compute_chroma(rgb_a, self.lightness, surround,
+        # self.N_cb, e_t, self.a, self.b, n)
+        t = (
+            (50000 / 13)
+            * n_c
+            * self.n_cb
+            * e_t
+            * numpy.sqrt((self._a ** 2) + (self._b ** 2))
+        ) / (rgb_a[0] + rgb_a[1] + (21 / 20) * rgb_a[2])
+        self._chroma = (
+            (t ** 0.9)
+            * numpy.sqrt(self._lightness / 100)
+            * ((1.64 - 0.29 ** n) ** 0.73)
+        )
 
         # Colorfulness
         self._colorfulness = self.chroma * f_l ** 0.25
@@ -1147,8 +1272,12 @@ class CIECAM02(object):
 
         # Cartesian coordinates
         self.a_c, self.b_c = self._compute_cartesian_coordinates(self.chroma, self._h)
-        self.a_m, self.b_m = self._compute_cartesian_coordinates(self._colorfulness, self._h)
-        self.a_s, self.b_s = self._compute_cartesian_coordinates(self.saturation, self._h)
+        self.a_m, self.b_m = self._compute_cartesian_coordinates(
+            self._colorfulness, self._h
+        )
+        self.a_s, self.b_s = self._compute_cartesian_coordinates(
+            self.saturation, self._h
+        )
 
     @classmethod
     def _compute_adaptation(cls, xyz, xyz_w, f_l, d):
@@ -1190,7 +1319,9 @@ class CIECAM02(object):
 
     @staticmethod
     def _compute_degree_of_adaptation(surround_conditions, adapting_luminance):
-        return surround_conditions * (1 - (1 / 3.6) * numpy.exp((-adapting_luminance - 42) / 92))
+        return surround_conditions * (
+            1 - (1 / 3.6) * numpy.exp((-adapting_luminance - 42) / 92)
+        )
 
     @staticmethod
     def _compute_hunt_pointer_estevez_fundamentals(rgb):
@@ -1198,7 +1329,9 @@ class CIECAM02(object):
 
     @staticmethod
     def _compute_nonlinearities(f_l, rgb):
-        return 0.1 + (400 * (f_l * rgb / 100) ** 0.42) / (27.13 + (f_l * rgb / 100) ** 0.42)
+        return 0.1 + (400 * (f_l * rgb / 100) ** 0.42) / (
+            27.13 + (f_l * rgb / 100) ** 0.42
+        )
 
     @staticmethod
     def _compute_achromatic_response(r, g, b, n_bb):
@@ -1215,10 +1348,14 @@ class CIECAM02m1(CIECAM02):
     """
     **References**
 
-    * Wu, R. C., & Wardman, R. H. (2007). Proposed modification to the CIECAM02 colour appearance model to include the
-      simultaneous contrast effects. *Color Research & Application*, 32(2), 121-129.
+    *   Wu, R. C., & Wardman, R. H. (2007). Proposed modification to the CIECAM02
+        colour appearance model to include the simultaneous contrast effects.
+        *Color Research & Application*, 32(2), 121-129.
     """
-    def __init__(self, x, y, z, x_w, y_w, z_w, x_b, y_b, z_b, l_a, c, n_c, f, p, d=False):
+
+    def __init__(
+        self, x, y, z, x_w, y_w, z_w, x_b, y_b, z_b, l_a, c, n_c, f, p, d=False
+    ):
         """
         :param x: X value of test sample :math:`X`.
         :param y: Y value of test sample :math:`Y`.
@@ -1230,9 +1367,12 @@ class CIECAM02m1(CIECAM02):
         :param y_b: Y value of background :math:`Y_b`.
         :param z_b: Z value of background :math:`Z_b`.
         :param l_a: Adapting luminance :math:`L_A` in cd/m^2.
-        :param c: Exponential nonlinearity :math:`c`. (Average/Dim/Dark) (0.69/0.59/5.25).
-        :param n_c: Chromatic induction factor :math:`N_c`. (Average/Dim/Dark) (1.0,0.9,0.8).
-        :param f: Maximum degree of adaptation :math:`F`. (Average/Dim/Dark) (1.0/0.9/0.8).
+        :param c: Exponential nonlinearity :math:`c`. (Average/Dim/Dark)
+                  (0.69/0.59/5.25).
+        :param n_c: Chromatic induction factor :math:`N_c`. (Average/Dim/Dark)
+                    (1.0,0.9,0.8).
+        :param f: Maximum degree of adaptation :math:`F`. (Average/Dim/Dark)
+                  (1.0/0.9/0.8).
         :param p: Simultaneous contrast/assimilation parameter.
         :param d: Discount-the-Illuminant factor :math:`D`.
         """
@@ -1244,7 +1384,8 @@ class CIECAM02m1(CIECAM02):
 
     def _compute_adaptation(self, xyz, xyz_w, f_l, d):
         """
-        Modified adaptation procedure incorporating simultaneous chromatic contrast from Hunt model.
+        Modified adaptation procedure incorporating simultaneous chromatic contrast
+        from Hunt model.
 
         :param xyz: Stimulus XYZ.
         :param xyz_w: Reference white XYZ.

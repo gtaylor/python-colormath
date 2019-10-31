@@ -44,30 +44,30 @@ class ColorBase(object):
         """
         String representation of the color.
         """
-        retval = self.__class__.__name__ + ' ('
+        retval = self.__class__.__name__ + " ("
         for val in self.VALUES:
             value = getattr(self, val, None)
             if value is not None:
-                retval += '%s:%.4f ' % (val, getattr(self, val))
-        if hasattr(self, 'observer'):
-            retval += 'observer:' + self.observer
-        if hasattr(self, 'illuminant'):
-            retval += ' illuminant:' + self.illuminant
-        return retval.strip() + ')'
+                retval += "%s:%.4f " % (val, getattr(self, val))
+        if hasattr(self, "observer"):
+            retval += "observer:" + self.observer
+        if hasattr(self, "illuminant"):
+            retval += " illuminant:" + self.illuminant
+        return retval.strip() + ")"
 
     def __repr__(self):
         """
         Evaluable string representation of the object.
         """
-        retval = self.__class__.__name__ + '('
+        retval = self.__class__.__name__ + "("
         attributes = [(attr, getattr(self, attr)) for attr in self.VALUES]
         values = [x + "=" + repr(y) for x, y in attributes]
-        retval += ', '.join(values)
-        if hasattr(self, 'observer'):
-            retval += ', observer=\'' + self.observer + '\''
-        if hasattr(self, 'illuminant'):
-            retval += ', illuminant=\'' + self.illuminant + '\''
-        return retval + ')'
+        retval += ", ".join(values)
+        if hasattr(self, "observer"):
+            retval += ", observer='" + self.observer + "'"
+        if hasattr(self, "illuminant"):
+            retval += ", illuminant='" + self.illuminant + "'"
+        return retval + ")"
 
 
 class IlluminantMixin(object):
@@ -97,7 +97,8 @@ class IlluminantMixin(object):
 
         .. note:: This only changes the illuminant. It does no conversion
             of the color's coordinates. For this, you'll want to refer to
-            :py:meth:`XYZColor.apply_adaptation <colormath.color_objects.XYZColor.apply_adaptation>`.
+            :py:meth:`XYZColor.apply_adaptation \
+<colormath.color_objects.XYZColor.apply_adaptation>`.
 
         .. tip:: Call this after setting your observer.
 
@@ -131,7 +132,7 @@ class IlluminantMixin(object):
         except (KeyError, AttributeError):
             raise InvalidIlluminantError(illuminant)
 
-        return {'X': illum_xyz[0], 'Y': illum_xyz[1], 'Z': illum_xyz[2]}
+        return {"X": illum_xyz[0], "Y": illum_xyz[1], "Z": illum_xyz[2]}
 
 
 class SpectralColor(IlluminantMixin, ColorBase):
@@ -144,40 +145,119 @@ class SpectralColor(IlluminantMixin, ColorBase):
     You may convert spectral colors to any other color space, but you can't
     convert any other color space back to spectral.
 
-    See `Spectral power distribution <http://en.wikipedia.org/wiki/Spectral_power_distribution>`_
+    See `Spectral power distribution \
+<http://en.wikipedia.org/wiki/Spectral_power_distribution>`_
     on Wikipedia for some higher level details on how these work.
     """
 
     VALUES = [
-        'spec_340nm', 'spec_350nm', 'spec_360nm', 'spec_370nm',
-        'spec_380nm', 'spec_390nm', 'spec_400nm', 'spec_410nm',
-        'spec_420nm', 'spec_430nm', 'spec_440nm', 'spec_450nm',
-        'spec_460nm', 'spec_470nm', 'spec_480nm', 'spec_490nm',
-        'spec_500nm', 'spec_510nm', 'spec_520nm', 'spec_530nm',
-        'spec_540nm', 'spec_550nm', 'spec_560nm', 'spec_570nm',
-        'spec_580nm', 'spec_590nm', 'spec_600nm', 'spec_610nm',
-        'spec_620nm', 'spec_630nm', 'spec_640nm', 'spec_650nm',
-        'spec_660nm', 'spec_670nm', 'spec_680nm', 'spec_690nm',
-        'spec_700nm', 'spec_710nm', 'spec_720nm', 'spec_730nm',
-        'spec_740nm', 'spec_750nm', 'spec_760nm', 'spec_770nm',
-        'spec_780nm', 'spec_790nm', 'spec_800nm', 'spec_810nm',
-        'spec_820nm', 'spec_830nm'
+        "spec_340nm",
+        "spec_350nm",
+        "spec_360nm",
+        "spec_370nm",
+        "spec_380nm",
+        "spec_390nm",
+        "spec_400nm",
+        "spec_410nm",
+        "spec_420nm",
+        "spec_430nm",
+        "spec_440nm",
+        "spec_450nm",
+        "spec_460nm",
+        "spec_470nm",
+        "spec_480nm",
+        "spec_490nm",
+        "spec_500nm",
+        "spec_510nm",
+        "spec_520nm",
+        "spec_530nm",
+        "spec_540nm",
+        "spec_550nm",
+        "spec_560nm",
+        "spec_570nm",
+        "spec_580nm",
+        "spec_590nm",
+        "spec_600nm",
+        "spec_610nm",
+        "spec_620nm",
+        "spec_630nm",
+        "spec_640nm",
+        "spec_650nm",
+        "spec_660nm",
+        "spec_670nm",
+        "spec_680nm",
+        "spec_690nm",
+        "spec_700nm",
+        "spec_710nm",
+        "spec_720nm",
+        "spec_730nm",
+        "spec_740nm",
+        "spec_750nm",
+        "spec_760nm",
+        "spec_770nm",
+        "spec_780nm",
+        "spec_790nm",
+        "spec_800nm",
+        "spec_810nm",
+        "spec_820nm",
+        "spec_830nm",
     ]
 
-    def __init__(self,
-        spec_340nm=0.0, spec_350nm=0.0, spec_360nm=0.0, spec_370nm=0.0,
-        spec_380nm=0.0, spec_390nm=0.0, spec_400nm=0.0, spec_410nm=0.0,
-        spec_420nm=0.0, spec_430nm=0.0, spec_440nm=0.0, spec_450nm=0.0,
-        spec_460nm=0.0, spec_470nm=0.0, spec_480nm=0.0, spec_490nm=0.0,
-        spec_500nm=0.0, spec_510nm=0.0, spec_520nm=0.0, spec_530nm=0.0,
-        spec_540nm=0.0, spec_550nm=0.0, spec_560nm=0.0, spec_570nm=0.0,
-        spec_580nm=0.0, spec_590nm=0.0, spec_600nm=0.0, spec_610nm=0.0,
-        spec_620nm=0.0, spec_630nm=0.0, spec_640nm=0.0, spec_650nm=0.0,
-        spec_660nm=0.0, spec_670nm=0.0, spec_680nm=0.0, spec_690nm=0.0,
-        spec_700nm=0.0, spec_710nm=0.0, spec_720nm=0.0, spec_730nm=0.0,
-        spec_740nm=0.0, spec_750nm=0.0, spec_760nm=0.0, spec_770nm=0.0,
-        spec_780nm=0.0, spec_790nm=0.0, spec_800nm=0.0, spec_810nm=0.0,
-        spec_820nm=0.0, spec_830nm=0.0, observer='2', illuminant='d50'):
+    def __init__(
+        self,
+        spec_340nm=0.0,
+        spec_350nm=0.0,
+        spec_360nm=0.0,
+        spec_370nm=0.0,
+        spec_380nm=0.0,
+        spec_390nm=0.0,
+        spec_400nm=0.0,
+        spec_410nm=0.0,
+        spec_420nm=0.0,
+        spec_430nm=0.0,
+        spec_440nm=0.0,
+        spec_450nm=0.0,
+        spec_460nm=0.0,
+        spec_470nm=0.0,
+        spec_480nm=0.0,
+        spec_490nm=0.0,
+        spec_500nm=0.0,
+        spec_510nm=0.0,
+        spec_520nm=0.0,
+        spec_530nm=0.0,
+        spec_540nm=0.0,
+        spec_550nm=0.0,
+        spec_560nm=0.0,
+        spec_570nm=0.0,
+        spec_580nm=0.0,
+        spec_590nm=0.0,
+        spec_600nm=0.0,
+        spec_610nm=0.0,
+        spec_620nm=0.0,
+        spec_630nm=0.0,
+        spec_640nm=0.0,
+        spec_650nm=0.0,
+        spec_660nm=0.0,
+        spec_670nm=0.0,
+        spec_680nm=0.0,
+        spec_690nm=0.0,
+        spec_700nm=0.0,
+        spec_710nm=0.0,
+        spec_720nm=0.0,
+        spec_730nm=0.0,
+        spec_740nm=0.0,
+        spec_750nm=0.0,
+        spec_760nm=0.0,
+        spec_770nm=0.0,
+        spec_780nm=0.0,
+        spec_790nm=0.0,
+        spec_800nm=0.0,
+        spec_810nm=0.0,
+        spec_820nm=0.0,
+        spec_830nm=0.0,
+        observer="2",
+        illuminant="d50",
+    ):
         """
         :keyword str observer: Observer angle. Either ``'2'`` or ``'10'`` degrees.
         :keyword str illuminant: See :doc:`illuminants` for valid values.
@@ -289,9 +369,9 @@ class LabColor(IlluminantMixin, ColorBase):
     Wikipedia.
     """
 
-    VALUES = ['lab_l', 'lab_a', 'lab_b']
+    VALUES = ["lab_l", "lab_a", "lab_b"]
 
-    def __init__(self, lab_l, lab_a, lab_b, observer='2', illuminant='d50'):
+    def __init__(self, lab_l, lab_a, lab_b, observer="2", illuminant="d50"):
         """
         :param float lab_l: L coordinate.
         :param float lab_a: a coordinate.
@@ -322,13 +402,14 @@ class LCHabColor(IlluminantMixin, ColorBase):
     CIE Lab.  This differs from :py:class:`LCHuvColor`, which was converted to
     LCH through CIE Luv.
 
-    See `Introduction to Colour Spaces <http://www.colourphil.co.uk/lab_lch_colour_space.shtml>`_
-    by Phil Cruse for an illustration of how CIE LCH differs from CIE Lab.
+    See `Introduction to Colour Spaces \
+<http://www.colourphil.co.uk/lab_lch_colour_space.shtml>`_ by Phil Cruse for an
+    illustration of how CIE LCH differs from CIE Lab.
     """
 
-    VALUES = ['lch_l', 'lch_c', 'lch_h']
+    VALUES = ["lch_l", "lch_c", "lch_h"]
 
-    def __init__(self, lch_l, lch_c, lch_h, observer='2', illuminant='d50'):
+    def __init__(self, lch_l, lch_c, lch_h, observer="2", illuminant="d50"):
         """
         :param float lch_l: L coordinate.
         :param float lch_c: C coordinate.
@@ -359,13 +440,14 @@ class LCHuvColor(IlluminantMixin, ColorBase):
     CIE Luv.  This differs from :py:class:`LCHabColor`, which was converted to
     LCH through CIE Lab.
 
-    See `Introduction to Colour Spaces <http://www.colourphil.co.uk/lab_lch_colour_space.shtml>`_
-    by Phil Cruse for an illustration of how CIE LCH differs from CIE Lab.
+    See `Introduction to Colour Spaces \
+<http://www.colourphil.co.uk/lab_lch_colour_space.shtml>`_ by Phil Cruse for an
+    illustration of how CIE LCH differs from CIE Lab.
     """
 
-    VALUES = ['lch_l', 'lch_c', 'lch_h']
+    VALUES = ["lch_l", "lch_c", "lch_h"]
 
-    def __init__(self, lch_l, lch_c, lch_h, observer='2', illuminant='d50'):
+    def __init__(self, lch_l, lch_c, lch_h, observer="2", illuminant="d50"):
         """
         :param float lch_l: L coordinate.
         :param float lch_c: C coordinate.
@@ -395,9 +477,9 @@ class LuvColor(IlluminantMixin, ColorBase):
     Represents an Luv color.
     """
 
-    VALUES = ['luv_l', 'luv_u', 'luv_v']
+    VALUES = ["luv_l", "luv_u", "luv_v"]
 
-    def __init__(self, luv_l, luv_u, luv_v, observer='2', illuminant='d50'):
+    def __init__(self, luv_l, luv_u, luv_v, observer="2", illuminant="d50"):
         """
         :param float luv_l: L coordinate.
         :param float luv_u: u coordinate.
@@ -427,9 +509,9 @@ class XYZColor(IlluminantMixin, ColorBase):
     Represents an XYZ color.
     """
 
-    VALUES = ['xyz_x', 'xyz_y', 'xyz_z']
+    VALUES = ["xyz_x", "xyz_y", "xyz_z"]
 
-    def __init__(self, xyz_x, xyz_y, xyz_z, observer='2', illuminant='d50'):
+    def __init__(self, xyz_x, xyz_y, xyz_z, observer="2", illuminant="d50"):
         """
         :param float xyz_x: X coordinate.
         :param float xyz_y: Y coordinate.
@@ -453,7 +535,7 @@ class XYZColor(IlluminantMixin, ColorBase):
         self.set_observer(observer)
         self.set_illuminant(illuminant)
 
-    def apply_adaptation(self, target_illuminant, adaptation='bradford'):
+    def apply_adaptation(self, target_illuminant, adaptation="bradford"):
         """
         This applies an adaptation matrix to change the XYZ color's illuminant.
         You'll most likely only need this during RGB conversions.
@@ -465,13 +547,15 @@ class XYZColor(IlluminantMixin, ColorBase):
         # native reference white of the target RGB space, a transformation matrix
         # must be applied.
         if self.illuminant != target_illuminant:
-            logger.debug("  \\* Applying transformation from %s to %s ",
-                         self.illuminant, target_illuminant)
+            logger.debug(
+                "  \\* Applying transformation from %s to %s ",
+                self.illuminant,
+                target_illuminant,
+            )
             # Sets the adjusted XYZ values, and the new illuminant.
             apply_chromatic_adaptation_on_color(
-                color=self,
-                targ_illum=target_illuminant,
-                adaptation=adaptation)
+                color=self, targ_illum=target_illuminant, adaptation=adaptation
+            )
 
 
 # noinspection PyPep8Naming
@@ -480,9 +564,9 @@ class xyYColor(IlluminantMixin, ColorBase):
     Represents an xyY color.
     """
 
-    VALUES = ['xyy_x', 'xyy_y', 'xyy_Y']
+    VALUES = ["xyy_x", "xyy_y", "xyy_Y"]
 
-    def __init__(self, xyy_x, xyy_y, xyy_Y, observer='2', illuminant='d50'):
+    def __init__(self, xyy_x, xyy_y, xyy_Y, observer="2", illuminant="d50"):
         """
         :param float xyy_x: x coordinate.
         :param float xyy_y: y coordinate.
@@ -514,7 +598,7 @@ class BaseRGBColor(ColorBase):
     .. warning:: Do not use this class directly!
     """
 
-    VALUES = ['rgb_r', 'rgb_g', 'rgb_b']
+    VALUES = ["rgb_r", "rgb_g", "rgb_b"]
 
     def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=False):
         """
@@ -588,7 +672,7 @@ class BaseRGBColor(ColorBase):
         :rtype: str
         """
         rgb_r, rgb_g, rgb_b = self.get_upscaled_value_tuple()
-        return '#%02x%02x%02x' % (rgb_r, rgb_g, rgb_b)
+        return "#%02x%02x%02x" % (rgb_r, rgb_g, rgb_b)
 
     @classmethod
     def new_from_rgb_hex(cls, hex_str):
@@ -599,7 +683,7 @@ class BaseRGBColor(ColorBase):
         :rtype: sRGBColor
         """
         colorstring = hex_str.strip()
-        if colorstring[0] == '#':
+        if colorstring[0] == "#":
             colorstring = colorstring[1:]
         if len(colorstring) != 6:
             raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
@@ -629,16 +713,20 @@ class sRGBColor(BaseRGBColor):
     #: The RGB space's native illuminant. Important when converting to XYZ.
     native_illuminant = "d65"
     conversion_matrices = {
-        "xyz_to_rgb":
-            numpy.array((
+        "xyz_to_rgb": numpy.array(
+            (
                 (3.24071, -1.53726, -0.498571),
                 (-0.969258, 1.87599, 0.0415557),
-                (0.0556352, -0.203996, 1.05707))),
-        "rgb_to_xyz":
-            numpy.array((
+                (0.0556352, -0.203996, 1.05707),
+            )
+        ),
+        "rgb_to_xyz": numpy.array(
+            (
                 (0.412424, 0.357579, 0.180464),
                 (0.212656, 0.715158, 0.0721856),
-                (0.0193324, 0.119193, 0.950444))),
+                (0.0193324, 0.119193, 0.950444),
+            )
+        ),
     }
 
 
@@ -662,16 +750,20 @@ class BT2020Color(BaseRGBColor):
     #: The RGB space's native illuminant. Important when converting to XYZ.
     native_illuminant = "d65"
     conversion_matrices = {
-        "xyz_to_rgb":
-            numpy.array((
+        "xyz_to_rgb": numpy.array(
+            (
                 (1.716651187971269, -0.355670783776393, -0.253366281373660),
                 (-0.666684351832489, 1.616481236634939, 0.015768545813911),
-                (0.017639857445311, -0.042770613257809, 0.942103121235474))),
-        "rgb_to_xyz":
-            numpy.array((
+                (0.017639857445311, -0.042770613257809, 0.942103121235474),
+            )
+        ),
+        "rgb_to_xyz": numpy.array(
+            (
                 (0.636958048301291, 0.144616903586208, 0.168880975164172),
                 (0.262700212011267, 0.677998071518871, 0.059301716469862),
-                (0.000000000000000, 0.028072693049087, 1.060985057710791))),
+                (0.000000000000000, 0.028072693049087, 1.060985057710791),
+            )
+        ),
     }
 
 
@@ -695,16 +787,20 @@ class AdobeRGBColor(BaseRGBColor):
     #: The RGB space's native illuminant. Important when converting to XYZ.
     native_illuminant = "d65"
     conversion_matrices = {
-        "xyz_to_rgb":
-            numpy.array((
+        "xyz_to_rgb": numpy.array(
+            (
                 (2.04148, -0.564977, -0.344713),
                 (-0.969258, 1.87599, 0.0415557),
-                (0.0134455, -0.118373, 1.01527))),
-        "rgb_to_xyz":
-            numpy.array((
+                (0.0134455, -0.118373, 1.01527),
+            )
+        ),
+        "rgb_to_xyz": numpy.array(
+            (
                 (0.576700, 0.185556, 0.188212),
                 (0.297361, 0.627355, 0.0752847),
-                (0.0270328, 0.0706879, 0.991248))),
+                (0.0270328, 0.0706879, 0.991248),
+            )
+        ),
     }
 
 
@@ -728,16 +824,20 @@ class AppleRGBColor(BaseRGBColor):
     #: The RGB space's native illuminant. Important when converting to XYZ.
     native_illuminant = "d65"
     conversion_matrices = {
-        "xyz_to_rgb":
-            numpy.array((
+        "xyz_to_rgb": numpy.array(
+            (
                 (2.9515373, -1.2894116, -0.4738445),
                 (-1.0851093, 1.9908566, 0.0372026),
-                (0.0854934, -0.2694964, 1.0912975))),
-        "rgb_to_xyz":
-            numpy.array((
+                (0.0854934, -0.2694964, 1.0912975),
+            )
+        ),
+        "rgb_to_xyz": numpy.array(
+            (
                 (0.4497288, 0.3162486, 0.1844926),
                 (0.2446525, 0.6720283, 0.0833192),
-                (0.0251848, 0.1411824, 0.9224628))),
+                (0.0251848, 0.1411824, 0.9224628),
+            )
+        ),
     }
 
 
@@ -746,7 +846,7 @@ class HSLColor(ColorBase):
     Represents an HSL color.
     """
 
-    VALUES = ['hsl_h', 'hsl_s', 'hsl_l']
+    VALUES = ["hsl_h", "hsl_s", "hsl_l"]
 
     def __init__(self, hsl_h, hsl_s, hsl_l):
         """
@@ -768,7 +868,7 @@ class HSVColor(ColorBase):
     Represents an HSV color.
     """
 
-    VALUES = ['hsv_h', 'hsv_s', 'hsv_v']
+    VALUES = ["hsv_h", "hsv_s", "hsv_v"]
 
     def __init__(self, hsv_h, hsv_s, hsv_v):
         """
@@ -790,7 +890,7 @@ class CMYColor(ColorBase):
     Represents a CMY color.
     """
 
-    VALUES = ['cmy_c', 'cmy_m', 'cmy_y']
+    VALUES = ["cmy_c", "cmy_m", "cmy_y"]
 
     def __init__(self, cmy_c, cmy_m, cmy_y):
         """
@@ -812,7 +912,7 @@ class CMYKColor(ColorBase):
     Represents a CMYK color.
     """
 
-    VALUES = ['cmyk_c', 'cmyk_m', 'cmyk_y', 'cmyk_k']
+    VALUES = ["cmyk_c", "cmyk_m", "cmyk_y", "cmyk_k"]
 
     def __init__(self, cmyk_c, cmyk_m, cmyk_y, cmyk_k):
         """
@@ -837,22 +937,27 @@ class IPTColor(ColorBase):
     Represents an IPT color.
 
     Reference:
-    Fairchild, M. D. (2013). Color appearance models, 3rd Ed. (pp. 271-272). John Wiley & Sons.
+    Fairchild, M. D. (2013). Color appearance models, 3rd Ed. (pp. 271-272).
+    John Wiley & Sons.
     """
 
-    VALUES = ['ipt_i', 'ipt_p', 'ipt_t']
+    VALUES = ["ipt_i", "ipt_p", "ipt_t"]
 
     conversion_matrices = {
-        "xyz_to_lms":
-            numpy.array((
-                ( 0.4002, 0.7075, -0.0807),
-                (-0.2280, 1.1500,  0.0612),
-                ( 0.0000, 0.0000,  0.9184))),
-        "lms_to_ipt":
-            numpy.array(
-                ((0.4000, 0.4000, 0.2000),
-                 (4.4550, -4.8510, 0.3960),
-                 (0.8056, 0.3572, -1.1628))),
+        "xyz_to_lms": numpy.array(
+            (
+                (0.4002, 0.7075, -0.0807),
+                (-0.2280, 1.1500, 0.0612),
+                (0.0000, 0.0000, 0.9184),
+            )
+        ),
+        "lms_to_ipt": numpy.array(
+            (
+                (0.4000, 0.4000, 0.2000),
+                (4.4550, -4.8510, 0.3960),
+                (0.8056, 0.3572, -1.1628),
+            )
+        ),
     }
 
     def __init__(self, ipt_i, ipt_p, ipt_t):

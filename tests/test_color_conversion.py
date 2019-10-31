@@ -3,11 +3,22 @@ import itertools
 import numpy as np
 import unittest
 from colormath import color_conversions
-from colormath.color_conversions import GraphConversionManager, XYZ_to_RGB, HSV_to_RGB, \
-                                        RGB_to_XYZ
+from colormath.color_conversions import (
+    GraphConversionManager,
+    XYZ_to_RGB,
+    HSV_to_RGB,
+    RGB_to_XYZ,
+)
 from colormath.color_exceptions import UndefinedConversionError
-from colormath.color_objects import XYZColor, BaseRGBColor, HSVColor, HSLColor, \
-                                    AdobeRGBColor, BT2020Color, sRGBColor
+from colormath.color_objects import (
+    XYZColor,
+    BaseRGBColor,
+    HSVColor,
+    HSLColor,
+    AdobeRGBColor,
+    BT2020Color,
+    sRGBColor,
+)
 
 
 class GraphConversionManagerTestCase(unittest.TestCase):
@@ -25,9 +36,11 @@ class GraphConversionManagerTestCase(unittest.TestCase):
         self.assertEqual(path, [])
 
     def test_invalid_path_response(self):
-        self.assertRaises(UndefinedConversionError,
-                          self.manager.get_conversion_path,
-                          XYZColor, HSLColor
+        self.assertRaises(
+            UndefinedConversionError,
+            self.manager.get_conversion_path,
+            XYZColor,
+            HSLColor,
         )
 
 
@@ -44,11 +57,13 @@ class ColorConversionTestCase(unittest.TestCase):
             try:
                 path = conversion_manager.get_conversion_path(start_space, target_space)
             except UndefinedConversionError:
-                # If there is no path we don't really care (e.g., conversion to SpectralColor).
+                # If there is no path we don't really care (e.g., conversion to
+                # SpectralColor).
                 continue
 
             if start_space == target_space:
-                # If start and end color space are equal, the conversion path should be empty.
+                # If start and end color space are equal, the conversion path should
+                # be empty.
                 self.assertEqual(path, [])
                 continue
             else:
@@ -68,4 +83,5 @@ class ColorConversionTestCase(unittest.TestCase):
                 XYZ_to_RGB(RGB_to_XYZ(colorspace(*RGB)), colorspace).get_value_tuple(),
                 RGB,
                 rtol=1e-5,
-                atol=1e-5)
+                atol=1e-5,
+            )
