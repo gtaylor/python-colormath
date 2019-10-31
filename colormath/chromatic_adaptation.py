@@ -83,7 +83,7 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
     elif hasattr(targ_illum, '__iter__'):
         wp_dst = targ_illum
 
-    logger.debug("  \* Applying adaptation matrix: %s", adaptation)
+    logger.debug("  \\* Applying adaptation matrix: %s", adaptation)
     # Retrieve the appropriate transformation matrix from the constants.
     transform_matrix = _get_adaptation_matrix(wp_src, wp_dst,
                                               observer, adaptation)
