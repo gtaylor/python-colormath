@@ -40,7 +40,13 @@ OBSERVERS = ILLUMINANTS.keys()
 # Chromatic Adaptation Matrices
 # http://brucelindbloom.com/Eqn_ChromAdapt.html
 ADAPTATION_MATRICES = {
-    "xyz_scaling": numpy.array(((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))),
+    "xyz_scaling": numpy.array(
+        (
+            (1.00000, 0.00000, 0.00000),
+            (0.00000, 1.00000, 0.00000),
+            (0.00000, 0.00000, 1.00000),
+        )
+    ),
     "bradford": numpy.array(
         (
             (0.8951, 0.2664, -0.1614),
