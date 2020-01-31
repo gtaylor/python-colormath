@@ -4,8 +4,13 @@ Formulas for density calculation.
 """
 
 from math import log10
-from colormath.density_standards import ANSI_STATUS_T_BLUE, ANSI_STATUS_T_GREEN, \
-    ANSI_STATUS_T_RED, VISUAL_DENSITY_THRESH, ISO_VISUAL
+from colormath.density_standards import (
+    ANSI_STATUS_T_BLUE,
+    ANSI_STATUS_T_GREEN,
+    ANSI_STATUS_T_RED,
+    VISUAL_DENSITY_THRESH,
+    ISO_VISUAL,
+)
 
 
 def ansi_density(color, density_standard):

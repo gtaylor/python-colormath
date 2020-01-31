@@ -16,9 +16,10 @@ def _get_lab_color1_vector(color):
     :param LabColor color:
     :rtype: numpy.ndarray
     """
-    if not color.__class__.__name__ == 'LabColor':
+    if not color.__class__.__name__ == "LabColor":
         raise ValueError(
-            "Delta E functions can only be used with two LabColor objects.")
+            "Delta E functions can only be used with two LabColor objects."
+        )
     return numpy.array([color.lab_l, color.lab_a, color.lab_b])
 
 
@@ -29,9 +30,10 @@ def _get_lab_color2_matrix(color):
     :param LabColor color:
     :rtype: numpy.ndarray
     """
-    if not color.__class__.__name__ == 'LabColor':
+    if not color.__class__.__name__ == "LabColor":
         raise ValueError(
-            "Delta E functions can only be used with two LabColor objects.")
+            "Delta E functions can only be used with two LabColor objects."
+        )
     return numpy.array([(color.lab_l, color.lab_a, color.lab_b)])
 
 
@@ -64,7 +66,8 @@ def delta_e_cie1994(color1, color2, K_L=1, K_C=1, K_H=1, K_1=0.045, K_2=0.015):
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cie1994(
-        color1_vector, color2_matrix, K_L=K_L, K_C=K_C, K_H=K_H, K_1=K_1, K_2=K_2)[0]
+        color1_vector, color2_matrix, K_L=K_L, K_C=K_C, K_H=K_H, K_1=K_1, K_2=K_2
+    )[0]
     return delta_e.item()
 
 
@@ -76,7 +79,8 @@ def delta_e_cie2000(color1, color2, Kl=1, Kc=1, Kh=1):
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
     delta_e = color_diff_matrix.delta_e_cie2000(
-        color1_vector, color2_matrix, Kl=Kl, Kc=Kc, Kh=Kh)[0]
+        color1_vector, color2_matrix, Kl=Kl, Kc=Kc, Kh=Kh
+    )[0]
     return delta_e.item()
 
 
@@ -91,6 +95,7 @@ def delta_e_cmc(color1, color2, pl=2, pc=1):
     """
     color1_vector = _get_lab_color1_vector(color1)
     color2_matrix = _get_lab_color2_matrix(color2)
-    delta_e = color_diff_matrix.delta_e_cmc(
-        color1_vector, color2_matrix, pl=pl, pc=pc)[0]
+    delta_e = color_diff_matrix.delta_e_cmc(color1_vector, color2_matrix, pl=pl, pc=pc)[
+        0
+    ]
     return delta_e.item()

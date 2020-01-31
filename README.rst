@@ -28,7 +28,11 @@ Installation
 
 The easiest way to install colormath is via pip/easy_install::
 
-    pip install colormath
+    $ pip install colormath
+
+The development dependencies are installed as follows:
+
+    $ pip install 'colormath[development]'
 
 Documentation
 -------------

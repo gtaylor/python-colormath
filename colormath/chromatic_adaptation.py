@@ -29,13 +29,13 @@ def _get_adaptation_matrix(wp_src, wp_dst, observer, adaptation):
     if isinstance(wp_src, str):
         orig_illum = wp_src.lower()
         wp_src = color_constants.ILLUMINANTS[observer][orig_illum]
-    elif hasattr(wp_src, '__iter__'):
+    elif hasattr(wp_src, "__iter__"):
         wp_src = wp_src
 
     if isinstance(wp_dst, str):
         targ_illum = wp_dst.lower()
         wp_dst = color_constants.ILLUMINANTS[observer][targ_illum]
-    elif hasattr(wp_dst, '__iter__'):
+    elif hasattr(wp_dst, "__iter__"):
         wp_dst = wp_dst
 
     # Sharpened cone responses ~ rho gamma beta ~ sharpened r g b
@@ -52,8 +52,9 @@ def _get_adaptation_matrix(wp_src, wp_dst, observer, adaptation):
 
 
 # noinspection PyPep8Naming
-def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
-                               observer='2', adaptation='bradford'):
+def apply_chromatic_adaptation(
+    val_x, val_y, val_z, orig_illum, targ_illum, observer="2", adaptation="bradford"
+):
     """
     Applies a chromatic adaptation matrix to convert XYZ values between
     illuminants. It is important to recognize that color transformation results
@@ -74,19 +75,18 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
     if isinstance(orig_illum, str):
         orig_illum = orig_illum.lower()
         wp_src = color_constants.ILLUMINANTS[observer][orig_illum]
-    elif hasattr(orig_illum, '__iter__'):
+    elif hasattr(orig_illum, "__iter__"):
         wp_src = orig_illum
 
     if isinstance(targ_illum, str):
         targ_illum = targ_illum.lower()
         wp_dst = color_constants.ILLUMINANTS[observer][targ_illum]
-    elif hasattr(targ_illum, '__iter__'):
+    elif hasattr(targ_illum, "__iter__"):
         wp_dst = targ_illum
 
     logger.debug("  \\* Applying adaptation matrix: %s", adaptation)
     # Retrieve the appropriate transformation matrix from the constants.
-    transform_matrix = _get_adaptation_matrix(wp_src, wp_dst,
-                                              observer, adaptation)
+    transform_matrix = _get_adaptation_matrix(wp_src, wp_dst, observer, adaptation)
 
     # Stuff the XYZ values into a NumPy matrix for conversion.
     XYZ_matrix = numpy.array((val_x, val_y, val_z))
@@ -98,7 +98,7 @@ def apply_chromatic_adaptation(val_x, val_y, val_z, orig_illum, targ_illum,
 
 
 # noinspection PyPep8Naming
-def apply_chromatic_adaptation_on_color(color, targ_illum, adaptation='bradford'):
+def apply_chromatic_adaptation_on_color(color, targ_illum, adaptation="bradford"):
     """
     Convenience function to apply an adaptation directly to a Color object.
     """
@@ -112,8 +112,14 @@ def apply_chromatic_adaptation_on_color(color, targ_illum, adaptation='bradford'
 
     # Return individual X, Y, and Z coordinates.
     color.xyz_x, color.xyz_y, color.xyz_z = apply_chromatic_adaptation(
-        xyz_x, xyz_y, xyz_z, orig_illum, targ_illum,
-        observer=observer, adaptation=adaptation)
+        xyz_x,
+        xyz_y,
+        xyz_z,
+        orig_illum,
+        targ_illum,
+        observer=observer,
+        adaptation=adaptation,
+    )
     color.set_illuminant(targ_illum)
 
     return color
