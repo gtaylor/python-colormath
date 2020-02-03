@@ -5,6 +5,7 @@ This module contains classes to represent various color spaces.
 
 import logging
 import math
+import warnings
 
 import numpy
 
@@ -591,6 +592,9 @@ class xyYColor(IlluminantMixin, ColorBase):
         self.set_illuminant(illuminant)
 
 
+_DO_NOT_USE = object()
+
+
 class BaseRGBColor(ColorBase):
     """
     Base class for all RGB color spaces.
@@ -600,59 +604,84 @@ class BaseRGBColor(ColorBase):
 
     VALUES = ["rgb_r", "rgb_g", "rgb_b"]
 
-    def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=False):
+    def __new__(cls, rgb_r, rgb_g, rgb_b, is_upscaled=_DO_NOT_USE):
+        if is_upscaled is not _DO_NOT_USE:
+            warnings.warn(
+                (
+                    "is_upscaled flag is deprecated, use %s.new_from_upscaled"
+                    "(rgb_r, rgb_g, rgb_b) instead"
+                )
+                % cls.__name__,
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if is_upscaled:
+                # __init__ will be called twice here
+                return cls.new_from_upscaled(rgb_r, rgb_g, rgb_b)
+        return super(BaseRGBColor, cls).__new__(cls)
+
+    def __init__(self, rgb_r, rgb_g, rgb_b, is_upscaled=_DO_NOT_USE):
         """
-        :param float rgb_r: R coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
-        :param float rgb_g: G coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
-        :param float rgb_b: B coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
-        :keyword bool is_upscaled: If False, RGB coordinate values are
-            beteween 0.0 and 1.0. If True, RGB values are between 0 and 255.
+        :param float rgb_r: R coordinate.
+        :param float rgb_g: G coordinate.
+        :param float rgb_b: B coordinate.
+        :keyword is_upscaled: deprecated.
         """
+        if is_upscaled is not _DO_NOT_USE:
+            # avoid second __init__ call
+            return
         super(BaseRGBColor, self).__init__()
-        if is_upscaled:
-            self.rgb_r = rgb_r / 255.0
-            self.rgb_g = rgb_g / 255.0
-            self.rgb_b = rgb_b / 255.0
-        else:
-            self.rgb_r = float(rgb_r)
-            self.rgb_g = float(rgb_g)
-            self.rgb_b = float(rgb_b)
-        self.is_upscaled = is_upscaled
-
-    def _clamp_rgb_coordinate(self, coord):
-        """
-        Clamps an RGB coordinate, taking into account whether or not the
-        color is upscaled or not.
-
-        :param float coord: The coordinate value.
-        :rtype: float
-        :returns: The clamped value.
-        """
-        if not self.is_upscaled:
-            return min(max(coord, 0.0), 1.0)
-        else:
-            return min(max(coord, 0.0), 255.0)
+        self.rgb_r = float(rgb_r)
+        self.rgb_g = float(rgb_g)
+        self.rgb_b = float(rgb_b)
 
     @property
     def clamped_rgb_r(self):
         """
         The clamped (0.0-1.0) R value.
         """
-        return self._clamp_rgb_coordinate(self.rgb_r)
+        warnings.warn(
+            "color.clamped_rgb_r is deprecated, use color.clamped().rgb_r instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.clamped().rgb_r
 
     @property
     def clamped_rgb_g(self):
         """
         The clamped (0.0-1.0) G value.
         """
-        return self._clamp_rgb_coordinate(self.rgb_g)
+        warnings.warn(
+            "color.clamped_rgb_g is deprecated, use color.clamped().rgb_g instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.clamped().rgb_g
 
     @property
     def clamped_rgb_b(self):
         """
         The clamped (0.0-1.0) B value.
         """
-        return self._clamp_rgb_coordinate(self.rgb_b)
+        warnings.warn(
+            "color.clamped_rgb_b is deprecated, use color.clamped().rgb_b instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.clamped().rgb_b
+
+    def clamped(self):
+        """
+        Return copy of this color with coordinates clipped to fit in 0.0-1.0 range.
+
+        :rtype: sRGBColor
+        """
+        return type(self)(
+            min(max(0.0, self.rgb_r), 1.0),
+            min(max(0.0, self.rgb_g), 1.0),
+            min(max(0.0, self.rgb_b), 1.0),
+        )
 
     def get_upscaled_value_tuple(self):
         """
@@ -671,7 +700,7 @@ class BaseRGBColor(ColorBase):
 
         :rtype: str
         """
-        rgb_r, rgb_g, rgb_b = self.get_upscaled_value_tuple()
+        rgb_r, rgb_g, rgb_b = self.clamped().get_upscaled_value_tuple()
         return "#%02x%02x%02x" % (rgb_r, rgb_g, rgb_b)
 
     @classmethod
@@ -687,9 +716,16 @@ class BaseRGBColor(ColorBase):
             colorstring = colorstring[1:]
         if len(colorstring) != 6:
             raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
-        r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
-        r, g, b = [int(n, 16) / 255.0 for n in (r, g, b)]
-        return cls(r, g, b)
+        return cls.new_from_upscaled(
+            int(colorstring[:2], 16),
+            int(colorstring[2:4], 16),
+            int(colorstring[4:], 16),
+        )
+
+    @classmethod
+    def new_from_upscaled(cls, r, g, b):
+        """Create new RGB color from coordinates in range 0-255."""
+        return cls(r / 255.0, g / 255.0, b / 255.0)
 
 
 # noinspection PyPep8Naming
@@ -697,15 +733,9 @@ class sRGBColor(BaseRGBColor):
     """
     Represents an sRGB color.
 
-    .. note:: If you pass in upscaled values, we automatically scale them
-        down to 0.0-1.0. If you need the old upscaled values, you can
-        retrieve them with :py:meth:`get_upscaled_value_tuple`.
-
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
-        0.0-1.0.
     """
 
     #: RGB space's gamma constant.
@@ -734,15 +764,9 @@ class BT2020Color(BaseRGBColor):
     """
     Represents a ITU-R BT.2020 color.
 
-    .. note:: If you pass in upscaled values, we automatically scale them
-        down to 0.0-1.0. If you need the old upscaled values, you can
-        retrieve them with :py:meth:`get_upscaled_value_tuple`.
-
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
-        0.0-1.0.
     """
 
     #: RGB space's gamma constant.
@@ -771,15 +795,9 @@ class AdobeRGBColor(BaseRGBColor):
     """
     Represents an Adobe RGB color.
 
-    .. note:: If you pass in upscaled values, we automatically scale them
-        down to 0.0-1.0. If you need the old upscaled values, you can
-        retrieve them with :py:meth:`get_upscaled_value_tuple`.
-
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
-        0.0-1.0.
     """
 
     #: RGB space's gamma constant.
@@ -808,15 +826,9 @@ class AppleRGBColor(BaseRGBColor):
     """
     Represents an AppleRGB color.
 
-    .. note:: If you pass in upscaled values, we automatically scale them
-        down to 0.0-1.0. If you need the old upscaled values, you can
-        retrieve them with :py:meth:`get_upscaled_value_tuple`.
-
     :ivar float rgb_r: R coordinate
     :ivar float rgb_g: G coordinate
     :ivar float rgb_b: B coordinate
-    :ivar bool is_upscaled: If True, RGB values are between 0-255. If False,
-        0.0-1.0.
     """
 
     #: RGB space's gamma constant.

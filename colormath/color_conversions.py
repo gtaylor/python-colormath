@@ -62,10 +62,6 @@ def apply_RGB_matrix(var1, var2, var3, rgb_type, convtype="xyz_to_rgb"):
     # Perform the adaptation via matrix multiplication.
     result_matrix = numpy.dot(rgb_matrix, var_matrix)
     rgb_r, rgb_g, rgb_b = result_matrix
-    # Clamp these values to a valid range.
-    rgb_r = max(rgb_r, 0.0)
-    rgb_g = max(rgb_g, 0.0)
-    rgb_b = max(rgb_b, 0.0)
     return rgb_r, rgb_g, rgb_b
 
 
@@ -555,7 +551,8 @@ def XYZ_to_RGB(cobj, target_rgb, *args, **kwargs):
     else:
         # If it's not sRGB...
         for channel in ["r", "g", "b"]:
-            v = linear_channels[channel]
+            # Clamp value to a valid range.
+            v = max(linear_channels[channel], 0.0)
             nonlinear_channels[channel] = math.pow(v, 1 / target_rgb.rgb_gamma)
 
     return target_rgb(

@@ -305,18 +305,35 @@ class RGBConversionTestCase(BaseColorConversionTest):
         self.assertEqual(low_b.clamped_rgb_g, low_b.rgb_g)
         self.assertEqual(low_b.clamped_rgb_b, 0.0)
 
+    def test_clamped(self):
+        for (r, g, b), expected in [
+            ((-.482, -.784, -.196), (0., 0., 0.)),
+            ((1.482, -.784, -.196), (1., 0., 0.)),
+            ((-.482, 1.784, -.196), (0., 1., 0.)),
+            ((1.482, 1.784, -.196), (1., 1., 0.)),
+            ((-.482, -.784, 1.196), (0., 0., 1.)),
+            ((1.482, -.784, 1.196), (1., 0., 1.)),
+            ((-.482, 1.784, 1.196), (0., 1., 1.)),
+            ((1.482, 1.784, 1.196), (1., 1., 1.)),
+            ((0.482, 0.784, 0.196), (0.482, 0.784, 0.196)),
+        ]:
+            self.assertEqual(
+                sRGBColor(r, g, b).clamped().get_value_tuple(),
+                expected,
+            )
+
     def test_to_xyz_and_back(self):
         xyz = convert_color(self.color, XYZColor)
         rgb = convert_color(xyz, sRGBColor)
         self.assertColorMatch(rgb, self.color)
 
     def test_conversion_to_hsl_max_r(self):
-        color = sRGBColor(255, 123, 50, is_upscaled=True)
+        color = sRGBColor.new_from_upscaled(255, 123, 50)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(21.366, 1.000, 0.598))
 
     def test_conversion_to_hsl_max_g(self):
-        color = sRGBColor(123, 255, 50, is_upscaled=True)
+        color = sRGBColor.new_from_upscaled(123, 255, 50)
         hsl = convert_color(color, HSLColor)
         self.assertColorMatch(hsl, HSLColor(98.634, 1.000, 0.598))
 
@@ -403,6 +420,20 @@ class RGBConversionTestCase(BaseColorConversionTest):
     def test_set_from_rgb_hex(self):
         rgb = sRGBColor.new_from_rgb_hex("#7bc832")
         self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
+
+    def test_set_from_rgb_hex_no_sharp(self):
+        rgb = sRGBColor.new_from_rgb_hex('7bc832')
+        self.assertColorMatch(rgb, sRGBColor(0.482, 0.784, 0.196))
+
+    def test_set_from_rgb_hex_invalid_length(self):
+        with self.assertRaises(ValueError):
+            sRGBColor.new_from_rgb_hex('#ccc')
+
+    def test_get_upscaled_value_tuple(self):
+        self.assertEqual(
+            self.color.get_upscaled_value_tuple(),
+            (123, 200, 50),
+        )
 
 
 class HSLConversionTestCase(BaseColorConversionTest):
