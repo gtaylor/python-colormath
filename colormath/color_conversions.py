@@ -32,6 +32,7 @@ from colormath.color_objects import (
     IPTColor,
     SpectralColor,
     BT2020Color,
+    YIQColor,
 )
 from colormath.chromatic_adaptation import apply_chromatic_adaptation
 from colormath.color_exceptions import InvalidIlluminantError, UndefinedConversionError
@@ -933,6 +934,22 @@ def IPT_to_XYZ(cobj, *args, **kwargs):
     return XYZColor(*xyz_values, observer="2", illuminant="d65")
 
 
+# noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(BaseRGBColor, YIQColor)
+def RGB_to_YIQ(cobj, *args, **kwargs):
+    rgb_values = numpy.array(cobj.get_value_tuple())
+    yiq_values = numpy.dot(YIQColor.conversion_matrices['rgb_to_yiq'], rgb_values)
+    return YIQColor(*yiq_values)
+
+
+# noinspection PyPep8Naming,PyUnusedLocal
+@color_conversion_function(YIQColor, BaseRGBColor)
+def YIQ_to_RGB(cobj, target_rgb, *args, **kwargs):
+    yiq_values = numpy.array(cobj.get_value_tuple())
+    rgb_values = numpy.dot(YIQColor.conversion_matrices['rgb_to_yiq'], yiq_values)
+    return target_rgb(*rgb_values)
+
+
 # We use this as a template conversion dict for each RGB color space. They
 # are all identical.
 _RGB_CONVERSION_DICT_TEMPLATE = {
@@ -947,6 +964,7 @@ _RGB_CONVERSION_DICT_TEMPLATE = {
     "LCHuvColor": [RGB_to_XYZ, XYZ_to_Luv, Luv_to_LCHuv],
     "LuvColor": [RGB_to_XYZ, XYZ_to_Luv],
     "IPTColor": [RGB_to_XYZ, XYZ_to_IPT],
+    "YIQColor": [RGB_to_YIQ],
 }
 
 

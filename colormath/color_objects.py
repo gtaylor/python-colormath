@@ -977,3 +977,31 @@ class IPTColor(ColorBase):
     @property
     def hue_angle(self):
         return numpy.arctan2(self.ipt_t, self.ipt_p)
+
+
+class YIQColor(ColorBase):
+    """
+    Represents an YIQ color
+
+    Reference: https://en.wikipedia.org/wiki/YIQ
+    """
+    conversion_matrices = {
+        'rgb_to_yiq': numpy.array([[0.299, 0.587, 0.114],
+                             [0.59590059, -0.27455667, -0.32134392],
+                             [0.21153661, -0.52273617, 0.31119955]]),
+        'yiq_to_rgb': numpy.linalg.inv(numpy.array([[0.299, 0.587, 0.114],
+                             [0.59590059, -0.27455667, -0.32134392],
+                             [0.21153661, -0.52273617, 0.31119955]]))
+    }
+
+    def __init__(self, yiq_y, yiq_i, yiq_q):
+        """
+        :param yiq_y: Y coordinate.
+        :param yiq_i: I coordinate.
+        :param yiq_q: Q coordinate.
+        """
+        super(YIQColor, self).__init__()
+        self.yiq_y = yiq_y
+        self.yiq_i = yiq_i
+        self.yiq_q = yiq_q
+
