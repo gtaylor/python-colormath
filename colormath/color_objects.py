@@ -606,7 +606,7 @@ class BaseRGBColor(ColorBase):
         :param float rgb_g: G coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
         :param float rgb_b: B coordinate. 0.0-1.0, or 0-255 if is_upscaled=True.
         :keyword bool is_upscaled: If False, RGB coordinate values are
-            beteween 0.0 and 1.0. If True, RGB values are between 0 and 255.
+            between 0.0 and 1.0. If True, RGB values are between 0 and 255.
         """
         super(BaseRGBColor, self).__init__()
         if is_upscaled:
