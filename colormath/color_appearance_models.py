@@ -821,7 +821,7 @@ class RLAB(object):
             # dimension separately. First figure out how many values we have to
             # deal with.
             input_dim = len(x)
-            # No create the ouput array that we will fill layer by layer
+            # No create the output array that we will fill layer by layer
             xyz_ref = numpy.zeros((3, input_dim))
             for layer in range(input_dim):
                 a = numpy.diag(lms_a[..., layer])
