@@ -1,7 +1,7 @@
 Python Color Math Module (colormath)
 ====================================
 
-**Note: This module is no longer actively maintained. Please get in touch at greg (at) gctaylor (dot) com if you'd like to discuss maintainership.**
+**Note: This module is no longer actively maintained.**
 
 .. start-badges
 
@@ -53,7 +53,7 @@ and submit an issue if you have any problems or questions.
 Legal Mumbo Jumbo
 -----------------
 
-Copyright (C) 2008-2018 `Gregory Taylor`_
+Copyright (C) 2008-2023 `Gregory Taylor`_
 
 This software is licensed under the BSD License.
 
