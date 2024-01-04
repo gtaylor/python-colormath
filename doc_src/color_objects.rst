@@ -82,3 +82,8 @@ IPTColor
 ---------
 
 .. autoclass:: colormath.color_objects.IPTColor
+
+YIQColor
+---------
+
+.. autoclass:: colormath.color_objects.YIQColor
