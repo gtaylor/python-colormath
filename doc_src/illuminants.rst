@@ -45,5 +45,5 @@ that require illuminant/observer:
 * ``'d65'``
 * ``'d75'``
 
-.. _Understanding Standard Illuminants in Color Measurement: http://sensing.konicaminolta.us/2013/11/Understanding-Standard-Illuminants-in-Color-Measurement/
-.. _What is Meant by the Term "Observer Angle"?: http://www.xrite.com/product_overview.aspx?ID=773&Action=support&SupportID=3544
+.. _Understanding Standard Illuminants in Color Measurement: https://sensing.konicaminolta.us/us/blog/understanding-standard-illuminants-in-color-measurement/
+.. _What is Meant by the Term "Observer Angle"?: https://www.xrite.com/service-support/what_is_meant_by_the_term_observer_angle
